@@ -1,0 +1,52 @@
+name: Deploy LUOXU to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+      - name: Read actual Pages URL
+        id: pages
+        uses: actions/configure-pages@v5
+      - name: Install, validate, build and upload Pages artifact
+        uses: withastro/action@v6
+        with:
+          node-version: 24
+          build-cmd: npm run check && npm test && npm run build
+        env:
+          ASTRO_TELEMETRY_DISABLED: '1'
+          PUBLIC_HOSTING_PROVIDER: github-pages
+          PUBLIC_SITE_URL: ${{ vars.PUBLIC_SITE_URL || steps.pages.outputs.origin }}
+          PUBLIC_BASE_PATH: ${{ vars.PUBLIC_BASE_PATH || steps.pages.outputs.base_path }}
+          PUBLIC_GITHUB_URL: ${{ github.server_url }}/${{ github.repository }}
+          PUBLIC_GITHUB_RELEASES_URL: ${{ vars.PUBLIC_GITHUB_RELEASES_URL }}
+          PUBLIC_FEEDBACK_EMAIL: ${{ vars.PUBLIC_FEEDBACK_EMAIL }}
+          PUBLIC_ICP_NUMBER: ${{ vars.PUBLIC_ICP_NUMBER }}
+          PUBLIC_POLICE_RECORD: ${{ vars.PUBLIC_POLICE_RECORD }}
+          PUBLIC_POLICE_RECORD_URL: ${{ vars.PUBLIC_POLICE_RECORD_URL }}
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy Pages artifact
+        id: deployment
+        uses: actions/deploy-pages@v5

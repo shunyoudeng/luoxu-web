@@ -1,0 +1,27 @@
+node_modules/
+dist/
+.astro/
+.env
+.env.*
+!.env.example
+test-results/
+playwright-report/
+*.log
+*.jks
+*.keystore
+*.pem
+*.key
+*.p12
+*.pfx
+*.pkcs12
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+# Local acceptance artifacts can contain Windows paths; never publish them.
+docs/production-*
+docs/*results.json
+docs/npm-audit.json
+docs/screenshots/
+docs/生产构建检查.md
+docs/验收说明.md

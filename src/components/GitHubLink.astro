@@ -1,0 +1,8 @@
+---
+import {site} from '../lib/site';
+import Icon from './Icon.astro';
+interface Props { releases?: boolean; label?: string }
+const {releases=false,label=releases?'GitHub Releases':'View on GitHub'}=Astro.props;
+const url=releases?site.githubReleases:site.github;
+---
+{url?<a class="button secondary" href={url} target="_blank" rel="noopener noreferrer"><Icon name="github"/>{label}</a>:<span class="button disabled" aria-disabled="true">{releases?'Releases 入口准备中':'GitHub 入口准备中'}</span>}

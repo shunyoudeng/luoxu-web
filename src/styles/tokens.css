@@ -1,0 +1,10 @@
+:root {
+  --paper:#F7F6F2; --surface:#FFFEFB; --mist:#EAF0E9; --ink:#26352D;
+  --secondary:#626F65; --green:#245D50; --line:#D5DDD4; --error:#A7443B;
+  --sans:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI','Microsoft YaHei',sans-serif;
+  --serif:Georgia,'Times New Roman',serif;
+  --display:3rem; --heading:2.25rem; --title:1.5rem; --lead:1.125rem; --body:1rem; --small:.875rem; --label:.8125rem; --caption:.75rem;
+  --s1:4px; --s2:8px; --s3:12px; --s4:16px; --s5:20px; --s6:24px; --s8:32px; --s10:40px; --s12:48px; --s16:64px; --s24:96px;
+  --r1:4px; --r2:8px; --r3:12px; --stroke:1px;
+  --fast:150ms; --ease:cubic-bezier(.2,0,0,1); --container:1160px;
+}

@@ -1,0 +1,8 @@
+---
+import SiteLayout from '../layouts/SiteLayout.astro';
+import Feedback from '../components/Feedback.astro';
+import GitHubLink from '../components/GitHubLink.astro';
+import pkg from '../../package.json';
+---
+<SiteLayout title="关于珞序 — LUOXU"><div class="wrap page-header"><p class="eyebrow">ABOUT / 珞珈的珞，秩序的序</p><h1>让校园信息，自成秩序。</h1><p>一个从武汉大学校园生活里生长出来的，独立维护的 AI 事务助手。</p></div><article class="wrap article"><h2>“珞序”，从哪里来？</h2><p>“珞”取自珞珈山，“序”代表整理与秩序。它想做的事情很具体：让每天散落在群聊和通知里的校园信息，重新变得有序。</p><p>校园身份属于产品的起点，而不是官方认证。珞序并非武汉大学官方产品，也不冒用校徽或官方授权。</p><h2>不是再多一份需要自己填的清单</h2><p>我们每天在 QQ、微信、班级与课程通知之间切换。很多时候，难的不是“记一件事”，而是从一百条消息里知道哪几件与自己有关。</p><p>珞序把信息理解、身份相关性、时间与事务管理连接起来。任务、作业、机会和校园信息各有位置；需要时，可以直接向 AI秘书询问或表达新的任务。</p><h2>先让它真正好用</h2><p>目前以 Android 内测为主。通知采集、模型分类与后台兼容性仍在迭代；校园系统和公共信息的更广泛接入属于后续方向，没有承诺已接通全部渠道。</p><p>本地优先不是拒绝模型，而是把保存与分析的边界说明白：数据主要留在设备，必要的 AI 请求发送到用户配置的服务。</p><h2>持续维护，也准备开放源码</h2><p>官网与 App 独立维护。版本信息和更新记录公开可读，不需要账号，也不需要上传校园数据。公开仓库与最终许可证确认后，会提供真实入口。</p><GitHubLink/><p class="about-credit">Designed and built by 水逝楚云<br/>Luoxu Web v{pkg.version} · 网站版本，与 Android App 版本分别维护。</p></article><Feedback/></SiteLayout>
+<style>.about-credit{font-size:var(--caption);color:var(--secondary);margin-top:var(--s8)!important}</style>

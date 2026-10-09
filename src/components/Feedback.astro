@@ -1,0 +1,6 @@
+---
+import {site,feedbackHref} from '../lib/site';
+import {latest} from '../lib/releases';
+import Icon from './Icon.astro';
+---
+<section class="section" id="feedback" aria-labelledby="feedback-heading"><div class="wrap feedback"><div><p class="eyebrow">FEEDBACK / 一起把珞序做好</p><h3 id="feedback-heading">有哪一步，不够顺手？</h3><p>设备型号、Android 和珞序版本，以及复现步骤，通常就能帮助我们定位问题。截图请先遮住个人信息。</p><div class="actions">{site.feedbackEmail?<><a class="button secondary" href={feedbackHref(site.feedbackEmail,'Bug',latest.version)}>反馈 Bug <Icon/></a><a class="text-link" href={feedbackHref(site.feedbackEmail,'建议',latest.version)}>提出建议 <Icon/></a></>:<p class="inline-note">反馈邮箱暂未公布，正式上线前会开放联系入口。</p>}</div></div><div><h3>分享问题，不必分享隐私。</h3><p>不要发送 API Key、账号密码或完整聊天记录。是否提供额外信息，由你自己决定。</p>{site.feedbackEmail&&<a class="text-link" href={'mailto:'+site.feedbackEmail}>{site.feedbackEmail}</a>}</div></div></section>
