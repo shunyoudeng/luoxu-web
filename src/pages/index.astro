@@ -6,5 +6,5 @@ import ProductStory from '../sections/ProductStory.astro';
 import PrivacyStory from '../sections/PrivacyStory.astro';
 import ReleasePanel from '../components/ReleasePanel.astro';
 ---
-<SiteLayout><HomeIntro/><ProductStory/><PrivacyStory/><section class="section"><div class="wrap download-home"><div><p class="eyebrow">06 / ANDROID BETA</p><h2>先在你的校园里，<br/>用起来。</h2><p>当前优先支持 Android。内测还在迭代，通知、分类和后台兼容性需要在不同设备上继续验证。</p><a class="text-link" href={withBase("/changelog")}>每一次更新，都留有记录 →</a></div><ReleasePanel compact/></div></section></SiteLayout>
+<SiteLayout><HomeIntro/><ProductStory/><PrivacyStory/><section class="section"><div class="wrap download-home"><div><p class="eyebrow">06 / ANDROID BETA</p><h2>先在你的校园里，<br/>用起来。</h2><p>当前优先支持 Android。公测还在迭代，通知、分类和后台兼容性需要在不同设备上继续验证。</p><a class="text-link" href={withBase("/changelog")}>每一次更新，都留有记录 →</a></div><ReleasePanel compact/></div></section></SiteLayout>
 <style>.download-home{display:grid;grid-template-columns:1fr 1fr;gap:var(--s16);align-items:center}.download-home h2{margin-top:var(--s4);margin-bottom:var(--s6)}.download-home p:not(.eyebrow){color:var(--secondary);max-width:34rem}@media(max-width:700px){.download-home{grid-template-columns:1fr;gap:var(--s8)}}</style>

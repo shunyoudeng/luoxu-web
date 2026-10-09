@@ -51,9 +51,17 @@ test('Pages project build serves every route, asset, manifest and APK under its 
     for(const target of [manifest.start_url,manifest.scope,...manifest.icons.map(i=>i.src)]){const url=new URL(target,manifestUrl);assert.ok(url.pathname.startsWith(base+'/'));assert.equal((await fetch(url)).status,200);}
     const releaseUrl=origin+base+'/releases/latest.json';
     const release=await(await fetch(releaseUrl)).json();
-    const apkUrl=new URL(release.downloadUrl,releaseUrl);assert.ok(apkUrl.pathname.startsWith(base+'/downloads/'));
-    const apk=Buffer.from(await(await fetch(apkUrl)).arrayBuffer());
-    assert.equal(apk.length,release.sizeBytes);assert.equal(createHash('sha256').update(apk).digest('hex'),release.sha256);
+    const apkUrl=new URL(release.downloadUrl,releaseUrl);
+    if(apkUrl.origin===origin){
+      assert.ok(apkUrl.pathname.startsWith(base+'/downloads/'));
+      const apk=Buffer.from(await(await fetch(apkUrl)).arrayBuffer());
+      assert.equal(apk.length,release.sizeBytes);assert.equal(createHash('sha256').update(apk).digest('hex'),release.sha256);
+    }else{
+      assert.equal(apkUrl.protocol,'https:');
+      const downloadHtml=await(await fetch(origin+base+'/download')).text();
+      assert.ok(downloadHtml.includes(`href="${apkUrl.href}"`),'Release URL remains absolute under Pages base');
+      assert.match(release.sha256,/^[a-f0-9]{64}$/);
+    }
     assert.equal((await fetch(new URL(release.changelogUrl,releaseUrl))).status,200);
     const sitemap=await(await fetch(origin+base+'/sitemap.xml')).text();
     for(const path of ['/','/download','/privacy','/terms','/about','/changelog'])assert.ok(sitemap.includes(site+base+path));

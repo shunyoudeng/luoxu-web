@@ -1,17 +1,17 @@
 {
-  "version": "0.6.0",
-  "build": 19,
-  "channel": "Internal Beta",
-  "status": "candidate",
-  "releaseDate": null,
+  "version": "0.6.3",
+  "build": 22,
+  "channel": "公测 / Public Beta",
+  "status": "beta",
+  "releaseDate": "2026-10-09",
   "buildDate": "2026-10-09",
-  "downloadUrl": "../downloads/LUOXU-v0.6.0.apk",
-  "githubUrl": "",
+  "downloadUrl": "https://github.com/shunyoudeng/luoxu-android/releases/download/v0.6.3/LUOXU-v0.6.3-performance.apk",
+  "githubUrl": "https://github.com/shunyoudeng/luoxu-android",
   "changelogUrl": "../changelog",
   "minimumAndroid": "8.0",
   "minSdk": 26,
   "applicationId": "com.campusai.app",
-  "sizeBytes": 64880317,
-  "sha256": "11193a3d1e4ed3f9d29cde797757fd253e14a55336a9e6b8732bf57a10328b67",
-  "verification": "电脑端自动测试通过；本版新增功能仍待真机验收。"
+  "sizeBytes": 46165642,
+  "sha256": "05b5b02d4672692dc7c6e62dbaa9033aa424628fde59b1f78795b167d42bc212",
+  "verification": "电脑端编译、基础回归与原签名真机覆盖升级通过，原有事务和关键配置保留。真实云端、QQ/微信后台、静音/DND 与复杂 OCR 场景持续验收。"
 }

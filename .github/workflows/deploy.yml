@@ -33,9 +33,9 @@ jobs:
           PUBLIC_HOSTING_PROVIDER: github-pages
           PUBLIC_SITE_URL: ${{ vars.PUBLIC_SITE_URL || steps.pages.outputs.origin }}
           PUBLIC_BASE_PATH: ${{ vars.PUBLIC_BASE_PATH || steps.pages.outputs.base_path }}
-          PUBLIC_GITHUB_URL: ${{ github.server_url }}/${{ github.repository }}
+          PUBLIC_GITHUB_URL: ${{ vars.PUBLIC_GITHUB_URL || 'https://github.com/shunyoudeng/luoxu-android' }}
           PUBLIC_GITHUB_RELEASES_URL: ${{ vars.PUBLIC_GITHUB_RELEASES_URL }}
-          PUBLIC_FEEDBACK_EMAIL: ${{ vars.PUBLIC_FEEDBACK_EMAIL }}
+          PUBLIC_FEEDBACK_EMAIL: ${{ vars.PUBLIC_FEEDBACK_EMAIL || 'luoxufeedback@163.com' }}
           PUBLIC_ICP_NUMBER: ${{ vars.PUBLIC_ICP_NUMBER }}
           PUBLIC_POLICE_RECORD: ${{ vars.PUBLIC_POLICE_RECORD }}
           PUBLIC_POLICE_RECORD_URL: ${{ vars.PUBLIC_POLICE_RECORD_URL }}

@@ -1,75 +1,56 @@
-# GitHub Pages 上线准备
+# GitHub Pages 部署
 
-本轮只完成本地配置，未创建远程仓库、登录/授权 GitHub、提交、推送或部署。网站仍为 Astro 静态输出，无 Node 常驻服务。当前独立 Git 仓库位于 main 分支，没有远程。
+[返回文档目录](README.md)
 
-## 部署工作流
+官网地址：<https://shunyoudeng.github.io/luoxu-web/>。站点通过 GitHub Actions 构建，部署源为 GitHub Pages。
 
-`.github/workflows/deploy.yml` 使用当前官方指南中的 checkout@v7、withastro/action@v6、deploy-pages@v5，另用 configure-pages@v5 获取实际站点 origin / base_path。已检查官方 action.yml：Astro Action 安装依赖、运行 build-cmd 并上传 Pages artifact；deploy job 在 build 成功后部署。
+## 自动部署
 
-main push 和 workflow_dispatch 均可触发。Node 24；build-cmd 顺序为 check → test → build；工作流使用 contents:read、pages:write、id-token:write 与 github-pages environment，不需要维护者提供 API Key 或个人 token。
+工作流位于 [deploy.yml](../.github/workflows/deploy.yml)，在以下情况运行：
 
-origin、子路径和公开仓库链接由真实 GitHub 上下文及 Pages 元数据获得，未硬编码用户名。需要手动覆盖时，仅修改 Actions Variables 的 PUBLIC_SITE_URL / PUBLIC_BASE_PATH，或者本机 .env.local。PUBLIC_SITE_URL 是 HTTPS origin，PUBLIC_BASE_PATH 是 /仓库名 或 /。
+- 推送到 `main` 分支。
+- 在 [Actions](https://github.com/shunyoudeng/luoxu-web/actions) 中手动运行 **Deploy LUOXU to GitHub Pages**。
 
-## 路径与公开配置
+流程为 checkout → 读取 Pages 配置 → 安装依赖 → 类型检查 → 自动测试 → 静态构建 → 上传 Pages artifact → 部署。使用官方 `withastro/action@v6`、`actions/configure-pages@v5` 和 `actions/deploy-pages@v5`，构建环境为 Node.js 24。
 
-- 页面、图片、图标、SEO 共用 src/lib/paths.mjs、urls.ts；Astro 自动给 CSS/浏览器资源加 base。
-- manifest 的 ./ 路径相对 manifest 文件解析。
-- latest.json 的 ../downloads、../changelog 相对元数据文件解析；首页和下载页通过同一 URL 解析工具使用它。第三方消费者使用 new URL(value, metadataUrl)。原有根路径数据在 UI/本地维护脚本中仍兼容。
-- APK 内容、签名、大小、SHA256 均未改变；版本还是 0.6.0 / build 19 内测候选，不改写成正式发布。
-- Pages 构建自动设 PUBLIC_HOSTING_PROVIDER=github-pages，隐私页说明 GitHub 为安全目的保存访问 IP，不再在公开站点误称尚未部署。
-- 自定义域名以后可切换 origin 并将 base 改为 /；现在没有 CNAME。
+工作流拥有 `contents: read`、`pages: write` 和 `id-token: write` 权限，以 `github-pages` environment 发布；部署使用 GitHub 提供的身份，不需要额外维护个人 Token。
 
-## 本轮实际验收
+## 配置来源
 
-1. npm run check：37 个文件，0 error / warning / hint。
-2. npm test：9 项通过，包括根域名构建、路径兼容与隔离的 Pages 项目静态构建。
-3. npm run build：成功，dist 含 7 个 HTML 页面及全部静态资源。
-4. 原有 Playwright：11 项通过，六种屏幕宽度与键盘/无障碍检查通过。
-5. /luoxu-web 子路径：六页在 390 / 1440 宽度实际浏览器加载均 HTTP 200；手机导航、tab 交互、manifest 图标、APK、canonical/OG/sitemap 通过。无根路径误跳、资源 404 或浏览器运行错误。模拟产物只在忽略的 test-results/pages-dist 中，没有成为默认生产配置。
-6. APK 完整下载的长度与 SHA256 校验通过。package-lock.json 未改变。
-7. 工作流 YAML 解析通过；尚未在 GitHub runner 上运行，首次远程执行须复核 Actions 结果。
-8. 本机 Git 待公开文件与 APK 内解压的文本/Dex/资源模式扫描未发现已识别的模型 Key、GitHub Token、私钥内容、签名 keystore 或微信私有 ID。扫描不是所有编码/隐私信息不存在的绝对证明；发布前仍应核对新增文件。
+`configure-pages` 自动提供实际 `origin` 和 `base_path`。当前项目站点的 origin 是 `https://shunyoudeng.github.io`，base 是 `/luoxu-web`。产品源码链接由工作流中的 `PUBLIC_GITHUB_URL` 提供，与官网源码仓库地址分开维护；是否公开可用须以对应仓库的实际发布状态为准。
 
-两个构建测试会使用 Astro 同一临时目录，因此测试采用 --test-concurrency=1，避免并发构建互相覆盖。这不改变页面功能。
+可在 **Settings → Secrets and variables → Actions → Variables** 设置公开配置：
 
-## 文件变更
+| 配置 | 用途 |
+| --- | --- |
+| `PUBLIC_SITE_URL` | 覆盖自动获取的 HTTPS origin，不包含仓库子路径 |
+| `PUBLIC_BASE_PATH` | 覆盖 base；项目站点用 `/luoxu-web`，域名根路径用 `/` |
+| `PUBLIC_GITHUB_URL` | 产品源码仓库链接；与官网源码仓库分开维护 |
+| `PUBLIC_FEEDBACK_EMAIL` | 官网反馈邮箱 |
+| `PUBLIC_GITHUB_RELEASES_URL` | 单独指定 Releases 入口 |
+| `PUBLIC_ICP_NUMBER` | 适用时填写实际备案信息 |
+| `PUBLIC_POLICE_RECORD`、`PUBLIC_POLICE_RECORD_URL` | 适用时填写实际公安备案信息与链接 |
 
-新增：
+`PUBLIC_HOSTING_PROVIDER=github-pages` 由工作流设置，用于隐私页的托管说明。公开变量的完整列表见 [.env.example](../.env.example)，本地使用方法见[开发指南](development.md)。
 
-- .github/workflows/deploy.yml
-- src/lib/paths.mjs、src/lib/urls.ts
-- tests/paths.test.mjs、tests/pages-build.test.mjs
-- 本说明
+## 子路径与链接
 
-修改：
+内部页面及资源通过 [统一路径模块](../src/lib/paths.mjs) 和 [URL 模块](../src/lib/urls.ts) 加上 base；Astro 处理构建资源的前缀。Manifest 使用相对文件路径。
 
-- astro.config.mjs、.env.example、.gitignore、package.json
-- README.md、AGENTS.md、Start-Preview.ps1、docs/GitHub-First.md
-- src/lib/config.mjs、src/lib/release.mjs
-- scripts/check-release.mjs、scripts/update-apk.mjs
-- public/manifest.webmanifest、public/releases/latest.json
-- src/layouts/SiteLayout.astro
-- src/components/Brand.astro、ReleasePanel.astro
-- src/sections/HomeIntro.astro、ProductStory.astro、PrivacyStory.astro
-- src/pages/index.astro、404.astro、changelog.astro、terms.astro、privacy.astro、robots.txt.ts、sitemap.xml.ts
-- tests/contracts.test.mjs、configured-build.test.mjs、e2e/site.spec.ts
+App 元数据中的 `../downloads/...` 和 `../changelog` 相对 `releases/latest.json` 解析，适用于项目子路径及域名根路径。维护方法见[版本指南](releases.md)。
 
-另生成/更新本机测试产物、截图及记录，这些文件在 .gitignore 中排除，不提交公开仓库。AGENTS/预览脚本中的机器专属用户名改为通用环境路径。没有修改 Android 项目、APK 内容或 UI 样式。
+根目录构建不设置正式地址时，SEO 会使用 noindex；Pages 工作流读取真实地址后生成 canonical、OpenGraph URL 和 sitemap。项目站点的 robots.txt 位于子路径，不能替代 github.io 主机根目录的 robots.txt。
 
-## 维护者下一步
+## 查看部署结果
 
-1. 本人创建公开 GitHub 仓库，建议名称 luoxu-web。提供两个真实信息：**GitHub 用户名（或组织名）**、**仓库名**。
-2. 使用 Git 客户端推送当前独立项目到 main。APK 61.9 MiB 超过网页上传 25 MiB 限制、低于 Git 100 MiB 限制；不要仅用网页拖拽，也不要上传 node_modules / dist / .env.local。
-3. Settings → Pages → Source 选择 GitHub Actions。如首次 push 时 Pages 尚未开启，完成设置后在 Actions 手动 Run workflow。
-4. 等工作流成功后，检查 GitHub 提供的真实网址及下载。这一步之前不能宣称已经部署。
+在 Actions 打开对应运行记录，检查 build、deploy 两个 job。部署成功后检查官网、主要页面、安装包和版本 JSON。
 
-如以后发布 APK 到 Releases，改 latest.json 为真实 HTTPS 下载地址即可；本轮没有创建空的假 Release。
+如果 **Read actual Pages URL** 返回404，在 [Settings → Pages](https://github.com/shunyoudeng/luoxu-web/settings/pages) 确认 **Source = GitHub Actions**，然后重新运行失败任务。构建失败时查看具体步骤日志，按[本地开发指南](development.md)复现。
 
-## 官方依据
+## 切换自定义域名
 
-- [Astro Pages 部署指南](https://docs.astro.build/en/guides/deploy/github/)
-- [Astro Action 实际源码](https://github.com/withastro/action/blob/v6/action.yml)
-- [Configure Pages 输出定义](https://github.com/actions/configure-pages/blob/v5/action.yml)
-- [GitHub 自定义 Pages 工作流](https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages)
-- [Pages 的基础访问日志](https://docs.github.com/en/pages/getting-started-with-github-pages/what-is-github-pages#data-collection)
-- [GitHub 文件大小限制](https://docs.github.com/en/repositories/working-with-files/managing-large-files/about-large-files-on-github)
+配置真实域名的 Pages 设置、DNS 和 HTTPS 后，工作流会读取新的 origin 和 base_path。需要覆盖时设置 `PUBLIC_SITE_URL=https://你的域名`、`PUBLIC_BASE_PATH=/`，重新部署即可。CNAME 仅在实际域名配置需要时维护，不用于默认 github.io 地址。
+
+所有页面共用路径模块，因此切换域名无需逐页替换链接。当前构建仍是纯静态输出，`dist/` 也可以交给其他静态托管或 Nginx。
+
+参考：[Astro 官方部署指南](https://docs.astro.build/en/guides/deploy/github/) · [GitHub Pages 工作流](https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages) · [GitHub Pages 访问日志说明](https://docs.github.com/en/pages/getting-started-with-github-pages/what-is-github-pages#data-collection)
