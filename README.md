@@ -4,20 +4,20 @@
 
 珞序是一款面向大学生日常生活的校园 AI 助手，将授权来源的通知整理为任务、作业、机会和校园信息。本仓库是其官方产品网站源码，Android 应用独立维护。
 
-App 当前公测版本为 **0.6.3 / Public Beta**。官网与 App 分别维护版本，下载信息以官网发布的版本元数据为准。
+App 当前公测版本为 **0.6.5 / Public Beta**。官网与 App 分别维护版本，下载信息以官网发布的版本元数据为准。
 
-**[Website / 官方网站](https://shunyoudeng.github.io/luoxu-web/)** · **[GitHub / Android 源码](https://github.com/shunyoudeng/luoxu-android)** · **[Latest Release / 安装包](https://github.com/shunyoudeng/luoxu-android/releases/tag/v0.6.3)**
+**[Website / 官方网站](https://shunyoudeng.github.io/luoxu-web/)** · **[GitHub / 官网源码](https://github.com/shunyoudeng/luoxu-web)** · **[Latest Release / 安装包](https://github.com/shunyoudeng/luoxu-web/releases/tag/v0.6.5)**
 
-[下载说明](https://shunyoudeng.github.io/luoxu-web/download/) · [更新日志](https://shunyoudeng.github.io/luoxu-web/changelog/) · [反馈邮箱](mailto:luoxufeedback@163.com) · [开发者 Issue](https://github.com/shunyoudeng/luoxu-android/issues) · [官网源码](https://github.com/shunyoudeng/luoxu-web)
+[下载说明](https://shunyoudeng.github.io/luoxu-web/download/) · [更新日志](https://shunyoudeng.github.io/luoxu-web/changelog/) · [反馈邮箱](mailto:luoxufeedback@163.com) · [开发者 Issue](https://github.com/shunyoudeng/luoxu-web/issues) · [官网源码](https://github.com/shunyoudeng/luoxu-web)
 
 
 ## 三个官方入口
 
-App 是日常使用的 Android 客户端；Website 提供产品介绍、下载、隐私与版本信息；GitHub 用于源码、Issue、PR 和版本发布。普通用户先看官网并安装 App，开发者从 GitHub 了解实现。本仓库只维护官网，Android 与可选开发后端由独立项目维护。
+App 是日常使用的 Android 客户端；Website 提供产品介绍、下载、隐私与版本信息；官网 GitHub 仓库公开网站代码、Issue 与 APK 发布；Android 由独立私有仓库维护，不将应用源码或内部资料复制至此。
 
 你的校园生活，不应该成为任何人的数据库。
 
-Open source. Local-first. Officially maintained.
+Android 应用源码现阶段暂不公开；官网、官网源码及 APK 下载继续公开。
 
 ## 项目介绍
 
@@ -63,10 +63,14 @@ docs/       开发、部署、版本维护与架构指南
 
 ## 许可证
 
-Android 与官网源码均采用 Apache-2.0 主许可证；本仓库的[完整许可证](LICENSE)、[NOTICE](NOTICE)仅覆盖官网自身代码与文档。第三方组件保留各自许可证，详见[第三方声明](THIRD_PARTY_NOTICES.md)。Android 的依赖与发行签名边界见其独立仓库。
+本仓库官网源码采用 Apache-2.0；Android 源码当前暂不公开。官网的[完整许可证](LICENSE)、[NOTICE](NOTICE)仅覆盖官网自身代码与文档。第三方组件保留各自许可证，详见[第三方声明](THIRD_PARTY_NOTICES.md)。Android 的依赖与发行签名边界见其独立仓库。
 
 ## Deployment
 
 官网使用 GitHub Pages、GitHub Actions 与 Astro 静态构建。推送到 `main` 后自动校验、构建与发布，也可手动触发。工作流、自定义域名和迁移方法见[部署指南](docs/GitHub-Pages.md)。
 
 App 的版本与下载地址由 `public/releases/latest.json` 管理，官网版本由 `package.json` 管理。安装包的维护与 GitHub Releases 用法见[版本指南](docs/releases.md)。
+
+## 发布边界
+
+Android Source = PRIVATE；Website / Website Source / APK = PUBLIC。PUBLISHING_POLICY.json 和 AGENTS.md 持续有效，直至负责人明确要求恢复开源。公开APK只放官网仓库Releases，上传仅限APK和SHA256SUMS.txt；网站源码归档只含官网代码。不得修改Android visibility为Public，不复制应用/后端源码、Prompt实现、内部文档、数据库、凭据或缓存。构建运行 npm run check:public，发布后验证匿名下载及SHA256。

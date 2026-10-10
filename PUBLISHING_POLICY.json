@@ -1,0 +1,10 @@
+{
+  "androidSource": "PRIVATE",
+  "website": "PUBLIC",
+  "websiteSource": "PUBLIC",
+  "apkDistribution": "PUBLIC",
+  "androidRepository": "shunyoudeng/luoxu-android",
+  "websiteRepository": "shunyoudeng/luoxu-web",
+  "apkRepository": "shunyoudeng/luoxu-web",
+  "changeRequires": "Explicit project owner instruction to reopen Android source"
+}

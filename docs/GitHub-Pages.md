@@ -25,7 +25,7 @@
 | --- | --- |
 | `PUBLIC_SITE_URL` | 覆盖自动获取的 HTTPS origin，不包含仓库子路径 |
 | `PUBLIC_BASE_PATH` | 覆盖 base；项目站点用 `/luoxu-web`，域名根路径用 `/` |
-| `PUBLIC_GITHUB_URL` | 产品源码仓库链接；与官网源码仓库分开维护 |
+| `PUBLIC_GITHUB_URL` | 官网源码仓库链接；与官网源码仓库分开维护 |
 | `PUBLIC_FEEDBACK_EMAIL` | 官网反馈邮箱 |
 | `PUBLIC_GITHUB_RELEASES_URL` | 单独指定 Releases 入口 |
 | `PUBLIC_ICP_NUMBER` | 适用时填写实际备案信息 |

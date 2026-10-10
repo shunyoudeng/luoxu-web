@@ -20,6 +20,6 @@ test('official release metadata describes an APK from a local artifact or offici
   const r=validateRelease(JSON.parse(await readFile('public/releases/latest.json','utf8')));
   const local=localApkPath(r.downloadUrl);
   if(local){const bytes=await readFile(local);assert.equal(bytes.length,r.sizeBytes);assert.equal(createHash('sha256').update(bytes).digest('hex'),r.sha256);}
-  else{const url=new URL(r.downloadUrl);assert.equal(url.origin,'https://github.com');assert.equal(url.pathname,`/shunyoudeng/luoxu-android/releases/download/v${r.version}/LUOXU-v${r.version}-performance.apk`);assert.match(r.sha256,/^[a-f0-9]{64}$/);assert.ok(r.sizeBytes>1000000);assert.match(r.releaseDate,/^\d{4}-\d{2}-\d{2}$/);}
+  else{const url=new URL(r.downloadUrl);assert.equal(url.origin,'https://github.com');assert.equal(url.pathname,`/shunyoudeng/luoxu-web/releases/download/v${r.version}/LUOXU-v${r.version}-performance.apk`);assert.match(r.sha256,/^[a-f0-9]{64}$/);assert.ok(r.sizeBytes>1000000);assert.match(r.releaseDate,/^\d{4}-\d{2}-\d{2}$/);}
   assert.equal(r.applicationId,'com.campusai.app');assert.equal(r.minSdk,26);
 });

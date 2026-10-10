@@ -31,7 +31,7 @@ Windows 用户可运行根目录的 [Start-Preview.ps1](../Start-Preview.ps1)，
 | `PUBLIC_SITE_URL` | HTTPS origin；生成 canonical、OpenGraph URL 和 sitemap |
 | `PUBLIC_BASE_PATH` | 部署子路径；根路径为 `/`，项目站点为 `/luoxu-web` |
 | `PUBLIC_HOSTING_PROVIDER` | `github-pages` 会启用对应的托管隐私说明 |
-| `PUBLIC_GITHUB_URL` | 产品源码仓库链接 |
+| `PUBLIC_GITHUB_URL` | 官网源码仓库链接 |
 | `PUBLIC_GITHUB_RELEASES_URL` | Releases 链接；留空时可从仓库地址推导 |
 | `PUBLIC_FEEDBACK_EMAIL` | 反馈邮箱和 mailto 链接 |
 | `PUBLIC_ICP_NUMBER` | 适用时填写的实际备案号 |
@@ -42,7 +42,7 @@ Windows 用户可运行根目录的 [Start-Preview.ps1](../Start-Preview.ps1)，
 ```dotenv
 PUBLIC_SITE_URL=https://shunyoudeng.github.io
 PUBLIC_BASE_PATH=/luoxu-web
-PUBLIC_GITHUB_URL=https://github.com/shunyoudeng/luoxu-android
+PUBLIC_GITHUB_URL=https://github.com/shunyoudeng/luoxu-web
 PUBLIC_HOSTING_PROVIDER=github-pages
 ```
 

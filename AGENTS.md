@@ -9,3 +9,7 @@
 - 产品界面示意需明确标注，不将未确认的Design V2稿宣传成正式App截图。
 - 新增或更新APK必须核对版本、大小与SHA256；不要修改Android签名或源APK。
 - 交付前运行 check、test、build、e2e和 designmd lint。
+
+## 当前发布规则（2026-10-10，持续有效）
+
+Android App Source = PRIVATE；Website = PUBLIC；Website Source = PUBLIC；APK Distribution = PUBLIC。以 PUBLISHING_POLICY.json 为准。直到负责人明确要求恢复 Android 开源，不得变更 Android 仓库为 Public。构建、CI、Tag 和发布继续正常进行；公开 APK 只放官网仓库 Releases，官网只发布自身代码、公开素材/说明和 APK，不复制 Android/后端源码、Prompt实现、内部文档、数据库、凭据或构建缓存。发布前检查仓库 visibility、产物白名单和匿名下载；不能将发布APK视作授权公开应用源码。保留 LICENSE、贡献基础和 Git 历史，恢复展示须负责人明确要求。本轮用户已明确授权跨两个项目修改并通过USB覆盖更新。

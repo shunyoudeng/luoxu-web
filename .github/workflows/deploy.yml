@@ -18,6 +18,8 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+      - name: Require public website repository
+        run: test "${{ github.event.repository.private }}" = "false"
       - name: Checkout
         uses: actions/checkout@v7
       - name: Read actual Pages URL
@@ -27,13 +29,13 @@ jobs:
         uses: withastro/action@v6
         with:
           node-version: 24
-          build-cmd: npm run check && npm test && npm run build
+          build-cmd: npm run check:public && npm run check && npm test && npm run build
         env:
           ASTRO_TELEMETRY_DISABLED: '1'
           PUBLIC_HOSTING_PROVIDER: github-pages
           PUBLIC_SITE_URL: ${{ vars.PUBLIC_SITE_URL || steps.pages.outputs.origin }}
           PUBLIC_BASE_PATH: ${{ vars.PUBLIC_BASE_PATH || steps.pages.outputs.base_path }}
-          PUBLIC_GITHUB_URL: ${{ vars.PUBLIC_GITHUB_URL || 'https://github.com/shunyoudeng/luoxu-android' }}
+          PUBLIC_GITHUB_URL: ${{ vars.PUBLIC_GITHUB_URL || 'https://github.com/shunyoudeng/luoxu-web' }}
           PUBLIC_GITHUB_RELEASES_URL: ${{ vars.PUBLIC_GITHUB_RELEASES_URL }}
           PUBLIC_FEEDBACK_EMAIL: ${{ vars.PUBLIC_FEEDBACK_EMAIL || 'luoxufeedback@163.com' }}
           PUBLIC_ICP_NUMBER: ${{ vars.PUBLIC_ICP_NUMBER }}

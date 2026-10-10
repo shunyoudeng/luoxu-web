@@ -1,17 +1,17 @@
 {
-  "version": "0.6.3",
-  "build": 22,
+  "version": "0.6.5",
+  "build": 24,
   "channel": "公测 / Public Beta",
   "status": "beta",
-  "releaseDate": "2026-10-09",
-  "buildDate": "2026-10-09",
-  "downloadUrl": "https://github.com/shunyoudeng/luoxu-android/releases/download/v0.6.3/LUOXU-v0.6.3-performance.apk",
-  "githubUrl": "https://github.com/shunyoudeng/luoxu-android",
+  "releaseDate": "2026-10-10",
+  "buildDate": "2026-10-10",
+  "downloadUrl": "https://github.com/shunyoudeng/luoxu-web/releases/download/v0.6.5/LUOXU-v0.6.5-performance.apk",
+  "githubUrl": "https://github.com/shunyoudeng/luoxu-web",
   "changelogUrl": "../changelog",
   "minimumAndroid": "8.0",
   "minSdk": 26,
   "applicationId": "com.campusai.app",
-  "sizeBytes": 46165642,
-  "sha256": "05b5b02d4672692dc7c6e62dbaa9033aa424628fde59b1f78795b167d42bc212",
-  "verification": "电脑端编译、基础回归与原签名真机覆盖升级通过，原有事务和关键配置保留。真实云端、QQ/微信后台、静音/DND 与复杂 OCR 场景持续验收。"
+  "sizeBytes": 46165638,
+  "sha256": "a2f0ceee717bd627d460225fe4122aa40a9828231890829fbbc72c0fb9e840e9",
+  "verification": "电脑端构建、静态检查与相关回归通过，原签名真机覆盖升级已完成；真实群聊语义、OEM后台及复杂OCR场景持续验收。"
 }

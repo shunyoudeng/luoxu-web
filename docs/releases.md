@@ -46,7 +46,7 @@ const apkUrl = new URL(metadata.downloadUrl, metadataUrl);
 
 ## 使用 GitHub Releases
 
-安装包可以上传到仓库的 [Releases](https://github.com/shunyoudeng/luoxu-android/releases)，然后将 downloadUrl 改为实际 HTTPS 文件地址，并保留准确的 sizeBytes 和 sha256。外链下载需单独检查，构建脚本只校验本地安装包。
+安装包只上传到公开官网仓库的 [Releases](https://github.com/shunyoudeng/luoxu-web/releases)，然后将 downloadUrl 改为实际 HTTPS 文件地址，并保留准确的 sizeBytes 和 sha256。外链下载需单独检查，构建脚本只校验本地安装包。
 
 Git 历史会保存每次提交的二进制版本。长期发布推荐 Releases，而非持续把每版 APK 加入源码仓库。GitHub 网页上传限制为25MiB，普通Git单文件上限为100MiB；大于50MiB会收到建议性警告，详见[文件限制](https://docs.github.com/en/repositories/working-with-files/managing-large-files/about-large-files-on-github)。Git LFS 指针不等于可直接下载的 APK。
 
@@ -60,4 +60,8 @@ Git 历史会保存每次提交的二进制版本。长期发布推荐 Releases�
 
 页面与静态 `releases/history.json` 共用数据；已有记录继续保留。日期不确定时可以使用月份，避免推算发布日期。
 
-当前官方 App 版本同步为 0.6.3 / build 22 / Public Beta（公测）；最终 APK 放在 Android 仓库 Releases Assets，latest.json 使用该资源的 HTTPS 地址。本机与浏览器测试核对字节数、SHA-256；新版不加入网站 Git 历史，原历史 APK 不做破坏性清理。
+当前 App 更新为 0.6.5 / build 24 / Public Beta（公测）；最终 APK 放在官网仓库 Releases Assets，latest.json 使用该资源的 HTTPS 地址。本机与浏览器测试核对字节数、SHA-256；新版不加入网站 Git 历史，原历史 APK 不做破坏性清理。
+
+## 发布边界
+
+Android Source = PRIVATE；Website / Website Source / APK = PUBLIC。PUBLISHING_POLICY.json 和 AGENTS.md 持续有效，直至负责人明确要求恢复开源。公开APK只放官网仓库Releases，上传仅限APK和SHA256SUMS.txt；网站源码归档只含官网代码。不得修改Android visibility为Public，不复制应用/后端源码、Prompt实现、内部文档、数据库、凭据或缓存。构建运行 npm run check:public，发布后验证匿名下载及SHA256。

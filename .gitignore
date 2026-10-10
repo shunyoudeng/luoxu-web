@@ -25,3 +25,11 @@ docs/npm-audit.json
 docs/screenshots/
 docs/生产构建检查.md
 docs/验收说明.md
+
+# New APKs are public Release assets, not website source commits.
+public/downloads/*.apk
+*.zip
+*.sqlite*
+*.db
+*.enc
+*.dpapi

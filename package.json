@@ -9,12 +9,13 @@
   "scripts": {
     "dev": "node scripts/astro.mjs dev --host 127.0.0.1",
     "check": "node scripts/astro.mjs check",
-    "build": "node scripts/check-release.mjs && node scripts/astro.mjs build",
+    "build": "node scripts/check-public-boundary.mjs && node scripts/check-release.mjs && node scripts/astro.mjs build",
     "preview": "node scripts/astro.mjs preview --host 127.0.0.1",
     "test": "node --test --test-concurrency=1 tests/*.test.mjs",
     "test:e2e": "playwright test",
-    "release:apk": "node scripts/update-apk.mjs",
-    "verify": "npm run check && npm run test && npm run build && npm run test:e2e"
+    "release:apk": "node scripts/check-public-boundary.mjs && node scripts/update-apk.mjs",
+    "verify": "npm run check && npm run test && npm run build && npm run test:e2e",
+    "check:public": "node scripts/check-public-boundary.mjs"
   },
   "dependencies": {
     "astro": "7.3.8"
