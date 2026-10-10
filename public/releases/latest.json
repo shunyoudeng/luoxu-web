@@ -1,17 +1,17 @@
 {
-  "version": "0.6.5",
-  "build": 24,
+  "version": "0.6.8",
+  "build": 27,
   "channel": "公测 / Public Beta",
   "status": "beta",
   "releaseDate": "2026-10-10",
   "buildDate": "2026-10-10",
-  "downloadUrl": "https://github.com/shunyoudeng/luoxu-web/releases/download/v0.6.5/LUOXU-v0.6.5-performance.apk",
+  "downloadUrl": "https://github.com/shunyoudeng/luoxu-web/releases/download/v0.6.8/LUOXU-v0.6.8-performance.apk",
   "githubUrl": "https://github.com/shunyoudeng/luoxu-web",
   "changelogUrl": "../changelog",
   "minimumAndroid": "8.0",
   "minSdk": 26,
   "applicationId": "com.campusai.app",
-  "sizeBytes": 46165638,
-  "sha256": "a2f0ceee717bd627d460225fe4122aa40a9828231890829fbbc72c0fb9e840e9",
-  "verification": "电脑端构建、静态检查与相关回归通过，原签名真机覆盖升级已完成；真实群聊语义、OEM后台及复杂OCR场景持续验收。"
+  "sizeBytes": 46198410,
+  "sha256": "59b400c2534d9d6f751a9ad9a9356fe3c580526b61077075658a842de8f083a9",
+  "verification": "Android全量387项、后端71项、官网15项单元与25项浏览器检查通过；原签名真机覆盖和20项事务及配置保留已核对。部分页面检查与分钟提醒实际投递仍待验证。"
 }
