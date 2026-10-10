@@ -144,7 +144,15 @@ neutral 是主页面背景，primary 用于正文，secondary 用于辅助说明
 
 ## Motion
 
-按钮 hover/focus 的颜色过渡为150ms。功能示意即时切换，文字保持可读与足够对比度。正文不依赖滚动动画出现。prefers-reduced-motion 时关闭非必要动画与平滑滚动。
+2026-10-10 Refinement：沿用现有品牌与结构，增加明确可交互入口的颜色、细线与独立图标反馈。纯展示行、卡片和隐私正文不使用 hover 位移。无阴影、玻璃、模糊或滚动劫持。
+
+统一动效变量见 `src/styles/tokens.css`：Micro 120ms、Fast 180ms、Standard 240ms、Emphasized 360ms；标准曲线(.2,0,0,1)、退出曲线(.22,1,.36,1)、软回弹曲线(.22,1.18,.36,1)。仅独立SVG图标上浮2px、放大1.02、按压0.985；文字所在控件保持原生尺寸、位置和不透明度。退出平稳，快速经过时CSS过渡从当前值反向，不排队累积动画。
+
+导航保留细线活动状态，hover/focus时线条轻展开与渐显，不增加滑动胶囊。移动菜单保留原生details并支持Escape、外部点击与宽屏关闭。
+
+首屏与已可见区域不播放滚动入场；少量装饰线条进入视口时只播放一次，文字不做缩放、位移或淡化，正文默认完全可见。功能示意各面板共用网格占位，避免切换改变容器高度。无JS或无IntersectionObserver仍可正常阅读。
+
+hover仅用于hover:hover且pointer:fine设备。触屏使用按压反馈；prefers-reduced-motion禁用位移、缩放、入场和非必要过渡。
 
 ## Responsive
 
@@ -157,3 +165,8 @@ neutral 是主页面背景，primary 用于正文，secondary 用于辅助说明
 ## Content Principles
 
 App 版本与网站版本分别管理，发布状态与验证范围对应。产品示意与真实截图、应用本地存储与模型数据传输保持明确区分。官网身份、用户数、合作信息和公开配置以实际资料为依据。隐私与安全边界见[安全规范](docs/security.md)，素材归属见[第三方声明](THIRD_PARTY_NOTICES.md)。
+
+
+## Refinement Typography
+
+Hero保持48px桌面/32px手机字号与原有断行，行高微调为1.45；“自成秩序”使用500字重和既有深绿，中文不加负字距。隐私宣言前句使用0.82em作为引子，后句500字重，保留原文与全部数据传输说明。日期、下载元数据按需要采用tabular-nums，不分发新字体。

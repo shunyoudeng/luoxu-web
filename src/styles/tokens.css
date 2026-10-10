@@ -7,4 +7,9 @@
   --s1:4px; --s2:8px; --s3:12px; --s4:16px; --s5:20px; --s6:24px; --s8:32px; --s10:40px; --s12:48px; --s16:64px; --s24:96px;
   --r1:4px; --r2:8px; --r3:12px; --stroke:1px;
   --fast:150ms; --ease:cubic-bezier(.2,0,0,1); --container:1160px;
+  --motion-micro:120ms; --motion-fast:180ms; --motion-standard:240ms; --motion-emphasized:360ms;
+  --ease-standard:cubic-bezier(.2,0,0,1); --ease-out:cubic-bezier(.22,1,.36,1);
+  --ease-soft-spring:cubic-bezier(.22,1.18,.36,1);
+  --hover-lift:-2px; --hover-scale:1.02; --hover-scale-link:1.015; --pressed-scale:.985;
+  --reveal-distance:8px; --indicator-inset:6px;
 }

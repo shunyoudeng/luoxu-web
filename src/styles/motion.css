@@ -1,0 +1,68 @@
+/* Shared tactile feedback. Layout, hit areas and typography stay stationary. */
+:where(a.button:not(.disabled):not([aria-disabled=true]), .text-link, .nav-link,
+  .footer-links a, .preview-tabs button, .mobile-menu summary, .checksum summary,
+  .article .toc a) {
+  transform:none;
+  transition: color var(--motion-fast) var(--ease-standard),
+    background-color var(--motion-fast) var(--ease-standard),
+    border-color var(--motion-fast) var(--ease-standard);
+}
+
+@media (hover:hover) and (pointer:fine) {
+  .button.primary:hover {background:var(--ink);border-color:var(--ink)}
+  .button.secondary:hover {background:var(--mist)}
+  :is(.text-link, .nav-link, .footer-links a, .preview-tabs button, .article .toc a):hover {
+    color:var(--green);
+  }
+  :is(.mobile-menu summary, .checksum summary):hover {color:var(--green)}
+}
+
+:is(a.button:not(.disabled):not([aria-disabled=true]), .text-link, .nav-link,
+  .footer-links a, .preview-tabs button, .mobile-menu summary, .checksum summary,
+  .article .toc a):active {
+  transition-duration:var(--motion-micro);
+  transition-timing-function:var(--ease-standard);
+}
+.button.primary:active {background:var(--ink);border-color:var(--ink)}
+.button.secondary:active {background:var(--mist);border-color:var(--ink)}
+/* Move only non-text artwork, keeping glyphs at their native raster size. */
+:is(a.button, .text-link) svg {
+  transition:transform var(--motion-standard) var(--ease-out);
+}
+@media (hover:hover) and (pointer:fine) {
+  :is(a.button, .text-link):hover svg {
+    transform:translateY(var(--hover-lift)) scale(var(--hover-scale));
+    transition:transform var(--motion-emphasized) var(--ease-soft-spring);
+  }
+}
+:is(a.button, .text-link):active svg {transform:scale(var(--pressed-scale));transition-duration:var(--motion-micro)}
+
+.nav-link {position:relative}
+.nav-link[aria-current=page] {text-decoration:none}
+.nav-link::after {
+  content:'';position:absolute;inset-inline:0;bottom:var(--indicator-inset);
+  height:var(--stroke);background:var(--green);opacity:0;
+  transform:scaleX(.65);transform-origin:center;
+  transition:transform var(--motion-standard) var(--ease-out), opacity var(--motion-fast) var(--ease-standard);
+}
+.nav-link[aria-current=page]::after {opacity:1;transform:scaleX(1)}
+@media (hover:hover) and (pointer:fine) {
+  .nav-link:hover::after {opacity:.65;transform:scaleX(1)}
+  .nav-link[aria-current=page]:hover::after {opacity:1}
+}
+.nav-link:focus-visible::after {opacity:1;transform:scaleX(1)}
+.mobile-menu .nav-link::after {inset-inline:var(--s3)}
+
+/* No initial hidden state: script failure, no-JS and slow devices keep all copy readable. */
+[data-reveal=line].is-revealing {animation:line-reveal var(--motion-emphasized) var(--ease-out);transform-origin:left}
+@keyframes line-reveal {from {opacity:.6;transform:scaleX(.9)} to {opacity:1;transform:scaleX(1)}}
+[data-reveal]:focus-within {animation:none}
+
+@media (prefers-reduced-motion:reduce) {
+  :is(a.button, .text-link, .nav-link, .footer-links a, .preview-tabs button,
+    .mobile-menu summary, .checksum summary, .article .toc a), .nav-link::after,
+    :is(a.button, .text-link) svg {
+    transform:none!important;transition:none!important;
+  }
+  [data-reveal], .mobile-menu[open] nav {animation:none!important}
+}

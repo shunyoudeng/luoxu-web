@@ -23,3 +23,8 @@
 网页采用访客设备的系统字体与 Georgia 回退字体，不分发字体二进制。OpenGraph 图片中的文字已经栅格化。
 
 APK 是独立维护的 Android 应用分发文件；本声明不替代该应用的依赖和许可说明。
+
+
+## 设计研究参考
+
+本轮动效和排版组织参考了 [Luotopia公开官网](https://github.com/ClosedWHU/Luotopia) 的Token、状态及降级设计方法（审计快照 `ec32c97d5569df7211481fd9f162750510c8e15f`）。该快照README声明MIT但未包含LICENSE正文，未复制其源码、Logo或截图；新增交互由本项目自行实现。参考关系不产生新的运行时依赖。实现与验收说明见 [视觉与动效精修](docs/design-refinement.md)。
