@@ -60,7 +60,7 @@ Git 历史会保存每次提交的二进制版本。长期发布推荐 Releases�
 
 页面与静态 `releases/history.json` 共用数据；已有记录继续保留。日期不确定时可以使用月份，避免推算发布日期。
 
-当前 App 更新为 0.6.5 / build 24 / Public Beta（公测）；最终 APK 放在官网仓库 Releases Assets，latest.json 使用该资源的 HTTPS 地址。本机与浏览器测试核对字节数、SHA-256；新版不加入网站 Git 历史，原历史 APK 不做破坏性清理。
+当前 App 更新为 0.7.2 / build 30 / Public Beta（公测），合并发布0.7.1以来的课程与事务显示、自动同步及日历选择改进；最终APK放在官网仓库Releases Assets，latest.json使用该资源的HTTPS地址。本机与浏览器测试核对字节数、SHA-256；新版不加入网站Git历史，原历史APK继续保留。官网动画与布局沿用现有实现，本次仅更新发布内容。
 
 ## 发布边界
 

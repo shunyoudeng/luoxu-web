@@ -1,17 +1,17 @@
 {
-  "version": "0.7.0",
-  "build": 28,
+  "version": "0.7.2",
+  "build": 30,
   "channel": "公测 / Public Beta",
   "status": "beta",
   "releaseDate": "2026-10-11",
   "buildDate": "2026-10-11",
-  "downloadUrl": "https://github.com/shunyoudeng/luoxu-web/releases/download/v0.7.0/LUOXU-v0.7.0-performance.apk",
+  "downloadUrl": "https://github.com/shunyoudeng/luoxu-web/releases/download/v0.7.2/LUOXU-v0.7.2-performance.apk",
   "githubUrl": "https://github.com/shunyoudeng/luoxu-web",
   "changelogUrl": "../changelog",
   "minimumAndroid": "8.0",
   "minSdk": 26,
   "applicationId": "com.campusai.app",
-  "sizeBytes": 46265693,
-  "sha256": "e7e63c10e167e6e738a11124fc6970f3b7e9246120831d0bafe03279289e7c62",
-  "verification": "Android全量407项、后端71项通过，Debug/Release构建与Lint通过；原签名覆盖安装至测试手机成功。武汉大学教务导入已通过本人真实学校账号验证；分钟提醒实际投递仍待真机验证。"
+  "sizeBytes": 46282705,
+  "sha256": "5dc7337940c9d3c30fdf7d14e4a436ebb0bfa62e4348f7de65bf4b9565ddd41c",
+  "verification": "Android本机测试416项通过、1项后端联调跳过；Debug/Release构建及两种Lint通过，安装包沿用原签名。原课表导入已有真实学校账号验证；新版自动查询的登录后闭环、会话过期和分钟提醒实际送达仍待真机验证。"
 }
