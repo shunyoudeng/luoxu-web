@@ -3,7 +3,61 @@ import {withBase} from '../lib/urls';
 import Icon from '../components/Icon.astro';
 import GitHubLink from '../components/GitHubLink.astro';
 ---
-<section class="section privacy-story"><div class="wrap"><p class="eyebrow">03 / YOUR LIFE, YOURS.</p><h2><span class="privacy-lead">你的校园生活，</span><span class="privacy-emphasis">不应该成为任何人的数据库。</span></h2><div class="privacy-copy"><p>真正有用的智能，不该以过度收集为代价。<br/>珞序希望帮助你整理生活中的秩序，而不是占有它。</p><div><p>事务与配置主要保存在你的设备。官网不建立用户通知、群聊、任务或 AI 对话数据库。</p><p>需要 AI 理解时，相关内容与必要上下文会发送到你配置的模型服务。目前支持 DeepSeek API；这不意味着所有数据都不离开设备。</p><a class="text-link" href={withBase("/privacy")}>把隐私说明说清楚 <Icon/></a></div></div></div></section>
-<section class="section"><div class="wrap"><div class="section-head"><span class="eyebrow">04 / LOCAL-FIRST</span><div><h2>先留在手机，<br/>需要时再交给 AI。</h2><p>一个清楚的边界，比一个复杂的架构更重要。</p></div></div><div class="architecture"><div class="architecture-local"><div><span class="eyebrow">YOUR PHONE</span><h3>你的手机</h3><p>已授权的通知与输入</p></div><span class="architecture-arrow" aria-hidden="true">→</span><div><span class="eyebrow">LOCAL DATABASE</span><h3>本地事务</h3><p>任务、画像与个人配置</p></div></div><div class="architecture-cloud"><span class="connection-label">仅在需要分析时 →</span><div><span class="eyebrow">YOUR AI PROVIDER</span><h3>你的模型服务</h3><p>必要的文字与上下文<br/>API Key 只在 App 中配置</p></div></div></div><p class="architecture-note">官网只负责介绍、下载与版本信息，不接收你的 API Key。</p></div></section>
-<section class="section"><div class="wrap open-source"><div><p class="eyebrow">05 / BUILT TO LAST</p><h2>本地优先。<br/>持续维护。<br/>官网源码开放。</h2></div><div><p>把产品的边界、版本变化和使用方式说明白，也把维护留给长期。</p><p>官网与官网源码继续公开，Android 应用源码现阶段暂不公开。安装包和更新记录仍可正常获取。</p><GitHubLink/></div></div></section>
-<style>.privacy-story{background:var(--mist)}.privacy-story h2{font-size:clamp(1.75rem,3.25vw,2.75rem);margin-top:var(--s6);line-height:1.5}.privacy-lead{display:block;font-size:.82em;margin-bottom:var(--s2)}.privacy-emphasis{display:block;font-weight:500;max-width:26em}.privacy-copy{display:grid;grid-template-columns:1fr 1fr;gap:var(--s16);margin-top:var(--s12)}.privacy-copy p{color:var(--secondary);max-width:34rem}.privacy-copy p+p{margin-top:var(--s4)}.architecture{display:grid;grid-template-columns:1.3fr 1fr;gap:var(--s12);align-items:center}.architecture-local{display:flex;gap:var(--s8);align-items:center;padding:var(--s8);border:var(--stroke) solid var(--line)}.architecture h3{font-size:var(--lead);font-weight:500;margin-top:var(--s3)}.architecture p{font-size:var(--small);color:var(--secondary);margin-top:var(--s2)}.architecture-arrow{color:var(--secondary)}.architecture-cloud{display:flex;gap:var(--s6);align-items:center}.connection-label{font-size:var(--caption);color:var(--secondary)}.architecture-note{font-size:var(--small);color:var(--secondary);margin-top:var(--s6)}.open-source{display:grid;grid-template-columns:1fr 1fr;align-items:center;gap:var(--s16)}.open-source h2{margin-top:var(--s4)}.open-source p:not(.eyebrow){color:var(--secondary);max-width:34rem;margin-bottom:var(--s6)}@media(max-width:900px){.architecture{grid-template-columns:1fr}.architecture-local{justify-content:space-between}.architecture-cloud{padding-left:var(--s8)}}@media(max-width:700px){.privacy-copy,.open-source{grid-template-columns:1fr;gap:var(--s8);margin-top:var(--s8)}.privacy-story h2{font-size:var(--heading)}.architecture-local{padding:var(--s6);gap:var(--s4)}.architecture-local h3{font-size:var(--body)}.architecture-cloud{padding-left:var(--s6)}.architecture-local p{font-size:var(--caption)}.connection-label{max-width:80px}.open-source{margin-top:0}}</style>
+<section class="chapter privacy-story"><div class="wrap">
+  <p class="eyebrow" data-layer="0">03 / YOUR LIFE, YOURS.</p>
+  <h2 data-layer="1"><span class="privacy-lead kai">你的校园生活，</span><span class="privacy-emphasis">不应该成为任何人的数据库。</span></h2>
+  <div class="privacy-copy">
+    <p class="privacy-pull" data-layer="2">真正有用的智能，不该以过度收集为代价。<br/>珞序希望帮助你整理生活中的秩序，而不是占有它。</p>
+    <div data-layer="3"><p>事务与配置主要保存在你的设备。官网不建立用户通知、群聊、任务或 AI 对话数据库。</p><p>需要 AI 理解时，相关内容与必要上下文会发送到你配置的模型服务。目前支持 DeepSeek API；这不意味着所有数据都不离开设备。</p><a class="text-link" href={withBase("/privacy")}>把隐私说明说清楚 <Icon/></a></div>
+  </div>
+</div></section>
+
+<section class="chapter"><div class="wrap">
+  <header class="chapter-head"><span class="eyebrow" data-layer="0">04 / LOCAL-FIRST</span><h2 data-layer="1"><span class="soft">先留在手机，</span><br/><span class="accent">需要时再交给 AI。</span></h2><p data-layer="2">一个清楚的边界，比一个复杂的架构更重要。</p></header>
+  <div class="architecture">
+    <div class="architecture-local" data-layer="3" data-fx="left"><div class="node"><span class="eyebrow">YOUR PHONE</span><h3>你的手机</h3><p>已授权的通知与输入</p></div><span class="architecture-arrow" aria-hidden="true">→</span><div class="node"><span class="eyebrow">LOCAL DATABASE</span><h3>本地事务</h3><p>任务、画像与个人配置</p></div></div>
+    <div class="architecture-cloud" data-layer="4" data-fx="right"><span class="connection-label">仅在需要分析时 →</span><div class="node node-cloud"><span class="eyebrow">YOUR AI PROVIDER</span><h3>你的模型服务</h3><p>必要的文字与上下文<br/>API Key 只在 App 中配置</p></div></div>
+  </div>
+  <p class="architecture-note" data-layer="5">官网只负责介绍、下载与版本信息，不接收你的 API Key。</p>
+</div></section>
+
+<section class="chapter chapter-last"><div class="wrap open-source">
+  <div><p class="eyebrow" data-layer="0">05 / BUILT TO LAST</p><h2 data-layer="1"><span class="os-1">本地优先。</span><span class="os-2">持续维护。</span><span class="os-3">官网源码开放。</span></h2></div>
+  <div class="os-copy" data-layer="3"><p>把产品的边界、版本变化和使用方式说明白，也把维护留给长期。</p><p>官网与官网源码继续公开，Android 应用源码现阶段暂不公开。安装包和更新记录仍可正常获取。</p><GitHubLink/></div>
+</div></section>
+<style>
+.privacy-story{background:var(--night);color:var(--on-night);position:relative;overflow:clip}
+.privacy-story:before{content:'';position:absolute;inset:auto -10% -40% -10%;height:80%;background:radial-gradient(60% 60% at 50% 100%,rgba(60,122,107,.45),transparent 70%);pointer-events:none}
+.privacy-story .wrap{position:relative}
+.privacy-story .eyebrow{color:var(--on-night-2)}
+.privacy-story h2{font-size:clamp(2rem,5.6vw,5rem);margin-top:var(--s6);line-height:1.2;font-weight:800;letter-spacing:-.025em}
+.privacy-lead{display:block;font-size:.5em;font-weight:400;letter-spacing:.04em;color:var(--mint);margin-bottom:var(--s4)}
+.privacy-emphasis{display:block;max-width:13em}
+.privacy-copy{display:grid;grid-template-columns:1fr 1fr;gap:var(--s16);margin-top:clamp(48px,7vw,96px);padding-top:var(--s10);border-top:var(--stroke) solid rgba(241,243,236,.16)}
+.privacy-copy p{color:var(--on-night-2);max-width:34rem}
+.privacy-copy p+p{margin-top:var(--s4)}
+.privacy-pull{font-family:var(--kai);font-size:clamp(1.25rem,2vw,1.625rem);line-height:1.8;color:var(--on-night)!important}
+.privacy-story .text-link{color:var(--mint);margin-top:var(--s4)}
+.privacy-story .text-link:hover{color:#fff}
+.privacy-story :focus-visible{outline-color:var(--mint)}
+
+.architecture{display:grid;grid-template-columns:1.35fr 1fr;gap:var(--s8);align-items:stretch}
+.architecture-local{display:flex;gap:var(--s6);align-items:center;justify-content:space-between;padding:clamp(24px,3vw,40px);border-radius:32px;background:var(--surface);border:var(--stroke) solid var(--line);box-shadow:var(--shadow-soft)}
+.node h3{font-size:var(--title);font-weight:800;margin-top:var(--s3)}
+.node p{font-size:var(--small);color:var(--secondary);margin-top:var(--s2)}
+.architecture-arrow{color:var(--green);font-size:1.75rem}
+.architecture-cloud{display:flex;gap:var(--s5);align-items:center}
+.connection-label{font-size:var(--caption);color:var(--green);max-width:84px;line-height:1.5}
+.node-cloud{flex:1;height:100%;display:flex;flex-direction:column;justify-content:center;padding:clamp(24px,3vw,40px);border-radius:32px;border:1.5px dashed var(--green-soft);background:var(--mist)}
+.architecture-note{font-size:var(--small);color:var(--secondary);margin-top:var(--s8);text-align:center}
+
+.chapter-last{padding-bottom:clamp(96px,12vw,176px)}
+.open-source{display:grid;grid-template-columns:1.2fr 1fr;align-items:end;gap:var(--s16)}
+.open-source h2{margin-top:var(--s5);font-size:clamp(2.25rem,6.2vw,5.25rem);line-height:1.12;font-weight:800;letter-spacing:-.03em}
+.open-source h2 span{display:block}
+.os-1{color:var(--ink)}.os-2{color:var(--secondary);font-weight:600}.os-3{font-family:var(--song);font-weight:900;color:var(--green)}
+.os-copy p:not(.eyebrow){color:var(--secondary);max-width:34rem;margin-bottom:var(--s5)}
+.os-copy{padding-bottom:var(--s3)}
+@media(max-width:900px){.architecture{grid-template-columns:1fr}.architecture-local{justify-content:space-between}}
+@media(max-width:700px){.privacy-copy,.open-source{grid-template-columns:1fr;gap:var(--s8)}.privacy-copy{margin-top:var(--s10)}.architecture-local{padding:var(--s6);gap:var(--s3)}.node h3{font-size:var(--body)}.node p{font-size:var(--caption)}.architecture-cloud{flex-direction:column;align-items:flex-start;gap:var(--s3)}.node-cloud{width:100%}.connection-label{max-width:none}.architecture-note{text-align:left}}
+</style>

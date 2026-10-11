@@ -1,11 +1,9 @@
 /** Native document navigation: one setup per document, no polling or scroll listener. */
 const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
-// Keep in sync with the hidden-state selector list in src/styles/motion.css.
+// Keep in sync with the hidden-state selector list in src/styles/reveal.css.
 const REVEAL_SELECTOR =
-  '[data-reveal]:not([data-reveal=line]), .section-head, .flow > *, .feature-row, .feature-list + .text-link, ' +
-  '.privacy-story .wrap > *, .privacy-copy > *, .architecture > *, .architecture-note, .open-source > *, ' +
-  '.download-home > *, .download-grid > *, .testing-grid > *, .download-faq, .feedback > *, ' +
-  '.release-entry, .article > *';
+  '[data-reveal]:not([data-reveal=line]), [data-layer], .section-head, .feature-row, .feature-list + .text-link, ' +
+  '.testing-grid > *, .download-grid > *, .download-faq, .feedback > *, .release-entry, .article > *';
 const targets = Array.from(document.querySelectorAll<HTMLElement>(REVEAL_SELECTOR));
 const lines = Array.from(document.querySelectorAll<HTMLElement>('.flow-path'));
 let observer: IntersectionObserver | undefined;
@@ -33,12 +31,19 @@ if (!reducedMotion.matches && typeof window.IntersectionObserver === 'function')
   observer = new IntersectionObserver(entries => {
     const arriving = entries.filter(entry => entry.isIntersecting)
       .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top || a.boundingClientRect.left - b.boundingClientRect.left);
+    const perLayer = new Map<string, number>();
     arriving.forEach((entry, index) => {
       const target = entry.target as HTMLElement;
       observer?.unobserve(target);
       pending.delete(target);
-      // Blocks that arrive together rise one after another (capped), like a single gesture.
-      target.style.setProperty('--reveal-delay', `${Math.min(index, 5) * 90}ms`);
+      // Layered blocks arrive by importance (label, headline, lead, visual); the rest rise in reading
+      // order. Both are short staggers, capped, so the whole group lands within about half a second.
+      const layer = target.dataset.layer;
+      if (layer !== undefined) {
+        const seen = perLayer.get(layer) ?? 0;
+        perLayer.set(layer, seen + 1);
+        target.style.setProperty('--reveal-delay', `${Math.min(Number(layer), 6) * 110 + Math.min(seen, 3) * 70}ms`);
+      } else target.style.setProperty('--reveal-delay', `${Math.min(index, 5) * 90}ms`);
       show(target);
       if (target.dataset.reveal === 'line' && !target.matches(':focus-within')) {
         target.classList.add('is-revealing');

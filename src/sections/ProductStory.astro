@@ -1,9 +1,79 @@
 ---
 import {withBase} from '../lib/urls';
 import Icon from '../components/Icon.astro';
-const features=[['01','通知理解','在你主动授权的 QQ、微信等系统通知里，理解内容和来源。系统没发出的通知，珞序无法凭空读取。'],['02','事务整理','需要亲自处理的是任务；课程里的练习和报告是作业。可选择参加的机会，与告知校园变化的信息，分别整理。'],['03','一屏周视图','用一周看清时间。临近截止的事项、未确定日期和长期事项，各有清楚的位置。'],['04','AI秘书','问“这周还有什么作业”，也可以说“下午三点提醒我拿快递”。查询、创建和修改，放在自然对话里完成。'],['05','与你有关','结合校园身份、角色、兴趣和关注目标判断相关性。AI判断有误时，你可以纠正。'],['06','由你掌握','事务数据库与个人配置主要保存在自己的设备。监听哪些来源、什么时候暂停，由你选择。']];
+const features=[
+  {n:'01',title:'通知理解',size:'wide',body:'在你主动授权的 QQ、微信等系统通知里，理解内容和来源。系统没发出的通知，珞序无法凭空读取。'},
+  {n:'02',title:'事务整理',size:'narrow',body:'需要亲自处理的是任务；课程里的练习和报告是作业。可选择参加的机会，与告知校园变化的信息，分别整理。'},
+  {n:'03',title:'一屏周视图',size:'narrow',body:'用一周看清时间。临近截止的事项、未确定日期和长期事项，各有清楚的位置。'},
+  {n:'04',title:'AI秘书',size:'wide',body:'问“这周还有什么作业”，也可以说“下午三点提醒我拿快递”。查询、创建和修改，放在自然对话里完成。'},
+  {n:'05',title:'与你有关',size:'half',tint:true,body:'结合校园身份、角色、兴趣和关注目标判断相关性。AI判断有误时，你可以纠正。'},
+  {n:'06',title:'由你掌握',size:'half',tint:true,body:'事务数据库与个人配置主要保存在自己的设备。监听哪些来源、什么时候暂停，由你选择。'}
+];
+const week=[38,62,46,88,54,30,22];
 ---
-<section class="section"><div class="wrap"><div class="section-head"><span class="eyebrow">01 / ORDER</span><div><h2>消息来得很散，<br/>事情可以清楚。</h2><p>不用在每个群里反复翻找，把注意力留给真正需要处理的事。</p></div></div><div class="flow"><div class="message-example"><span class="eyebrow">一条群通知</span><p>请各班团支书周五前<br/>提交团日活动材料，<br/>PDF格式，附3张照片。</p><span class="muted">示例内容</span></div><div class="flow-understand"><span class="flow-path" aria-hidden="true"></span><span>珞序理解</span><p>结合身份，提取要求与时间</p></div><div class="flow-result"><p class="eyebrow">各归其位</p><div class="categories"><span>任务</span><span>作业</span><span>机会</span><span>校园信息</span></div><p>提醒 · 周视图 · AI秘书查询</p><span class="muted">重要信息，变成可以处理的事务。</span></div></div></div></section>
-<section class="section"><div class="wrap"><div class="section-head"><span class="eyebrow">02 / DAILY</span><div><h2>从收到消息，<br/>到心里有数。</h2><p>把整理、时间和个人身份连在一起。不是再多一张需要自己填满的清单。</p></div></div><div class="feature-list">{features.map(([n,title,body])=><div class="feature-row"><span class="eyebrow">{n}</span><h3>{title}</h3><p>{body}</p></div>)}</div><a class="text-link" href={withBase("/about")}>更多产品说明 <Icon/></a></div></section>
-<style>.flow{display:grid;grid-template-columns:1fr .85fr 1.2fr;align-items:center;gap:var(--s8)}.message-example{border-left:var(--stroke) solid var(--line);padding-left:var(--s6)}.message-example p{margin-block:var(--s4);font-size:var(--lead)}.message-example>.muted{font-size:var(--caption)}.flow-understand{text-align:center;font-size:var(--small);color:var(--green)}.flow-understand p{font-size:var(--caption);color:var(--secondary);margin-top:var(--s2)}.flow-path{display:block;height:var(--stroke);background:var(--line);margin-bottom:var(--s4);position:relative}.flow-path:after{content:'›';position:absolute;right:0;top:-13px;background:var(--paper);font-size:var(--lead)}.flow-result{border-left:var(--stroke) solid var(--line);padding-left:var(--s8)}.categories{display:grid;grid-template-columns:1fr 1fr;gap:var(--s4) var(--s6);font-size:var(--title);margin-block:var(--s4) var(--s6)}.flow-result>p:not(.eyebrow){font-size:var(--small);color:var(--green)}.flow-result>.muted{font-size:var(--caption)}.feature-list{border-top:var(--stroke) solid var(--line)}.feature-row{display:grid;grid-template-columns:var(--s16) 200px 1fr;gap:var(--s6);padding-block:var(--s6);border-bottom:var(--stroke) solid var(--line);align-items:baseline}.feature-row h3{font-size:var(--lead);font-weight:500}.feature-row p{max-width:44rem;color:var(--secondary)}@media(max-width:900px){.feature-row{grid-template-columns:var(--s8) 140px 1fr;gap:var(--s4)}.flow{gap:var(--s6)}.flow-result{padding-left:var(--s6)}}@media(max-width:700px){.flow{grid-template-columns:1fr;gap:var(--s8)}.flow-understand{text-align:left;max-width:220px}.flow-result{padding-left:var(--s6)}.categories{max-width:280px}.feature-row{grid-template-columns:var(--s8) 1fr;gap:var(--s2) var(--s4)}.feature-row p{grid-column:2}.feature-row h3{font-size:var(--body)}}
+<section class="chapter"><div class="wrap">
+  <header class="chapter-head"><span class="eyebrow" data-layer="0">01 / ORDER</span><h2 data-layer="1"><span class="soft">消息来得很散，</span><br/><span class="accent">事情可以清楚。</span></h2><p data-layer="2">不用在每个群里反复翻找，把注意力留给真正需要处理的事。</p></header>
+  <div class="flow">
+    <div class="message-example" data-layer="3" data-fx="left"><span class="eyebrow">一条群通知</span><p class="kai">请各班团支书周五前<br/>提交团日活动材料，<br/>PDF格式，附3张照片。</p><span class="muted">示例内容</span></div>
+    <div class="flow-understand" data-layer="4"><span class="flow-path" aria-hidden="true"></span><span class="flow-label">珞序理解</span><p>结合身份，提取要求与时间</p></div>
+    <div class="flow-result" data-layer="5" data-fx="right"><p class="eyebrow">各归其位</p><div class="categories"><span>任务</span><span>作业</span><span>机会</span><span>校园信息</span></div><p>提醒 · 周视图 · AI秘书查询</p><span class="muted">重要信息，变成可以处理的事务。</span></div>
+  </div>
+</div></section>
+
+<section class="chapter chapter-tint"><div class="wrap">
+  <header class="chapter-head"><span class="eyebrow" data-layer="0">02 / DAILY</span><h2 data-layer="1"><span class="soft">从收到消息，</span><br/><span class="accent">到心里有数。</span></h2><p data-layer="2">把整理、时间和个人身份连在一起。不是再多一张需要自己填满的清单。</p></header>
+  <div class="bento">
+    {features.map((f,i)=><article class:list={['bento-card',`bento-${f.size}`,{tint:f.tint}]} data-layer={3+(i%2)} data-fx="scale" data-n={f.n}>
+      <h3>{f.title}</h3><p>{f.body}</p>
+      {f.n==='01'&&<div class="deco chips" aria-hidden="true"><span>QQ</span><span>微信</span><span>系统通知</span></div>}
+      {f.n==='03'&&<div class="deco week" aria-hidden="true">{week.map((h,d)=><i style={`--h:${h}%;--d:${d}`}></i>)}</div>}
+      {f.n==='04'&&<div class="deco chat kai" aria-hidden="true"><span>这周还有什么作业？</span><span class="me">下午三点提醒我拿快递</span></div>}
+    </article>)}
+  </div>
+  <a class="text-link more-link" data-layer="6" href={withBase("/about")}>更多产品说明 <Icon/></a>
+</div></section>
+<style>
+.chapter-head{max-width:52rem;margin:0 auto clamp(48px,7vw,88px);text-align:center;display:flex;flex-direction:column;align-items:center;gap:var(--s5)}
+.chapter-head h2{font-size:var(--mega);line-height:1.18;font-weight:800;letter-spacing:-.025em;margin:0}
+.chapter-head .soft{color:var(--secondary);font-weight:600}
+.chapter-head .accent{font-family:var(--song);font-weight:900;color:var(--green)}
+.chapter-head p{font-size:var(--lead);color:var(--secondary);max-width:34rem}
+
+.flow{display:grid;grid-template-columns:1fr minmax(160px,.55fr) 1.15fr;align-items:center;gap:var(--s6)}
+.message-example{padding:var(--s8);border-radius:28px;background:var(--surface);border:var(--stroke) solid var(--line);box-shadow:var(--shadow-soft)}
+.message-example p{margin-block:var(--s4);font-size:1.5rem;line-height:1.6;color:var(--ink)}
+.message-example>.muted{font-size:var(--caption)}
+.flow-understand{text-align:center;color:var(--green)}
+.flow-label{font-family:var(--song);font-weight:900;font-size:var(--lead)}
+.flow-understand p{font-size:var(--caption);color:var(--secondary);margin-top:var(--s2)}
+.flow-path{display:block;height:2px;margin-bottom:var(--s4);position:relative;background:linear-gradient(90deg,transparent,var(--green) 40%,var(--green-soft) 60%,var(--green));border-radius:2px}
+.flow-path:after{content:'';position:absolute;right:0;top:-4px;width:10px;height:10px;border-radius:50%;background:var(--green)}
+.flow-result{padding:var(--s8);border-radius:28px;background:var(--green-deep);color:var(--on-night)}
+.flow-result .eyebrow{color:var(--on-night-2)}
+.categories{display:grid;grid-template-columns:1fr 1fr;gap:var(--s3);margin-block:var(--s5) var(--s6)}
+.categories span{font-size:1.5rem;font-weight:800;padding:var(--s4) var(--s5);border-radius:var(--r3);background:rgba(241,243,236,.08);border:var(--stroke) solid rgba(241,243,236,.14)}
+.flow-result>p:not(.eyebrow){font-size:var(--small);color:var(--mint)}
+.flow-result>.muted{display:block;font-size:var(--caption);color:var(--on-night-2);margin-top:var(--s1)}
+
+.bento{display:grid;grid-template-columns:repeat(6,1fr);gap:var(--s4)}
+.bento-card{position:relative;overflow:hidden;display:flex;flex-direction:column;gap:var(--s3);padding:clamp(24px,3vw,40px);min-height:300px;border-radius:32px;background:var(--surface);border:var(--stroke) solid var(--line);box-shadow:var(--shadow-soft)}
+.bento-wide{grid-column:span 4}.bento-narrow{grid-column:span 2}.bento-half{grid-column:span 3;min-height:240px}
+.bento-card.tint{background:var(--mist);box-shadow:none}
+.bento-card::before{content:attr(data-n);font:italic 400 clamp(2.75rem,5vw,4.5rem)/1 var(--serif);color:var(--green);opacity:.28;margin-bottom:auto;padding-bottom:var(--s8)}
+.bento-card h3{font-size:clamp(1.5rem,2.4vw,2rem);font-weight:800;letter-spacing:-.015em;line-height:1.25}
+.bento-card p{color:var(--secondary);max-width:30rem}
+.bento-wide h3{font-size:clamp(1.75rem,3vw,2.5rem)}
+.deco{position:absolute;right:clamp(20px,3vw,40px);top:clamp(24px,3vw,40px)}
+.chips{display:flex;gap:var(--s2);flex-wrap:wrap;justify-content:flex-end;max-width:60%}
+.chips span{font-size:var(--caption);padding:var(--s1) var(--s3);border-radius:999px;border:var(--stroke) solid var(--line);color:var(--green);background:var(--paper)}
+.week{display:flex;align-items:flex-end;gap:6px;height:72px}
+.week i{display:block;width:10px;height:var(--h);border-radius:5px;background:var(--green);opacity:.18}
+.week i:nth-child(4){opacity:.9}
+.chat{display:flex;flex-direction:column;gap:var(--s2);align-items:flex-end;font-size:var(--small)}
+.chat span{padding:var(--s2) var(--s4);border-radius:18px 18px 18px 4px;background:var(--mist);color:var(--ink)}
+.chat .me{border-radius:18px 18px 4px 18px;background:var(--green);color:var(--paper)}
+.more-link{margin-top:var(--s8);justify-content:center;width:100%}
+
+@media(max-width:900px){.flow{grid-template-columns:1fr;gap:var(--s6)}.flow-understand{text-align:left;max-width:240px;margin-left:var(--s4)}.flow-path{background:linear-gradient(90deg,var(--green),transparent);width:80px}.bento-wide,.bento-narrow{grid-column:span 3}.chips{position:static;max-width:none;justify-content:flex-start;margin-top:var(--s2)}.deco.chat,.deco.week{position:static;align-items:flex-start;margin-top:var(--s4)}}
+@media(max-width:700px){.bento{grid-template-columns:1fr}.bento-wide,.bento-narrow,.bento-half{grid-column:auto;min-height:0}.bento-card::before{padding-bottom:var(--s4)}.bento-card{border-radius:26px}.message-example,.flow-result{padding:var(--s6);border-radius:24px}.message-example p{font-size:1.25rem}.categories span{font-size:1.25rem;padding:var(--s3) var(--s4)}.chapter-head{text-align:left;align-items:flex-start}}
 </style>

@@ -1,9 +1,56 @@
----
+﻿---
 import {withBase} from '../lib/urls';
 import ProductPreview from '../components/ProductPreview.astro';
 import GitHubLink from '../components/GitHubLink.astro';
 import Icon from '../components/Icon.astro';
 import {latest} from '../lib/releases';
+const ridges=[
+  {name:'far',d:'M0 250C110 214 196 150 318 168C440 186 504 92 646 84C790 76 846 170 986 160C1106 152 1186 96 1304 116C1374 128 1412 150 1440 160'},
+  {name:'mid',d:'M0 330C98 304 188 244 298 258C420 274 470 196 604 206C726 216 794 292 924 284C1054 276 1112 208 1232 222C1332 234 1392 274 1440 284'},
+  {name:'near',d:'M0 410C140 390 232 346 360 358C500 372 562 316 702 326C842 336 902 398 1042 392C1162 386 1262 338 1440 368'}
+];
 ---
-<section class="hero"><div class="wrap hero-grid"><div class="hero-copy"><p class="eyebrow">LUOXU / YOUR CAMPUS, IN ORDER.</p><h1><span class="hero-line">让消息各归其位，</span><span class="hero-line">让校园生活<br class="mobile-break"/><em>自成秩序。</em></span></h1><p class="hero-description">珞序是一款本地优先的校园 AI 助手。<br/>从通知与群聊中理出重点，让任务、作业、机会和校园信息各归其位。</p><div class="actions"><a class="button primary" href={withBase("/download")}>下载 Android 公测版 <Icon name="download"/></a><GitHubLink/></div><p class="hero-version">v{latest.version} · {latest.channel} · 公测开放</p><div class="hero-footnote"><span class="quiet-line" aria-hidden="true"></span><span>少读一点消息，多留一点时间给自己。</span></div></div><div class="hero-product"><svg class="landscape" viewBox="0 0 440 240" fill="none" aria-hidden="true"><path d="M2 184C54 182 44 136 88 134C129 133 120 85 164 86C212 86 222 159 261 156C300 154 297 116 335 119C376 123 378 174 438 177M2 211C76 205 109 218 181 208C256 198 350 219 438 207" stroke="currentColor" stroke-width="1"/></svg><ProductPreview/></div></div></section>
-<style>.hero{padding-block:var(--s16);position:relative}.hero-grid{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(0,1fr);align-items:center;gap:var(--s16)}.hero-copy h1{margin-block:var(--s6);font-size:clamp(2rem,3.65vw,var(--display));line-height:1.45}.hero-line{display:block}.hero-line em{font-style:normal;font-weight:500;color:var(--green)}.mobile-break{display:none}.hero-description{max-width:36rem;font-size:var(--lead);color:var(--secondary)}.hero-copy .actions{margin-top:var(--s8)}.hero-version{font-size:var(--caption);color:var(--secondary);margin-top:var(--s4)}.hero-footnote{display:flex;align-items:center;gap:var(--s4);margin-top:var(--s12);font-size:var(--small);color:var(--secondary)}.quiet-line{width:var(--s8);height:var(--stroke);background:var(--line)}.hero-product{position:relative;isolation:isolate}.landscape{position:absolute;width:100%;left:0;top:var(--s12);color:var(--line);z-index:-1}@media(max-width:900px){.hero-grid{gap:var(--s8)}.hero-description{font-size:var(--body)}.hero-copy h1{font-size:var(--heading)}.hero-copy .actions{align-items:flex-start;flex-direction:column}}@media(max-width:700px){.hero{padding-block:var(--s12)}.hero-grid{grid-template-columns:1fr;gap:var(--s10)}.hero-copy h1{font-size:var(--display);margin-block:var(--s5)}.hero-copy .actions{flex-direction:row}.hero-footnote{margin-top:var(--s8)}.mobile-break{display:block}.hero-product{max-width:380px;width:100%;margin-inline:auto}.landscape{display:none}}</style>
+<section class="hero">
+  <div class="hero-scenery" aria-hidden="true">
+    {ridges.map(r=><svg class={`ridge ridge-${r.name}`} viewBox="0 0 1440 480" preserveAspectRatio="xMidYMax slice" fill="none"><path class="ridge-fill" d={`${r.d}V480H0Z`}/><path class="ridge-line" d={r.d}/></svg>)}
+    <span class="sun"></span>
+  </div>
+  <div class="wrap hero-grid">
+    <div class="hero-copy">
+      <p class="eyebrow">LUOXU / YOUR CAMPUS, IN ORDER.</p>
+      <h1><span class="hero-line hero-line-soft">让消息各归其位，</span><span class="hero-line">让校园生活<br class="mobile-break"/><em><span class="em-text">自成秩序。</span><svg class="brush" viewBox="0 0 320 18" preserveAspectRatio="none" fill="none" aria-hidden="true"><path d="M3 12C60 4 120 14 180 8C230 3 280 11 317 6" stroke="currentColor" stroke-width="3" stroke-linecap="round" pathLength="1"/></svg></em></span></h1>
+      <p class="hero-description">珞序是一款本地优先的校园 AI 助手。<br/>从通知与群聊中理出重点，让任务、作业、机会和校园信息各归其位。</p>
+      <div class="actions"><a class="button primary" href={withBase("/download")}>下载 Android 公测版 <Icon name="download"/></a><GitHubLink/></div>
+      <p class="hero-version">v{latest.version} · {latest.channel} · 公测开放</p>
+      <div class="hero-footnote"><span class="quiet-line" aria-hidden="true"></span><span class="kai">少读一点消息，多留一点时间给自己。</span><span class="quiet-line" aria-hidden="true"></span></div>
+    </div>
+    <div class="hero-product"><ProductPreview/></div>
+  </div>
+</section>
+<style>
+.hero{position:relative;overflow:clip;padding-block:var(--s16) 144px;text-align:center}
+.hero-grid{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:var(--s16)}
+.hero-copy{display:flex;flex-direction:column;align-items:center}
+.hero-copy h1{margin-block:var(--s6) var(--s8);font-size:var(--hero-size);line-height:1.18;letter-spacing:-.025em;font-weight:800;max-width:15em}
+.hero-line{display:block}
+.hero-line-soft{color:var(--secondary);font-weight:600}
+.hero-line em{position:relative;display:inline-block;font-style:normal;font-family:var(--song);font-weight:900;color:var(--green);letter-spacing:-.01em}
+.brush{position:absolute;left:2%;bottom:-.1em;width:96%;height:.16em;color:var(--green);opacity:.5}
+.mobile-break{display:none}
+.hero-description{max-width:44rem;font-size:clamp(1.0625rem,1.5vw,1.3125rem);line-height:1.75;color:var(--secondary)}
+.hero-copy .actions{margin-top:var(--s10);justify-content:center}
+.hero-copy .actions .button{min-height:52px;padding-inline:var(--s8)}
+.hero-version{font:var(--caption) var(--serif);letter-spacing:.06em;color:var(--secondary);margin-top:var(--s5);font-variant-numeric:tabular-nums}
+.hero-footnote{display:flex;align-items:center;justify-content:center;gap:var(--s4);margin-top:var(--s12);font-size:var(--lead);color:var(--secondary)}
+.quiet-line{width:var(--s10);height:var(--stroke);background:var(--line)}
+.hero-product{position:relative;width:100%}
+.hero-scenery{position:absolute;inset:auto 0 0 0;height:min(78%,720px);pointer-events:none;z-index:0}
+.ridge{position:absolute;inset:0;width:100%;height:100%;will-change:transform}
+.ridge-fill{fill:var(--green)}
+.ridge-far .ridge-fill{opacity:.06}.ridge-mid .ridge-fill{opacity:.1}.ridge-near .ridge-fill{opacity:.16}
+.ridge-line{stroke:var(--green);stroke-width:1;vector-effect:non-scaling-stroke}
+.ridge-far .ridge-line{opacity:.18}.ridge-mid .ridge-line{opacity:.28}.ridge-near .ridge-line{opacity:.4}
+.sun{position:absolute;right:20%;top:6%;width:clamp(72px,9vw,132px);aspect-ratio:1;border-radius:50%;background:radial-gradient(circle at 35% 35%,#fffefb,var(--mist) 70%);opacity:.9}
+@media(max-width:900px){.hero-grid{gap:var(--s12)}}
+@media(max-width:700px){.hero{padding-block:var(--s10) 112px}.hero-copy h1{margin-block:var(--s5) var(--s6);line-height:1.22}.mobile-break{display:block}.hero-copy .actions{flex-direction:column;align-items:stretch;width:100%;max-width:320px}.hero-footnote{font-size:var(--small);margin-top:var(--s10)}.quiet-line{width:var(--s6)}.hero-product{max-width:380px;margin-inline:auto}.sun{right:10%}}
+</style>

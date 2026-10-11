@@ -170,3 +170,9 @@ App 版本与网站版本分别管理，发布状态与验证范围对应。产�
 ## Refinement Typography
 
 Hero保持48px桌面/32px手机字号与原有断行，行高微调为1.45；“自成秩序”使用500字重和既有深绿，中文不加负字距。隐私宣言前句使用0.82em作为引子，后句500字重，保留原文与全部数据传输说明。日期、下载元数据按需要采用tabular-nums，不分发新字体。
+
+## Refinement V2 (2026-10-11)
+
+Apple-style editorial pass, same palette. Type voices (system fonts only, nothing distributed): heavy sans 700-800 for statements, Songti 900 for accent phrases (e.g. 自成秩序), Kaiti for poetic lines, Georgia italic for English labels and numerals. Hero uses clamp(36px, 6.6vw, 88px); chapter titles clamp(32px, 5.4vw, 72px), small tight tracking (-0.025em) at display sizes only. This supersedes the earlier no-shadow/no-gradient rule for the homepage: soft shadows (--shadow-soft, --shadow-lift), a translucent sticky header, a dark privacy chapter and layered mountain ridges are allowed.
+
+Layered arrival: elements carry data-layer (0 label, 1 headline, 2 lead, 3+ visual/detail); each layer is delayed 110ms (capped), so a section lands in about half a second. data-fx = scale | left | right sets the direction. Mountain ridges and the sun drift at different speeds on scroll via CSS scroll timelines (no scroll listener, no scroll hijacking). All of it is gated by html.js and disabled under prefers-reduced-motion.

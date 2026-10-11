@@ -1,0 +1,69 @@
+﻿/*
+ * Layered arrival. Every hidden initial state is gated by html.js, which a tiny head script adds only when
+ * IntersectionObserver exists and reduced motion is off; without JS (or if the module script fails; the head
+ * script removes .js after 4s) all copy stays visible.
+ *
+ * Content arrives in layers by importance: label (0) → headline (1) → lead (2) → visual / detail (3+).
+ * `data-layer` sets the order; src/scripts/interactions.ts turns it into a short stagger. `data-fx` picks the
+ * direction. The selector list below must match REVEAL_SELECTOR in src/scripts/interactions.ts.
+ */
+:root {--rise:28px;--reveal-ease:cubic-bezier(.16,1,.3,1)}
+@keyframes rise-in {from {opacity:0;transform:translate3d(0,var(--rise),0);filter:blur(8px)} to {opacity:1;transform:none;filter:blur(0)}}
+@keyframes fade-down {from {opacity:0;transform:translate3d(0,-10px,0)} to {opacity:1;transform:none}}
+@keyframes glide-in {from {opacity:0;transform:translate3d(0,72px,0) scale(.95);filter:blur(12px)} to {opacity:1;transform:none;filter:blur(0)}}
+@keyframes fade-in {from {opacity:0} to {opacity:1}}
+@keyframes brush-draw {from {stroke-dashoffset:1} to {stroke-dashoffset:0}}
+@keyframes ridge-far {from {transform:translate3d(0,0,0)} to {transform:translate3d(0,-28px,0)}}
+@keyframes ridge-mid {from {transform:translate3d(0,0,0)} to {transform:translate3d(0,-64px,0)}}
+@keyframes ridge-near {from {transform:translate3d(0,0,0)} to {transform:translate3d(0,-110px,0)}}
+@keyframes sun-rise {from {transform:translate3d(0,0,0)} to {transform:translate3d(0,-90px,0)}}
+
+/* First paint: header settles, then the hero arrives layer by layer, then the product. */
+.js .site-header {animation:fade-down 600ms var(--reveal-ease) backwards}
+.js .hero-scenery {animation:fade-in 1400ms ease-out 200ms backwards}
+.js .hero-copy > .eyebrow {animation:rise-in 700ms var(--reveal-ease) 80ms backwards}
+.js .hero-copy .hero-line:nth-child(1) {animation:rise-in 850ms var(--reveal-ease) 170ms backwards}
+.js .hero-copy .hero-line:nth-child(2) {animation:rise-in 850ms var(--reveal-ease) 290ms backwards}
+.js .hero-copy .hero-description {animation:rise-in 750ms var(--reveal-ease) 440ms backwards}
+.js .hero-copy > .actions {animation:rise-in 750ms var(--reveal-ease) 540ms backwards}
+.js .hero-copy .hero-version {animation:rise-in 750ms var(--reveal-ease) 620ms backwards}
+.js .hero-copy .hero-footnote {animation:rise-in 750ms var(--reveal-ease) 700ms backwards}
+.js .hero-product .product-preview {animation:glide-in 1000ms var(--reveal-ease) 520ms backwards}
+.js .brush path {stroke-dasharray:1;stroke-dashoffset:1;animation:brush-draw 700ms var(--ease-out) 1000ms forwards}
+.js .page-header > :nth-child(1) {animation:rise-in 700ms var(--reveal-ease) 60ms backwards}
+.js .page-header > :nth-child(2) {animation:rise-in 800ms var(--reveal-ease) 150ms backwards}
+.js .page-header > :nth-child(n+3) {animation:rise-in 800ms var(--reveal-ease) 260ms backwards}
+
+/* Scroll arrival: fade, lift and un-blur once, as each block enters the viewport. */
+.js :is([data-reveal]:not([data-reveal=line]), [data-layer], .section-head, .feature-row, .feature-list + .text-link,
+  .testing-grid > *, .download-grid > *, .download-faq, .feedback > *, .release-entry, .article > *) {
+  transition:opacity 650ms var(--reveal-ease) var(--reveal-delay,0ms),
+    transform 800ms var(--reveal-ease) var(--reveal-delay,0ms),
+    filter 650ms var(--reveal-ease) var(--reveal-delay,0ms);
+}
+.js :is([data-reveal]:not([data-reveal=line]), [data-layer], .section-head, .feature-row, .feature-list + .text-link,
+  .testing-grid > *, .download-grid > *, .download-faq, .feedback > *, .release-entry, .article > *):not([data-revealed=true]):not(:focus-within) {
+  opacity:0;transform:translate3d(0,var(--rise),0) scale(.985);filter:blur(6px);
+}
+.js [data-layer="0"]:not([data-revealed=true]):not(:focus-within):not([hidden]) {transform:translate3d(0,14px,0);filter:blur(3px)}
+.js [data-layer="1"]:not([data-revealed=true]):not(:focus-within):not([hidden]) {transform:translate3d(0,40px,0);filter:blur(8px)}
+.js [data-fx=scale]:not([data-revealed=true]):not(:focus-within):not([hidden]) {transform:translate3d(0,48px,0) scale(.94);filter:blur(8px)}
+.js [data-fx=left]:not([data-revealed=true]):not(:focus-within):not([hidden]) {transform:translate3d(-40px,16px,0) scale(.98)}
+.js [data-fx=right]:not([data-revealed=true]):not(:focus-within):not([hidden]) {transform:translate3d(40px,16px,0) scale(.98)}
+
+/* Layered mountains: each ridge drifts at its own pace while the hero scrolls away. Compositor-driven. */
+@supports (animation-timeline:scroll()) {
+  .js .hero-scenery .ridge-far {animation:ridge-far linear both;animation-timeline:scroll(root);animation-range:0 110vh}
+  .js .hero-scenery .ridge-mid {animation:ridge-mid linear both;animation-timeline:scroll(root);animation-range:0 110vh}
+  .js .hero-scenery .ridge-near {animation:ridge-near linear both;animation-timeline:scroll(root);animation-range:0 110vh}
+  .js .hero-scenery .sun {animation:sun-rise linear both;animation-timeline:scroll(root);animation-range:0 110vh}
+}
+
+@media (prefers-reduced-motion:reduce) {
+  :is(a.button, .text-link, .nav-link, .footer-links a, .preview-tabs button,
+    .mobile-menu summary, .checksum summary, .article .toc a), .nav-link::after,
+    :is(a.button, .text-link) svg {
+    transform:none!important;transition:none!important;
+  }
+  [data-reveal], .mobile-menu[open] nav {animation:none!important}
+}

@@ -1,8 +1,15 @@
 :root {
   --paper:#F7F6F2; --surface:#FFFEFB; --mist:#EAF0E9; --ink:#26352D;
   --secondary:#626F65; --green:#245D50; --line:#D5DDD4; --error:#A7443B;
-  --sans:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI','Microsoft YaHei',sans-serif;
+  --sans:system-ui,-apple-system,BlinkMacSystemFont,'PingFang SC','Segoe UI','Microsoft YaHei',sans-serif;
   --serif:Georgia,'Times New Roman',serif;
+  /* Type voices: heavy sans for statements, Song for editorial accents, Kai for poetry. System fonts only. */
+  --song:'Songti SC','Source Han Serif SC','Noto Serif SC','STSong','Songti TC','SimSun',serif;
+  --kai:'Kaiti SC','STKaiti','KaiTi','Kai','Songti SC','Source Han Serif SC',serif;
+  --green-soft:#3C7A6B; --green-deep:#173A31; --night:#16231D; --night-2:#1E2F27; --on-night:#F1F3EC; --on-night-2:#A9BCB1; --mint:#BFE0D1;
+  --shadow-soft:0 1px 2px rgba(38,53,45,.04),0 12px 32px -12px rgba(38,53,45,.14);
+  --shadow-lift:0 2px 4px rgba(38,53,45,.05),0 32px 64px -24px rgba(23,58,49,.32);
+  --hero-size:clamp(2.25rem,6.6vw,5.5rem); --mega:clamp(2rem,5.4vw,4.5rem);
   --display:3rem; --heading:2.25rem; --title:1.5rem; --lead:1.125rem; --body:1rem; --small:.875rem; --label:.8125rem; --caption:.75rem;
   --s1:4px; --s2:8px; --s3:12px; --s4:16px; --s5:20px; --s6:24px; --s8:32px; --s10:40px; --s12:48px; --s16:64px; --s24:96px;
   --r1:4px; --r2:8px; --r3:12px; --stroke:1px;
