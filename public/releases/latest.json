@@ -1,17 +1,17 @@
 {
-  "version": "0.6.8",
-  "build": 27,
+  "version": "0.7.0",
+  "build": 28,
   "channel": "公测 / Public Beta",
   "status": "beta",
-  "releaseDate": "2026-10-10",
-  "buildDate": "2026-10-10",
-  "downloadUrl": "https://github.com/shunyoudeng/luoxu-web/releases/download/v0.6.8/LUOXU-v0.6.8-performance.apk",
+  "releaseDate": "2026-10-11",
+  "buildDate": "2026-10-11",
+  "downloadUrl": "https://github.com/shunyoudeng/luoxu-web/releases/download/v0.7.0/LUOXU-v0.7.0-performance.apk",
   "githubUrl": "https://github.com/shunyoudeng/luoxu-web",
   "changelogUrl": "../changelog",
   "minimumAndroid": "8.0",
   "minSdk": 26,
   "applicationId": "com.campusai.app",
-  "sizeBytes": 46198410,
-  "sha256": "59b400c2534d9d6f751a9ad9a9356fe3c580526b61077075658a842de8f083a9",
-  "verification": "Android全量387项、后端71项、官网15项单元与25项浏览器检查通过；原签名真机覆盖和20项事务及配置保留已核对。部分页面检查与分钟提醒实际投递仍待验证。"
+  "sizeBytes": 46265693,
+  "sha256": "e7e63c10e167e6e738a11124fc6970f3b7e9246120831d0bafe03279289e7c62",
+  "verification": "Android全量407项、后端71项通过，Debug/Release构建与Lint通过；原签名覆盖安装至测试手机成功。武汉大学教务导入已通过本人真实学校账号验证；分钟提醒实际投递仍待真机验证。"
 }
