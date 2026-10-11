@@ -87,21 +87,35 @@ for (const width of [375,390,412,768,1366,1440]) test(`illustration tabs preserv
   expect(await page.evaluate(() => document.documentElement.scrollWidth>innerWidth)).toBe(false);
 });
 
-test('scroll reveal is once-only and offscreen content is never initially hidden', async ({page}) => {
+test('scroll reveal arrives once; offscreen blocks wait hidden only while JS motion is active', async ({page}) => {
   await page.setViewportSize({width:1440,height:900});
   await page.goto('/');
+  await expect(page.locator('html')).toHaveClass(/js/);
   const heading=page.locator('.privacy-story h2');
-  expect(await heading.evaluate(el => getComputedStyle(el).opacity)).toBe('1');
-  expect(await heading.evaluate(el => getComputedStyle(el).filter)).toBe('none');
+  // Below the fold: waiting to arrive, but never display:none, so layout and find-in-page keep working.
+  expect(await heading.evaluate(el => getComputedStyle(el).opacity)).toBe('0');
+  expect(await heading.evaluate(el => getComputedStyle(el).display)).not.toBe('none');
   await heading.scrollIntoViewIfNeeded();
   await expect(heading).toHaveAttribute('data-revealed','true');
-  expect(await heading.evaluate(el => getComputedStyle(el).transform)).toBe('none');
-  expect(await heading.evaluate(el => getComputedStyle(el).opacity)).toBe('1');
-  await page.waitForTimeout(450);
+  await expect.poll(() => heading.evaluate(el => getComputedStyle(el).opacity)).toBe('1');
+  await expect.poll(() => heading.evaluate(el => getComputedStyle(el).transform)).toBe('none');
+  await expect.poll(() => heading.evaluate(el => getComputedStyle(el).filter)).toBe('none');
+  await page.waitForTimeout(1200);
   await page.evaluate(() => scrollTo(0,0));
   await page.waitForTimeout(450);
   await heading.scrollIntoViewIfNeeded();
   expect(await heading.evaluate(el => el.getAnimations().length)).toBe(0);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth>innerWidth)).toBe(false);
+});
+
+test('hero arrives progressively on first paint', async ({page}) => {
+  await page.setViewportSize({width:1440,height:900});
+  await page.goto('/');
+  const description=page.locator('.hero-description');
+  expect(await description.evaluate(el => el.getAnimations().length)).toBeGreaterThan(0);
+  await expect(description).toBeVisible();
+  await expect.poll(() => description.evaluate(el => el.getAnimations().length),{timeout:5000}).toBe(0);
+  expect(await description.evaluate(el => getComputedStyle(el).opacity)).toBe('1');
 });
 
 test('reduced motion removes transforms even while hovered and keeps copy readable', async ({page}) => {

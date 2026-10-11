@@ -53,10 +53,56 @@
 .nav-link:focus-visible::after {opacity:1;transform:scaleX(1)}
 .mobile-menu .nav-link::after {inset-inline:var(--s3)}
 
-/* No initial hidden state: script failure, no-JS and slow devices keep all copy readable. */
 [data-reveal=line].is-revealing {animation:line-reveal var(--motion-emphasized) var(--ease-out);transform-origin:left}
 @keyframes line-reveal {from {opacity:.6;transform:scaleX(.9)} to {opacity:1;transform:scaleX(1)}}
 [data-reveal]:focus-within {animation:none}
+
+/*
+ * Apple-style arrival. Every hidden initial state is gated by html.js, which a tiny head script adds
+ * only when IntersectionObserver exists and reduced motion is off. Without JS (or if the module
+ * script fails; the head script removes .js after 4s) all copy stays visible.
+ * The selector list below must match REVEAL_SELECTOR in src/scripts/interactions.ts.
+ */
+:root {--rise:28px;--reveal-ease:cubic-bezier(.16,1,.3,1)}
+@keyframes rise-in {from {opacity:0;transform:translate3d(0,var(--rise),0);filter:blur(8px)} to {opacity:1;transform:none;filter:blur(0)}}
+@keyframes fade-down {from {opacity:0;transform:translate3d(0,-10px,0)} to {opacity:1;transform:none}}
+@keyframes glide-in {from {opacity:0;transform:translate3d(0,56px,0);filter:blur(12px)} to {opacity:1;transform:none;filter:blur(0)}}
+@keyframes landscape-drift {from {transform:translate3d(0,0,0)} to {transform:translate3d(0,-36px,0)}}
+
+/* First paint: header settles, then hero copy arrives line by line, then the product. */
+.js .site-header {animation:fade-down 800ms var(--reveal-ease) backwards}
+.js .hero-copy > .eyebrow {animation:rise-in 900ms var(--reveal-ease) 150ms backwards}
+.js .hero-copy .hero-line:nth-child(1) {animation:rise-in 1000ms var(--reveal-ease) 260ms backwards}
+.js .hero-copy .hero-line:nth-child(2) {animation:rise-in 1000ms var(--reveal-ease) 400ms backwards}
+.js .hero-copy .hero-description {animation:rise-in 900ms var(--reveal-ease) 560ms backwards}
+.js .hero-copy > .actions {animation:rise-in 900ms var(--reveal-ease) 700ms backwards}
+.js .hero-copy .hero-version {animation:rise-in 900ms var(--reveal-ease) 800ms backwards}
+.js .hero-copy .hero-footnote {animation:rise-in 900ms var(--reveal-ease) 900ms backwards}
+.js .hero-product .product-preview {animation:glide-in 1200ms var(--reveal-ease) 480ms backwards}
+.js .hero-product .landscape {animation:fade-down 1600ms ease-out 300ms backwards}
+.js .page-header > :nth-child(1) {animation:rise-in 800ms var(--reveal-ease) 80ms backwards}
+.js .page-header > :nth-child(2) {animation:rise-in 900ms var(--reveal-ease) 180ms backwards}
+.js .page-header > :nth-child(n+3) {animation:rise-in 900ms var(--reveal-ease) 300ms backwards}
+
+/* Scroll arrival: fade, lift and un-blur once, as each block enters the viewport. */
+.js :is([data-reveal]:not([data-reveal=line]), .section-head, .flow > *, .feature-row, .feature-list + .text-link,
+  .privacy-story .wrap > *, .privacy-copy > *, .architecture > *, .architecture-note, .open-source > *,
+  .download-home > *, .download-grid > *, .testing-grid > *, .download-faq, .feedback > *,
+  .release-entry, .article > *) {
+  transition:opacity 800ms var(--reveal-ease) var(--reveal-delay,0ms),
+    transform 900ms var(--reveal-ease) var(--reveal-delay,0ms),
+    filter 800ms var(--reveal-ease) var(--reveal-delay,0ms);
+}
+.js :is([data-reveal]:not([data-reveal=line]), .section-head, .flow > *, .feature-row, .feature-list + .text-link,
+  .privacy-story .wrap > *, .privacy-copy > *, .architecture > *, .architecture-note, .open-source > *,
+  .download-home > *, .download-grid > *, .testing-grid > *, .download-faq, .feedback > *,
+  .release-entry, .article > *):not([data-revealed=true]):not(:focus-within) {
+  opacity:0;transform:translate3d(0,var(--rise),0) scale(.985);filter:blur(6px);
+}
+/* Slow, once-only parallax on the hero artwork; compositor-driven, so no scroll listener. */
+@supports (animation-timeline:scroll()) {
+  .js .hero-product .landscape {animation:landscape-drift linear both;animation-timeline:scroll(root);animation-range:0 90vh}
+}
 
 @media (prefers-reduced-motion:reduce) {
   :is(a.button, .text-link, .nav-link, .footer-links a, .preview-tabs button,
