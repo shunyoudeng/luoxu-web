@@ -10,6 +10,9 @@ test('public beta and feedback destinations are consistent across current pages'
   await page.goto('/download');
   await expect(page.locator('.release-stage')).toHaveText('公测版');
   await expect(page.locator('body')).not.toContainText('内测');
+  await expect(page.locator('.release-highlights li')).toHaveCount(release.highlights.length);
+  await expect(page.locator('.release-highlights li').first()).toHaveText(release.highlights[0]);
+  for(const path of pages){await page.goto(path);await expect(page.locator('body'),path).not.toContainText(/Lint|联调|签名|真机|Debug|候选构建|验收|测试\s*\d+\s*项/);}
   await expect(page.getByRole('link',{name:'反馈 Bug'})).toHaveAttribute('href',/^mailto:luoxufeedback@163\.com\?/);
   await expect(page.getByRole('link',{name:'luoxufeedback@163.com',exact:true})).toHaveAttribute('href','mailto:luoxufeedback@163.com');
 });

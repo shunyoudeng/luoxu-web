@@ -7,8 +7,8 @@ const {full=false,heading='h2'}=Astro.props;
 const H=heading;
 const words=['通知','群聊','DDL','作业','竞赛','报名','讲座','问卷','快递','考试','志愿','调课'];
 ---
-<section class:list={['story-stage',{full}]} id="story" aria-labelledby="story-title">
-  <div class="story-sticky">
+<section class:list={['story-stage',{full}]} id="story" aria-labelledby="story-title" data-glide>
+  <div class="story-frame">
     <p class="eyebrow story-eyebrow">02 / NAME</p>
     <H id="story-title" class="visually-hidden">珞序：从纷杂到有序</H>
     <div class="drift-field" aria-hidden="true">{words.map((w,i)=><span class="drift" data-i={i}>{w}</span>)}</div>
@@ -21,9 +21,11 @@ const words=['通知','群聊','DDL','作业','竞赛','报名','讲座','问卷
   </div>
 </section>
 <style>
-.story-stage{position:relative;height:250svh}
-.story-stage.full{height:230svh;margin-top:-72px}
-.story-sticky{position:sticky;top:0;height:100svh;min-height:600px;overflow:clip;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:clamp(12px,2.4vh,28px);padding:calc(72px + 2vh) clamp(20px,4vw,64px) var(--s6)}
+/* Normal flow; with motion on, the frame glides through the bottom padding (data-glide) while the name is written. */
+.story-stage{position:relative;overflow:clip}
+.story-stage.full{margin-top:-72px}
+html.js .story-stage{padding-bottom:28svh}
+.story-frame{position:relative;min-height:max(100svh,600px);overflow:clip;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:clamp(12px,2.4vh,28px);padding:calc(72px + 2vh) clamp(20px,4vw,64px) var(--s6)}
 .story-eyebrow{position:absolute;left:clamp(20px,4vw,64px);top:calc(72px + 4vh)}
 .drift-field{position:absolute;inset:calc(72px + 9vh) clamp(20px,4vw,64px) 24vh;display:grid;grid-auto-flow:column;grid-template-rows:repeat(6,auto);grid-template-columns:auto auto;justify-content:space-between;align-content:space-between;pointer-events:none;z-index:0}
 .drift{font:italic 400 clamp(.9rem,1.4vw,1.15rem) var(--serif);letter-spacing:.16em;color:var(--green);opacity:.62;padding:var(--s2) 0;text-transform:uppercase}
@@ -35,7 +37,15 @@ html:not(.webgl) .story-hw::before{content:'';position:absolute;inset:-14% -18%;
 .story-cap b{font:900 clamp(1.6rem,2.8vw,2.4rem)/1 var(--display-font);color:var(--green)}
 .story-line{position:relative;z-index:1;font-size:clamp(1.1rem,2vw,1.6rem);color:var(--ink);display:flex;align-items:center;gap:var(--s6);flex-wrap:wrap;justify-content:center}
 .visually-hidden{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
-html:not(.js) .story-stage,html:not(.js) .story-stage.full{height:auto}html:not(.js) .story-sticky{position:static;height:auto;padding-block:var(--s16)}
-@media(max-width:700px){.story-stage{height:220svh}.story-caps{grid-template-columns:1fr;gap:var(--s3);text-align:left}.drift-field{inset-block:calc(72px + 5vh) 34vh}.drift{font-size:.8rem}.hw{width:min(40vw,34vh)!important}}
-@media(prefers-reduced-motion:reduce){.story-stage,.story-stage.full{height:auto}.story-sticky{position:static;height:auto;padding-block:var(--s16)}}
+/* Phones: everything stacks in flow, so the words, captions and label can never overlap; the scattered words
+   settle into two centred rows above the name instead of two columns over the whole frame. */
+@media(max-width:700px){
+  html.js .story-stage{padding-bottom:18svh}
+  .story-frame{justify-content:center;padding-top:calc(72px + 3vh)}
+  .story-eyebrow{position:static;align-self:flex-start}
+  .drift-field{position:relative;inset:auto;display:flex;flex-wrap:wrap;justify-content:center;gap:0 var(--s4);max-width:22rem}
+  .drift{font-size:.8rem;padding:2px 0;letter-spacing:.12em}.drift:nth-child(n+7){text-align:center}
+  .story-caps{grid-template-columns:1fr;gap:var(--s3);text-align:left}
+  .hw{width:min(38vw,30svh)!important}.story-line{gap:var(--s3) var(--s6)}
+}
 </style>

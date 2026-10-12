@@ -13,15 +13,33 @@ const fine = matchMedia('(hover:hover) and (pointer:fine)').matches;
 const mobile = matchMedia('(max-width:700px)').matches;
 const $ = <T extends Element = HTMLElement>(sel: string, ctx: ParentNode = document) => Array.from(ctx.querySelectorAll<T>(sel));
 
-/* ── smooth scroll with weight */
-const lenis = new Lenis({lerp: .085, wheelMultiplier: .9, smoothWheel: true, anchors: {offset: -24}});
+/* ── smooth scroll with weight: light enough that the page always follows the wheel closely (touch stays native) */
+const lenis = new Lenis({lerp: .12, wheelMultiplier: 1, smoothWheel: true, anchors: {offset: -24}});
 root.classList.add('lenis-on');
 lenis.on('scroll', ScrollTrigger.update);
 gsap.ticker.add(t => lenis.raf(t * 1000));
 gsap.ticker.lagSmoothing(0);
 ScrollTrigger.config({ignoreMobileResize: true});
 
-/* ── split text into masked characters (CJK-friendly), keeping the accessible text on the parent */
+/* ── split text into masked characters (CJK-friendly), keeping the accessible text on the parent.
+   Per-character boxes would let a line break anywhere (mid-word, or before a comma), so characters are grouped into
+   unbreakable words first: a short clause (up to 7 characters, punctuation included) stays whole so headings break at
+   the comma; longer clauses use Intl.Segmenter words. Closing punctuation stays with the word before, opening with the next. */
+const CLOSE = /^[，。、；：？！,.;:?!）)」』”’》…—]+$/, OPEN = /[“‘（(「『《]$/;
+const segmenter = 'Segmenter' in Intl ? new Intl.Segmenter('zh', {granularity: 'word'}) : null;
+const SHORT_CLAUSE = 7;
+function words(text: string) {
+  const out: string[] = [];
+  const parts = (text.match(/[^，。、；：？！]*[，。、；：？！]*/g) ?? [text]).filter(Boolean).flatMap(clause =>
+    clause.trim().length <= SHORT_CLAUSE && !/\s/.test(clause.trim()) ? [clause]
+      : segmenter ? Array.from(segmenter.segment(clause), s => s.segment) : Array.from(clause));
+  for (const p of parts) {
+    const prev = out[out.length - 1];
+    if (prev !== undefined && !/\s$/.test(prev) && !/^\s/.test(p) && (CLOSE.test(p) || OPEN.test(prev))) out[out.length - 1] = prev + p;
+    else out.push(p);
+  }
+  return out;
+}
 function splitChars(el: HTMLElement) {
   if (el.dataset.splitDone) return $('.ci', el);
   const label = el.textContent?.trim() ?? '';
@@ -30,10 +48,15 @@ function splitChars(el: HTMLElement) {
     Array.from(node.childNodes).forEach(child => {
       if (child.nodeType === 3) {
         const frag = document.createDocumentFragment();
-        for (const ch of Array.from(child.textContent ?? '')) {
-          if (/\s/.test(ch)) {frag.append(ch); continue;}
-          const w = document.createElement('span'); w.className = 'ch'; w.setAttribute('aria-hidden', 'true');
-          const i = document.createElement('span'); i.className = 'ci'; i.textContent = ch; w.append(i); frag.append(w);
+        for (const word of words(child.textContent ?? '')) {
+          if (/^\s+$/.test(word)) {frag.append(word); continue;}
+          const wd = document.createElement('span'); wd.className = 'wd';
+          for (const ch of Array.from(word)) {
+            if (/\s/.test(ch)) {wd.append(ch); continue;}
+            const w = document.createElement('span'); w.className = 'ch'; w.setAttribute('aria-hidden', 'true');
+            const i = document.createElement('span'); i.className = 'ci'; i.textContent = ch; w.append(i); wd.append(w);
+          }
+          frag.append(wd);
         }
         child.replaceWith(frag);
       } else if (child.nodeType === 1 && (child as HTMLElement).tagName !== 'BR') walk(child);
@@ -63,30 +86,27 @@ if (header) {
 const bar = document.querySelector<HTMLElement>('.progress-bar');
 if (bar) gsap.to(bar, {scaleX: 1, ease: 'none', scrollTrigger: {start: 0, end: 'max', scrub: .3}});
 
-/* ── narrative beats: storytelling plays on its own clock instead of being dragged by the wheel.
-   A stage owns a paused timeline whose beats end at labels b1, b2…; each beat has a scroll position. Passing it on the
-   way down plays the timeline to that beat's end; passing back up rewinds it (a little faster). The playhead is always
-   tweened toward a single target, so quick flicks only retarget one tween: no jumps, no replays, no flicker. */
-function beats(tl: gsap.core.Timeline, trigger: HTMLElement, starts: (string | (() => string))[]) {
+/* ── narrative stages: the wheel always scrolls the page; storytelling runs on its own clock.
+   No pins, no sticky dwell. A stage owns one paused timeline; crossing its threshold on the way down plays it through
+   to the end by itself, crossing back up reverses it (faster) from wherever it is. play()/reverse() only flip the
+   direction of a single playhead, so quick flicks never restart, replay or jump. */
+function autoplay(tl: gsap.core.Timeline, trigger: HTMLElement, start: string) {
   tl.pause(0);
-  const active = starts.map(() => false);
-  let target = -1, tween: gsap.core.Tween | undefined;
-  const go = () => {
-    const k = active.filter(Boolean).length;
-    if (k === target) return;
-    target = k;
-    const to = k === 0 ? 0 : tl.labels['b' + k] ?? tl.duration();
-    const back = to < tl.time();
-    tween?.kill();
-    tween = tl.tweenTo(to, {duration: Math.abs(to - tl.time()) / (back ? 1.7 : 1), ease: 'none'});
-  };
-  starts.forEach((start, i) => ScrollTrigger.create({
+  ScrollTrigger.create({
     trigger, start, end: 'max',
-    onToggle: self => {active[i] = self.isActive; go();},
-  }));
+    onToggle: self => {if (self.isActive) tl.timeScale(1).play(); else tl.timeScale(1.8).reverse();},
+  });
 }
-/* scroll distance into a pinned stage, as a fraction of its pinned travel */
-const into = (el: HTMLElement, f: number) => () => `top+=${Math.round(f * Math.max(0, el.offsetHeight - innerHeight))} top`;
+/* light parallax for stages: the frame glides down through the stage's bottom padding, so the stage keeps moving with
+   the scroll (about three quarters speed) and stays in view a little longer while its timeline plays */
+$('[data-glide]').forEach(stage => {
+  const frame = stage.firstElementChild as HTMLElement | null;
+  if (!frame) return;
+  gsap.fromTo(frame, {y: 0}, {
+    y: () => parseFloat(getComputedStyle(stage).paddingBottom) || 0, ease: 'none',
+    scrollTrigger: {trigger: stage, start: 'clamp(top bottom)', end: 'bottom top', scrub: true, invalidateOnRefresh: true},
+  });
+});
 
 /* ── intro: any page-level [data-intro] block rises in, characters unmask */
 const introTl = gsap.timeline({defaults: {ease: 'expo.out'}, delay: .15});
@@ -153,8 +173,7 @@ if (order) {
   steps.forEach((s, i) => tl.to({}, {
     duration: .38, onStart: () => s.classList.add('is-on'), onReverseComplete: () => s.classList.remove('is-on'),
   }, 1.45 + i * .38));
-  tl.addLabel('b1');
-  beats(tl, order, ['top 30%']);
+  autoplay(tl, order, 'top 18%');
 }
 
 /* ── STORY: the name is written in its real stroke order, then the scattered words settle into rows */
@@ -182,29 +201,29 @@ $('.story-stage').forEach(stage => {
       {x: 0, y: 0, rotation: 0, opacity: 1, scale: 1, filter: 'blur(0px)', ease: 'expo.out', duration: 1.6}, 'b1+=' + i * .045);
   });
   tl.from($('.story-cap', stage), {y: 32, opacity: 0, stagger: .14, duration: 1, ease: 'expo.out'}, 'b1+=.35');
-  tl.addLabel('b2');
-  beats(tl, stage, ['top 22%', into(stage, .38)]);
+  autoplay(tl, stage, 'top 15%');
 });
 
-/* ── POSTER: dark immersive manifesto; lines arrive from depth, then "数据库" is struck out */
+/* ── POSTER: dark immersive manifesto; lines arrive from depth, hold a breath, then "数据库" is struck out.
+   The whole act plays by itself once the poster is in view, at an unhurried pace. */
 $('.poster').forEach(poster => {
   const lines = $('.poster-line', poster);
   const strike = poster.querySelector<HTMLElement>('.strike');
   gsap.set(lines, {transformPerspective: 1100});
   const tl = gsap.timeline();
+  const lead = .3; // a short beat after arrival before the first line rises
   lines.forEach((ln, i) => {
-    tl.fromTo($('.ci', ln), {yPercent: 118, rotate: 4}, {yPercent: 0, rotate: 0, duration: 1.1, stagger: .045, ease: 'expo.out'}, i * .26);
-    tl.fromTo(ln, {z: -520, opacity: 0}, {z: 0, opacity: 1, duration: 1.3, ease: 'expo.out'}, i * .26);
+    tl.fromTo($('.ci', ln), {yPercent: 118, rotate: 4}, {yPercent: 0, rotate: 0, duration: 1.2, stagger: .05, ease: 'expo.out'}, lead + i * .3);
+    tl.fromTo(ln, {z: -520, opacity: 0}, {z: 0, opacity: 1, duration: 1.4, ease: 'expo.out'}, lead + i * .3);
   });
-  tl.addLabel('b1', '-=.35');
+  tl.addLabel('b1', '+=.55'); // let the full sentence read before it resolves
   const last = lines.length - 1;
   tl.to(lines.slice(0, last), {z: 340, opacity: 0, yPercent: -18, duration: 1, stagger: .08, ease: 'power3.in'}, 'b1');
   tl.to(lines[last], {yPercent: -40, duration: 1.3, ease: 'expo.inOut'}, 'b1+=.2');
   if (strike) tl.fromTo(strike, {scaleX: 0}, {scaleX: 1, duration: .7, ease: 'expo.inOut'}, 'b1+=1.05');
   tl.to($('.strike-target', poster), {opacity: .32, duration: .6}, 'b1+=1.45');
   tl.to($('.poster-tail', poster), {opacity: 1, y: 0, duration: 1, ease: 'expo.out'}, 'b1+=1.5');
-  tl.addLabel('b2');
-  beats(tl, poster, ['top 35%', into(poster, .42)]);
+  autoplay(tl, poster, 'top 22%');
 });
 
 /* ── chapter headings drift in depth */

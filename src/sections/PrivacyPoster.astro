@@ -6,8 +6,8 @@ const {heading='h2',copy=true}=Astro.props;
 const H=heading;
 ---
 <section class="privacy-story" data-tone="dark">
-  <div class="poster" aria-labelledby="poster-title">
-    <div class="poster-sticky">
+  <div class="poster" aria-labelledby="poster-title" data-glide>
+    <div class="poster-frame">
       <p class="eyebrow poster-eyebrow">03 / YOUR LIFE, YOURS.</p>
       <H id="poster-title" class="poster-h">
         <span class="poster-line l1 kai" data-split-poster>你的校园生活，</span>
@@ -28,21 +28,24 @@ const H=heading;
 html.webgl .privacy-story{background:transparent linear-gradient(rgba(22,35,29,0),rgba(22,35,29,0))}
 .privacy-story .eyebrow{color:var(--on-night-2)}
 .privacy-story :focus-visible{outline-color:var(--mint)}
-.poster{position:relative;height:270svh}
-.poster-sticky{position:sticky;top:0;height:100svh;min-height:600px;overflow:clip;display:flex;flex-direction:column;justify-content:center;padding:calc(72px + 2vh) clamp(20px,4vw,64px) var(--s8)}
+/* Normal flow; with motion on, the frame glides through the bottom padding (data-glide) while the manifesto plays. */
+.poster{position:relative;overflow:clip}
+html.js .poster{padding-bottom:32svh}
+.poster-frame{position:relative;min-height:max(100svh,600px);overflow:clip;display:flex;flex-direction:column;justify-content:center;padding:calc(72px + 2vh) clamp(20px,4vw,64px) var(--s8)}
 .poster-eyebrow{position:absolute;left:clamp(20px,4vw,64px);top:calc(72px + 4vh)}
 .poster-h{position:relative;font-weight:900;letter-spacing:-.05em;line-height:.98;perspective:1100px;transform-style:preserve-3d}
-.poster-line{display:block;color:var(--on-night);font:900 clamp(3rem,12.4vw,12.5rem)/1 var(--display-font);will-change:transform}
+.poster-line{display:block;color:var(--on-night);font:900 clamp(3rem,min(12.4vw,16svh),12.5rem)/1 var(--display-font);will-change:transform}
 .poster-line.l1{font:400 clamp(1.4rem,3.2vw,3rem)/1.4 var(--kai);letter-spacing:.06em;color:var(--mint);margin-bottom:.4em}
 .poster-line.l2{margin-left:-.02em}
 .poster-line.l3{margin-left:clamp(0px,9vw,150px);color:var(--mint)}
 .poster-line.l4{position:relative;width:max-content;max-width:100%;margin-left:clamp(0px,3vw,60px)}
-.poster-line .ch{display:inline-block;overflow:hidden;vertical-align:top;padding-bottom:.08em;margin-bottom:-.08em}
+.poster-line .ch{display:inline-block;overflow:hidden;vertical-align:top;padding-block:.06em .1em;margin-block:-.06em -.1em}
 .poster-line .ci{display:inline-block}
 .strike-target{display:inline-block}
 .strike{position:absolute;left:-.02em;right:0;top:54%;height:.075em;background:var(--mint);transform-origin:left;transform:scaleX(0);border-radius:4px}
 html:not(.js) .strike{transform:none}
-.poster-tail{position:absolute;left:clamp(20px,4vw,64px);bottom:clamp(36px,9vh,90px);max-width:18em;font:400 clamp(1.15rem,2.4vw,2rem)/1.5 var(--kai);color:var(--on-night);letter-spacing:.04em;opacity:0;transform:translateY(24px)}
+/* in flow under the headline, so it can never collide with the struck-out word on short screens */
+.poster-tail{position:relative;margin-top:clamp(24px,5vh,64px);max-width:18em;font:400 clamp(1.15rem,2.4vw,2rem)/1.5 var(--kai);color:var(--on-night);letter-spacing:.04em;opacity:0;transform:translateY(24px)}
 html:not(.js) .poster-tail{opacity:1;transform:none}
 .m-br{display:none}
 .privacy-copy{display:grid;grid-template-columns:1fr 1fr;gap:var(--s16);padding-block:clamp(48px,7vw,96px) clamp(96px,12vw,176px);border-top:var(--stroke) solid rgba(241,243,236,.16)}
@@ -51,7 +54,8 @@ html:not(.js) .poster-tail{opacity:1;transform:none}
 .privacy-pull{font-family:var(--kai);font-size:clamp(1.25rem,2vw,1.625rem);line-height:1.8;color:var(--on-night)!important}
 .privacy-story .text-link{color:var(--mint);margin-top:var(--s4)}
 .privacy-story .text-link:hover{color:#fff}
-html:not(.js) .poster{height:auto}html:not(.js) .poster-sticky{position:static;height:auto;padding-block:var(--s24)}
-@media(max-width:700px){.poster{height:240svh}.privacy-copy{grid-template-columns:1fr;gap:var(--s8)}.poster-line{font-size:clamp(3rem,19vw,6rem)}.poster-line.l3{margin-left:.5em}.m-br{display:inline}.poster-tail{bottom:calc(env(safe-area-inset-bottom) + 36px)}}
-@media(prefers-reduced-motion:reduce){.poster{height:auto}.poster-sticky{position:static;height:auto;padding-block:var(--s24)}.poster-tail{opacity:1;transform:none}.strike{transform:none}}
+@media(max-width:700px){html.js .poster{padding-bottom:20svh}.privacy-copy{grid-template-columns:1fr;gap:var(--s8)}.poster-line{font-size:clamp(2.6rem,min(17.5vw,11svh),6rem)}.poster-line.l1{font-size:clamp(1.15rem,5.4vw,1.5rem)}.poster-line.l3{margin-left:.4em}.m-br{display:inline}
+  .poster-frame{padding-top:calc(72px + 10vh);padding-bottom:calc(env(safe-area-inset-bottom) + var(--s10))}.poster-eyebrow{top:calc(72px + 2vh)}
+  .poster-tail{margin-top:var(--s10)}}
+@media(prefers-reduced-motion:reduce){.poster-tail{opacity:1;transform:none}.strike{transform:none}}
 </style>

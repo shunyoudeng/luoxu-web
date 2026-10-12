@@ -13,7 +13,7 @@ const msgs=[
 ];
 ---
 <section class="order-stage" id="order" aria-labelledby="order-title">
-  <div class="order-sticky">
+  <div class="order-frame">
     <header class="order-head">
       <p class="eyebrow">01 / ORDER</p>
       <h2 id="order-title" class="disp" data-split><span class="soft">消息来得很散，</span><br/><span class="accent">事情可以清楚。</span></h2>
@@ -31,8 +31,9 @@ const msgs=[
   </div>
 </section>
 <style>
-.order-stage{position:relative;height:240svh}
-.order-sticky{position:sticky;top:0;height:100svh;min-height:600px;display:grid;grid-template-rows:auto 1fr auto;gap:var(--s6);padding:calc(72px + 3vh) clamp(20px,4vw,64px) var(--s6);overflow:clip}
+/* Normal flow: the frame is at least one screen tall and grows with its content, so lanes are never clipped. */
+.order-stage{position:relative}
+.order-frame{position:relative;min-height:max(100svh,600px);display:grid;grid-template-rows:auto 1fr auto;gap:var(--s6);padding:calc(72px + 3vh) clamp(20px,4vw,64px) var(--s6);overflow:clip}
 .order-head{display:grid;grid-template-columns:repeat(12,1fr);align-items:end;gap:var(--s4)}
 .order-head .eyebrow{grid-column:1 / -1}
 .order-head h2{grid-column:1 / span 8}
@@ -44,7 +45,8 @@ const msgs=[
 .lane-title{font:900 clamp(1.25rem,2.2vw,2rem)/1.1 var(--display-font);letter-spacing:-.02em}
 .lane-msgs{display:grid;gap:var(--s2)}
 .msg{display:flex;flex-direction:column;gap:2px;padding:var(--s3) var(--s4);border-radius:var(--r3);background:var(--surface);border:1px solid var(--line);will-change:transform}
-.msg strong{font-size:var(--small);font-weight:600;line-height:1.45}
+.lane,.msg{min-width:0}
+.msg strong{font-size:var(--small);font-weight:600;line-height:1.45;overflow-wrap:anywhere}
 .msg span{font-size:var(--caption);color:var(--secondary)}
 .order-steps{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(4,1fr);gap:clamp(10px,1.4vw,22px)}
 .order-step{display:flex;gap:var(--s3);color:var(--secondary);transition:color .5s var(--ease-out),transform .6s var(--ease-soft-spring);transform:translateY(6px)}
@@ -54,15 +56,13 @@ const msgs=[
 .order-step h4{font-weight:800;font-size:var(--body)}
 .order-step p{font-size:var(--caption);color:inherit;margin-top:2px;max-width:22ch}
 .order-note{font-size:var(--caption);color:var(--secondary);letter-spacing:.04em}
-html:not(.js) .order-stage{height:auto}html:not(.js) .order-sticky{position:static;height:auto;padding-block:var(--s16)}
 @media(max-width:900px){
-  .order-stage{height:220svh}
   .order-head h2{grid-column:1 / -1}.order-lead{grid-column:1 / -1}
   .order-board{grid-template-columns:1fr 1fr;gap:10px}
   .order-steps{display:none}
-  .lane{padding:12px;border-radius:22px}
+  .lane{padding:12px;border-radius:22px;background:rgba(255,254,251,.8)}
   .msg{padding:10px 12px}
-  .order-sticky{padding-top:calc(72px + 1vh);gap:var(--s4)}
+  .order-frame{padding-top:calc(72px + 1vh);gap:var(--s4)}
 }
-@media(prefers-reduced-motion:reduce){.order-stage{height:auto}.order-sticky{position:static;height:auto;padding-block:var(--s16)}}
+@media(max-width:380px){.lane-title{font-size:1.125rem}.msg{padding:9px 10px}.msg strong{font-size:.8125rem}}
 </style>

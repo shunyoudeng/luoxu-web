@@ -307,7 +307,8 @@ export async function startScene(canvas: HTMLCanvasElement, opts: {reduced: bool
   const quietEls = new Map<Element, number>();
   for (const [sel, k] of QUIET_SELECTORS) document.querySelectorAll(sel).forEach(el => quietEls.set(el, k));
   const visible = new Set<Element>();
-  let rectsDirty = true, rectScroll = -1;
+  let rectsDirty = true, rectScroll = -1, measuredAt = -1e9;
+  const CARRY = .33;
   const io = new IntersectionObserver(es => {
     es.forEach(e => (e.isIntersecting ? visible.add(e.target) : visible.delete(e.target)));
     rectsDirty = true;
@@ -315,8 +316,11 @@ export async function startScene(canvas: HTMLCanvasElement, opts: {reduced: bool
   quietEls.forEach((_, el) => io.observe(el));
   // Transform changes on a clearing's ancestors matter; colour-only root updates don't.
   const rectObserver = new MutationObserver(records => {
+    if (rectsDirty) return;
     for (const {target} of records) {
       if (target === document.documentElement || target === document.body) continue;
+      // split-text glyphs animate inside their block; they never move the block's own box
+      if (target instanceof Element && (target.classList.contains('ci') || target.classList.contains('ch'))) continue;
       if (target instanceof Element && [...visible].some(el => target === el || target.contains(el))) {
         rectsDirty = true;break;
       }
@@ -325,13 +329,24 @@ export async function startScene(canvas: HTMLCanvasElement, opts: {reduced: bool
   rectObserver.observe(document.body, {subtree: true, attributes: true, attributeFilter: ['style', 'class']});
   document.fonts.ready.then(() => {rectsDirty = true;});
   const updateRects = () => {
-    if (!rectsDirty && rectScroll === scrollY) return;
-    rectsDirty = false;rectScroll = scrollY;
+    const y = scrollY;
+    // Plain scrolling: no layout read, the measured clearings are carried along with the page. A fresh measure
+    // happens on layout/style changes, or after a third of a screen so blocks arriving from the margin are picked up.
+    if (!rectsDirty && Math.abs(y - measuredAt) < vh * CARRY) {
+      if (rectScroll !== y) {
+        const dy = (rectScroll - y) * renderer.getPixelRatio();
+        for (let i = 0; i < shared.uRectN.value; i++) {rects[i].y += dy; rects[i].w += dy;}
+        rectScroll = y;
+      }
+      return;
+    }
+    rectsDirty = false;rectScroll = measuredAt = y;
     let n = 0;
     const pr = renderer.getPixelRatio();
     const K = shared.uRectK.value as number[];
+    const band = 120 + vh * CARRY;
     const push = (l: number, t: number, r: number, b: number, k: number) => {
-      if (n >= MAX_RECTS || b < -120 || t > vh + 120 || r - l < 2) return;
+      if (n >= MAX_RECTS || b < -band || t > vh + band || r - l < 2) return;
       rects[n].set(l * pr, t * pr, r * pr, b * pr); K[n] = k; n++;
     };
     for (const el of visible) {

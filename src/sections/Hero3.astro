@@ -14,7 +14,7 @@ const ridges=[
   <div class="ridge-fallback" aria-hidden="true">
     {ridges.map(r=><svg class={`ridge ridge-${r.name}`} viewBox="0 0 1440 480" preserveAspectRatio="xMidYMax slice" fill="none"><path class="ridge-fill" d={`${r.d}V480H0Z`}/><path class="ridge-line" d={r.d}/></svg>)}
   </div>
-  <div class="hero3-sticky">
+  <div class="hero3-frame">
     <div class="mega" aria-hidden="true">
       <span class="mega-layer mega-l3">珞序</span>
       <span class="mega-layer mega-l2">珞序</span>
@@ -36,8 +36,9 @@ const ridges=[
   </div>
 </section>
 <style>
-.hero3{position:relative;height:150svh;margin-top:-72px}
-.hero3-sticky{position:sticky;top:0;height:100svh;min-height:560px;overflow:clip;display:grid;grid-template-columns:repeat(12,1fr);align-items:end;padding:0 clamp(20px,4vw,64px) clamp(36px,7vh,72px)}
+/* No sticky dwell: the hero scrolls away with the page while the name pushes in (scrubbed in motion.ts). */
+.hero3{position:relative;margin-top:-72px}
+.hero3-frame{position:relative;min-height:max(100svh,560px);overflow:clip;display:grid;grid-template-columns:repeat(12,1fr);align-items:end;padding:0 clamp(20px,4vw,64px) clamp(36px,7vh,72px)}
 .ridge-fallback{position:absolute;inset:0;pointer-events:none;overflow:clip}
 .ridge-fallback .ridge{position:absolute;inset:auto 0 0 0;width:100%;height:62%}
 .ridge-fill{fill:var(--green)}
@@ -69,13 +70,14 @@ html:not(.webgl) .hero3-copy::before{content:'';position:absolute;inset:-8% -10%
 .scroll-line{width:56px;height:1px;background:currentColor;transform-origin:left;animation:scrollline 2.4s var(--ease-out) infinite}
 @keyframes scrollline{0%{transform:scaleX(0)}55%{transform:scaleX(1);opacity:1}100%{transform:scaleX(1);opacity:0}}
 .hero-coords{position:absolute;right:clamp(20px,4vw,64px);top:calc(72px + 4vh);text-align:right;font:italic var(--caption)/1.7 var(--serif);letter-spacing:.14em;color:var(--secondary)}
+/* Narrow screens stack the name above the copy in normal flow, so short phones never overlap or clip them. */
 @media(max-width:900px){
-  .hero3-sticky{grid-template-columns:1fr;align-content:end;padding-bottom:clamp(88px,14vh,120px)}
-  .hero3-copy{grid-column:1}
-  .mega{--mega-size:clamp(8.5rem,44vw,20rem);top:23%;left:.02em}
+  .hero3-frame{grid-template-columns:1fr;grid-template-rows:1fr auto;align-items:stretch;row-gap:clamp(16px,3vh,32px);padding-top:calc(72px + clamp(12px,3vh,40px));padding-bottom:clamp(72px,11vh,112px)}
+  .hero3-copy{grid-column:1;align-self:end}
+  .mega{--mega-size:clamp(6.5rem,min(42vw,24svh),20rem);position:relative;top:auto;left:-.04em;margin-top:0;align-self:center}
   .hero-coords{display:none}
 }
-@media(max-width:700px){.hero3-copy .actions{flex-direction:column;align-items:stretch;width:100%}.hero3-copy .actions>*{width:100%}.hero3{height:135svh}.scroll-hint{bottom:calc(env(safe-area-inset-bottom) + 18px)}}
+@media(max-width:700px){.hero3-copy .actions{flex-direction:column;align-items:stretch;width:100%}.hero3-copy .actions>*{width:100%}.hero3-copy{gap:var(--s4)}.hero-description{line-height:1.7}.scroll-hint{bottom:calc(env(safe-area-inset-bottom) + 18px)}}
+@media(max-width:700px) and (max-height:700px){.hero3-copy h1{font-size:clamp(1.6rem,7.4vw,2rem)}.hero-description{font-size:.9375rem}}
 html:not(.js) .scroll-line{animation:none}
-@media(prefers-reduced-motion:reduce){.hero3{height:auto}.hero3-sticky{position:relative}}
 </style>

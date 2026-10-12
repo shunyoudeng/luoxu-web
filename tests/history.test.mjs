@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
+import {findInternalCopy} from '../src/lib/release.mjs';
 
 test('history retains confirmed early versions and identifies the combined release',async()=>{
   const history=JSON.parse(await readFile('src/data/history.json','utf8'));
@@ -16,4 +17,16 @@ test('history retains confirmed early versions and identifies the combined relea
   for(let i=2;i<history.length;i++) assert.ok(key(history[i-1].id)>key(history[i].id));
   for(const entry of history) for(const field of ['added','improved','fixed']) assert.ok(Array.isArray(entry[field]));
   assert.equal(history.at(-1).id,'0.1.0');
+});
+
+test('public changelog and release copy stays user-facing',async()=>{
+  const history=JSON.parse(await readFile('src/data/history.json','utf8'));
+  const latest=JSON.parse(await readFile('public/releases/latest.json','utf8'));
+  assert.ok(!('verification' in latest),'Internal verification notes do not belong in public release metadata');
+  assert.ok(latest.highlights.length>0);
+  assert.equal(findInternalCopy(latest.highlights),'');
+  for(const entry of history){
+    const copy=[entry.summary,entry.note||'',...entry.added,...entry.improved,...entry.fixed];
+    assert.equal(findInternalCopy(copy),'',`v${entry.id} contains internal engineering wording`);
+  }
 });

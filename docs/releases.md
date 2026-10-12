@@ -15,10 +15,10 @@
 | `changelogUrl` | 相对元数据文件的更新日志路径 |
 | `sizeBytes`、`sha256` | 实际文件大小和校验和 |
 | `minimumAndroid`、`minSdk`、`applicationId` | 安装要求和包名 |
-| `verification` | 对应版本的验证范围 |
+| `highlights` | 下载面板“本次更新”列表：3–5 条面向用户的功能介绍，取自最新 history 条目的 added/improved/fixed |
 | `githubUrl` | 可选的实际仓库地址；未填写时为空 |
 
-发布状态根据对应版本的验收结果维护。网站上线与 App 通过真机验收是两件不同的事。
+发布状态根据对应版本的验收结果维护。网站上线与 App 通过真机验收是两件不同的事；但测试数量、构建、Lint、签名、联调与待真机验证等内部记录不写进 latest.json 或 history.json，它们会公开显示在官网上。`validateRelease` 与 `npm test` 会拒绝这类措辞（见 `src/lib/release.mjs` 中的 `INTERNAL_COPY`）。
 
 ## 替换本地安装包
 
@@ -30,7 +30,7 @@ npm run release:apk -- --file "/path/to/app.apk" --version 0.6.1 --build 20
 
 脚本不编译、签名或修改 APK 内容，也不自动核对 Manifest；发布前核对实际包名、版本、最低系统要求及覆盖安装兼容性。`--date YYYY-MM-DD` 可设置实际构建日期。
 
-`npm run build` 会验证本地 APK 的大小与 SHA256。候选构建可以下载，但应在 verification 和更新日志中保留验证边界。
+`npm run build` 会验证本地 APK 的大小与 SHA256。版本号变化后，脚本会提醒重写 `highlights`。预览版（candidate）可以下载，并在页面上标为“预览版”；对用户有实际影响的已知限制，用平实语言写进更新日志 note 或下载页注意事项。
 
 ## 相对地址
 
@@ -56,11 +56,13 @@ Git 历史会保存每次提交的二进制版本。长期发布推荐 Releases�
 
 1. 把旧的 `latest` 条目改为对应版本号，并填写真实 period/channel。
 2. 新建一个 `id: latest` 的条目，版本与日期仍由元数据提供。
-3. 在 added/improved/fixed 中记录用户可感知的变化，note 记录验证范围。
+3. 在 added/improved/fixed 中只记录用户能感受到的变化，写“用户得到了什么”，而不是“工程上做了什么”：例如写“覆盖安装后，原有数据与设置保持不变”，不写“保留原包名、签名与数据库”。纯工程事项（Lint、构建、CI、签名、测试数量）不写入。
+4. note 可留空；需要时只写对用户有用的提示，例如公测状态、仅支持 Android、分钟提醒可能被省电策略延迟及如何设置、学校系统变化可能需要适配、覆盖安装保留数据。
+5. 同步更新 latest.json 的 `highlights`。
 
-页面与静态 `releases/history.json` 共用数据；已有记录继续保留。日期不确定时可以使用月份，避免推算发布日期。
+页面与静态 `releases/history.json` 共用数据；已有记录继续保留。日期不确定时可以留空或使用月份，避免推算发布日期。
 
-当前 App 更新为 0.7.2 / build 30 / Public Beta（公测），合并发布0.7.1以来的课程与事务显示、自动同步及日历选择改进；最终APK放在官网仓库Releases Assets，latest.json使用该资源的HTTPS地址。本机与浏览器测试核对字节数、SHA-256；新版不加入网站Git历史，原历史APK继续保留。官网动画与布局沿用现有实现，本次仅更新发布内容。
+当前 App 更新为 0.7.2 / build 30 / Public Beta（公测），合并发布0.7.1以来的课程与事务显示、自动同步及日历选择改进；最终APK放在官网仓库Releases Assets，latest.json使用该资源的HTTPS地址。本机与浏览器测试核对字节数、SHA-256；新版不加入网站Git历史，原历史APK继续保留。
 
 ## 发布边界
 

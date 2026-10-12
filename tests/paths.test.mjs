@@ -21,7 +21,7 @@ test('relative release URLs survive both project and root deployments',()=>{
   assert.equal(localApkPath('../downloads/app.apk'),'public/downloads/app.apk');
   assert.equal(localApkPath('/downloads/app.apk'),'public/downloads/app.apk');
   assert.equal(localApkPath('../downloads/../private.apk'),'');
-  const base={version:'0.6.0',build:19,status:'candidate',channel:'Internal Beta',minSdk:26,changelogUrl:'../changelog'};
+  const base={version:'0.6.0',build:19,status:'candidate',channel:'Internal Beta',minSdk:26,changelogUrl:'../changelog',highlights:['课表支持翻周查看。']};
   assert.ok(validateRelease({...base,downloadUrl:'../downloads/app.apk'}));
   assert.throws(()=>validateRelease({...base,downloadUrl:'../../private.apk'}));
 });

@@ -8,6 +8,7 @@ html.webgl .chapter-tint{background:none}
 html:not(.js) .progress-bar{display:none}
 .sr-text{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 .js [data-split]:not([data-split-done]),.js [data-split-poster]:not([data-split-done]){visibility:hidden}
+.wd{white-space:nowrap}
 .ch{display:inline-block;overflow:hidden;vertical-align:top;padding-bottom:.12em;margin-bottom:-.12em}
 .ci{display:inline-block;will-change:transform}
 
@@ -102,4 +103,11 @@ html[data-theme=dark] .mobile-menu summary{color:var(--on-night)}
 /* ── mobile */
 @media(max-width:900px){.download-home{grid-template-columns:1fr;gap:var(--s10)}.chapter-head h2{font-size:clamp(2rem,9.4vw,3.4rem)}}
 @media(max-width:700px){.article{padding:22px;border-radius:28px}.page-header :is(h1,h2){font-size:clamp(2.4rem,12.4vw,4rem)}.bento-card{border-radius:28px}}
+/* Touch / narrow screens: the live canvas repaints every frame, so each backdrop blur is re-sampled every frame.
+   Cards trade the blur for a denser glass there (the header keeps its blur); it reads the same and scrolls far lighter. */
+@media(max-width:900px),(pointer:coarse){
+  .lane,.bento-card,.release-panel,.article{-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
+  .release-panel{background:rgba(255,254,251,.86)}
+  .article{background:rgba(255,254,251,.9)}
+}
 @media(prefers-reduced-motion:reduce){.ci,.ch{transform:none!important}.site-header.is-tucked{transform:none}}

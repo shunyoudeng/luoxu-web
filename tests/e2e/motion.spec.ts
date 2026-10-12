@@ -119,6 +119,22 @@ test('hero arrives progressively on first paint', async ({page}) => {
   await expect(page.locator('h1 .ci').first()).toBeVisible();
 });
 
+test('stages never hold the page: no sticky dwell, stages play by themselves and rewind on the way up', async ({page}) => {
+  await page.setViewportSize({width:1440,height:900});
+  await page.goto('/');
+  await expect(page.locator('html')).toHaveAttribute('data-motion','ready');
+  expect(await page.evaluate(() => Array.from(document.querySelectorAll('main *')).filter(e => getComputedStyle(e).position === 'sticky' || e.classList.contains('pin-spacer')).length)).toBe(0);
+  const tail = page.locator('.poster-tail'), cap = page.locator('.story-cap').first();
+  const at = (sel:string) => page.evaluate(s => scrollTo(0, document.querySelector<HTMLElement>(s)!.getBoundingClientRect().top + scrollY), sel);
+  await at('.story-stage');
+  // one arrival is enough: the captions follow the handwriting with no further scrolling
+  await expect.poll(() => cap.evaluate(el => getComputedStyle(el).opacity), {timeout:8000}).toBe('1');
+  await at('.poster');
+  await expect.poll(() => tail.evaluate(el => getComputedStyle(el).opacity), {timeout:10000}).toBe('1');
+  await page.evaluate(() => scrollTo(0, 0));
+  await expect.poll(() => tail.evaluate(el => getComputedStyle(el).opacity), {timeout:10000}).toBe('0');
+});
+
 test('3D mountain scene mounts with software GL, is aria-hidden and keeps layout intact', async ({playwright}) => {
   // The suite disables WebGL by default (software GL starves interaction timing); this test opts back in.
   const browser = await playwright.chromium.launch({args:['--use-gl=angle','--use-angle=swiftshader','--enable-unsafe-swiftshader','--ignore-gpu-blocklist']});

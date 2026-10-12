@@ -6,6 +6,8 @@ import { validateRelease } from '../src/lib/release.mjs';
 const { values } = parseArgs({ options: { file: { type: 'string' }, version: { type: 'string' }, build: { type: 'string' }, date: { type: 'string' } } });
 if (!values.file) throw new Error('Use: npm run release:apk -- --file /absolute/path.apk [--version 0.x.x --build 20 --date YYYY-MM-DD]');
 const metadata = JSON.parse(await readFile('public/releases/latest.json', 'utf8'));
+const previousVersion = metadata.version;
+delete metadata.verification; // legacy internal field; public metadata only carries user-facing highlights
 if(values.version) metadata.version = values.version;
 if(values.build) metadata.build = Number(values.build);
 if(values.date) metadata.buildDate = values.date;
@@ -22,3 +24,4 @@ metadata.sha256 = createHash('sha256').update(data).digest('hex');
 await writeFile('public/releases/latest.json', JSON.stringify(metadata,null,2)+'\n');
 console.log(`Prepared ${metadata.version} / build ${metadata.build}; ${data.length} bytes; SHA256 ${metadata.sha256}`);
 console.log('Version/build must match the APK manifest. This script never signs or changes the APK.');
+if(metadata.version !== previousVersion) console.log('Reminder: rewrite "highlights" in latest.json for this version (user-facing features from the latest history.json entry; no test, build or signing details).');
