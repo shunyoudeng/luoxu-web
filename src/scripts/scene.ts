@@ -83,7 +83,8 @@ void main(){
 
 const SKY_VERT = /* glsl */ `
 varying vec3 vDir;
-void main(){vDir=position;gl_Position=projectionMatrix*viewMatrix*vec4(position+cameraPosition,1.);}`;
+void main(){vDir=position;gl_Position=projectionMatrix*viewMatrix*vec4(position+cameraPosition,1.);
+  gl_Position.z=gl_Position.w;}`;
 const SKY_FRAG = /* glsl */ `
 precision highp float;
 uniform vec3 uBg,uHorizon,uSun,uSunDir; uniform float uSunAmt,uTime; varying vec3 vDir;
@@ -181,7 +182,7 @@ const QUIET_SELECTORS: [string, number][] = [
 
 export interface SceneHandle {dispose(): void}
 
-export function startScene(canvas: HTMLCanvasElement, opts: {reduced: boolean; mobile: boolean}): SceneHandle | null {
+export async function startScene(canvas: HTMLCanvasElement, opts: {reduced: boolean; mobile: boolean}): Promise<SceneHandle | null> {
   let renderer: WebGLRenderer;
   try {
     renderer = new WebGLRenderer({canvas, antialias: !opts.mobile, alpha: false, powerPreference: 'high-performance'});
@@ -206,20 +207,24 @@ export function startScene(canvas: HTMLCanvasElement, opts: {reduced: boolean; m
 
   // ── sky dome: paper above, a warmer band at the horizon, a low soft sun behind the Luojia ridge
   const skyMat = new ShaderMaterial({
-    vertexShader: SKY_VERT, fragmentShader: SKY_FRAG, side: BackSide, depthWrite: false, depthTest: false,
+    vertexShader: SKY_VERT, fragmentShader: SKY_FRAG, side: BackSide, depthWrite: false, depthTest: true,
     uniforms: {uBg: shared.uBg, uTime: shared.uTime, uHorizon: {value: palette.light.horizon.clone()}, uSun: {value: palette.light.sun.clone()},
       uSunDir: {value: new Vector3(.3, .11, -1).normalize()}, uSunAmt: {value: 1}},
   });
   const skyGeo = new SphereGeometry(100, 32, 16);
   const sky = new Mesh(skyGeo, skyMat);
-  sky.renderOrder = -10; sky.frustumCulled = false;
+  // Paint only exposed sky after opaque terrain. Covered sky pixels no longer run
+  // the expensive atmospheric shader; the far-plane depth keeps the picture identical.
+  sky.renderOrder = RIDGES.length + 1; sky.frustumCulled = false;
   scene.add(sky);
 
   // ── ridges
   const segX = mobile ? 220 : 380, segZ = mobile ? 18 : 28;
   const ridgeMats: ShaderMaterial[] = [];
   const ridgeGeos: BufferGeometry[] = [];
-  RIDGES.forEach((r, i) => {
+  for (const [i, r] of RIDGES.entries()) {
+    // Yield between the unchanged meshes so first-visit setup cannot monopolize input.
+    await new Promise<void>(resolve => setTimeout(resolve, 0));
     const g = new PlaneGeometry(WIDTH + i * 160, r.depth * 2, segX, segZ);
     g.rotateX(-Math.PI / 2);
     const pa = g.attributes.position;
@@ -236,7 +241,7 @@ export function startScene(canvas: HTMLCanvasElement, opts: {reduced: boolean; m
     mesh.renderOrder = i; // near first: early-z rejects most of the far layers
     scene.add(mesh);
     ridgeMats.push(m); ridgeGeos.push(g);
-  });
+  }
 
   // ── a misted floor under the layers, so a steep (portrait) view never looks into the gaps between ridges
   const floorGeo = new PlaneGeometry(2400, 900, 1, 1);
@@ -302,9 +307,26 @@ export function startScene(canvas: HTMLCanvasElement, opts: {reduced: boolean; m
   const quietEls = new Map<Element, number>();
   for (const [sel, k] of QUIET_SELECTORS) document.querySelectorAll(sel).forEach(el => quietEls.set(el, k));
   const visible = new Set<Element>();
-  const io = new IntersectionObserver(es => es.forEach(e => (e.isIntersecting ? visible.add(e.target) : visible.delete(e.target))), {rootMargin: '25% 0px'});
+  let rectsDirty = true, rectScroll = -1;
+  const io = new IntersectionObserver(es => {
+    es.forEach(e => (e.isIntersecting ? visible.add(e.target) : visible.delete(e.target)));
+    rectsDirty = true;
+  }, {rootMargin: '25% 0px'});
   quietEls.forEach((_, el) => io.observe(el));
+  // Transform changes on a clearing's ancestors matter; colour-only root updates don't.
+  const rectObserver = new MutationObserver(records => {
+    for (const {target} of records) {
+      if (target === document.documentElement || target === document.body) continue;
+      if (target instanceof Element && [...visible].some(el => target === el || target.contains(el))) {
+        rectsDirty = true;break;
+      }
+    }
+  });
+  rectObserver.observe(document.body, {subtree: true, attributes: true, attributeFilter: ['style', 'class']});
+  document.fonts.ready.then(() => {rectsDirty = true;});
   const updateRects = () => {
+    if (!rectsDirty && rectScroll === scrollY) return;
+    rectsDirty = false;rectScroll = scrollY;
     let n = 0;
     const pr = renderer.getPixelRatio();
     const K = shared.uRectK.value as number[];
@@ -353,14 +375,20 @@ export function startScene(canvas: HTMLCanvasElement, opts: {reduced: boolean; m
   const resize = () => {
     const w = innerWidth, h = innerHeight;
     renderer.setSize(w, h, false);
+    rectsDirty = true;
     camera.aspect = w / h;
     camera.updateProjectionMatrix();
     (shared.uRes.value as Vector3).set(w * renderer.getPixelRatio(), h * renderer.getPixelRatio(), 0);
     measure();
+    lastW = w; lastH = h;
   };
   resize();
-  const ro = new ResizeObserver(() => {if (innerWidth !== lastW || innerHeight !== lastH) {lastW = innerWidth; lastH = innerHeight; resize();}});
+  const ro = new ResizeObserver(() => {
+    rectsDirty = true;
+    if (innerWidth !== lastW || innerHeight !== lastH) resize(); else measure();
+  });
   ro.observe(document.documentElement);
+  quietEls.forEach((_, el) => ro.observe(el));
 
   const tmpA = new Vector3(), tmpB = new Vector3(), right = new Vector3(), up = new Vector3(0, 1, 0), fwd = new Vector3();
   const cA = new Color();
@@ -450,6 +478,9 @@ export function startScene(canvas: HTMLCanvasElement, opts: {reduced: boolean; m
   // layout can change as fonts/pins settle
   const remeasure = setInterval(measure, 1500);
 
+  // Existing fallback stays visible while programs compile; no forced opening animation.
+  await renderer.compileAsync(scene, camera);
+  last = performance.now();
   if (opts.reduced) {
     prog.value = targetProgress(); theme = themeNow(); chaosS.value = 0;
     frame(performance.now()); cancelAnimationFrame(raf);
@@ -460,7 +491,7 @@ export function startScene(canvas: HTMLCanvasElement, opts: {reduced: boolean; m
 
   return {
     dispose() {
-      cancelAnimationFrame(raf); clearInterval(remeasure); ro.disconnect(); io.disconnect(); save();
+      cancelAnimationFrame(raf); clearInterval(remeasure); ro.disconnect(); io.disconnect(); rectObserver.disconnect(); save();
       removeEventListener('pointermove', ptr); removeEventListener('deviceorientation', gyro);
       document.removeEventListener('visibilitychange', onVis); removeEventListener('pagehide', save);
       ridgeGeos.forEach(g => g.dispose()); ridgeMats.forEach(m => m.dispose());
