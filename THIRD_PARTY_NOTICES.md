@@ -42,3 +42,12 @@ APK 是独立维护的 Android 应用分发文件；本声明不替代该应用�
 | [Instrument Serif](https://github.com/Instrument/instrument-serif) / @fontsource | 5.x | SIL OFL 1.1 | 英文斜体点缀 |
 
 山体、松树、阔叶树和岩石均为项目内程序化原创建模，未使用外部模型或照片。
+
+
+## V4 抽象山体与动效精修新增（`feat/v4-abstract-art`）
+
+| 组件 | 版本 | 许可证 | 用途 |
+| --- | --- | --- | --- |
+| [maath](https://github.com/pmndrs/maath/tree/maath@0.10.8) `easing.damp` | 0.10.8（约 20 行改写，见 `src/scripts/damp.ts`） | MIT（Copyright (c) 2022 Poimandres） | 临界阻尼弹簧（Game Programming Gems 4 §1.10 SmoothDamp），用于镜头惯性与鼠标跟随 |
+
+动效机制研究参考了 [Aevion — Lidar Drone Scanning](https://drone.riotters.com/)（Riotters）：滚动进度经阻尼驱动镜头、鼠标仅转动视角（偏航/俯仰/横滚）、滚动停止后的轻微悬浮、能力段落的分段自动播放。仅参考公开页面的运动参数思路，未复制其代码、模型或素材。

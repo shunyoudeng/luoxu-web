@@ -63,6 +63,31 @@ if (header) {
 const bar = document.querySelector<HTMLElement>('.progress-bar');
 if (bar) gsap.to(bar, {scaleX: 1, ease: 'none', scrollTrigger: {start: 0, end: 'max', scrub: .3}});
 
+/* ── narrative beats: storytelling plays on its own clock instead of being dragged by the wheel.
+   A stage owns a paused timeline whose beats end at labels b1, b2…; each beat has a scroll position. Passing it on the
+   way down plays the timeline to that beat's end; passing back up rewinds it (a little faster). The playhead is always
+   tweened toward a single target, so quick flicks only retarget one tween: no jumps, no replays, no flicker. */
+function beats(tl: gsap.core.Timeline, trigger: HTMLElement, starts: (string | (() => string))[]) {
+  tl.pause(0);
+  const active = starts.map(() => false);
+  let target = -1, tween: gsap.core.Tween | undefined;
+  const go = () => {
+    const k = active.filter(Boolean).length;
+    if (k === target) return;
+    target = k;
+    const to = k === 0 ? 0 : tl.labels['b' + k] ?? tl.duration();
+    const back = to < tl.time();
+    tween?.kill();
+    tween = tl.tweenTo(to, {duration: Math.abs(to - tl.time()) / (back ? 1.7 : 1), ease: 'none'});
+  };
+  starts.forEach((start, i) => ScrollTrigger.create({
+    trigger, start, end: 'max',
+    onToggle: self => {active[i] = self.isActive; go();},
+  }));
+}
+/* scroll distance into a pinned stage, as a fraction of its pinned travel */
+const into = (el: HTMLElement, f: number) => () => `top+=${Math.round(f * Math.max(0, el.offsetHeight - innerHeight))} top`;
+
 /* ── intro: any page-level [data-intro] block rises in, characters unmask */
 const introTl = gsap.timeline({defaults: {ease: 'expo.out'}, delay: .15});
 $('[data-intro-chars]').forEach((el, n) => {
@@ -80,12 +105,12 @@ $('[data-split-scrub]').forEach(el => {
     scrollTrigger: {trigger: el, start: 'top 88%', end: 'top 40%', scrub: .8},
   });
 });
-/* plain split headings: reveal once on entering */
+/* plain split headings: written in on arrival, put away again only once they drop back below the fold */
 $('[data-split]:not([data-intro-chars]):not([data-split-scrub])').forEach(el => {
   const chars = $('.ci', el);
   gsap.fromTo(chars, {yPercent: 110, rotate: 3}, {
     yPercent: 0, rotate: 0, duration: 1.1, ease: 'expo.out', stagger: .035,
-    scrollTrigger: {trigger: el, start: 'top 88%', once: true},
+    scrollTrigger: {trigger: el, start: 'top 88%', toggleActions: 'play none none reverse'},
   });
 });
 
@@ -111,75 +136,75 @@ if (hero) {
     .to('.mega', {opacity: 0, ease: 'power1.in', duration: .4}, .3);
 }
 
-/* ── ORDER stage: scattered notifications settle into four lanes, steps advance with scroll */
+/* ── ORDER stage: once the stage arrives, scattered notifications settle into four lanes and the steps light in turn */
 const order = document.querySelector<HTMLElement>('.order-stage');
 if (order) {
   const cards = $('.msg', order);
   const steps = $('.order-step', order);
   const lanes = $('.lane', order);
-  cards.forEach(c => {
-    const r = c.getBoundingClientRect();
-    void r;
-  });
-  const tl = gsap.timeline({scrollTrigger: {trigger: order, start: 'top top', end: 'bottom bottom', scrub: 1}});
+  const tl = gsap.timeline();
   const rnd = gsap.utils.random;
   cards.forEach((c, i) => {
     tl.fromTo(c, {
       x: rnd(-300, 300), y: rnd(-260, 260), rotation: rnd(-26, 26), scale: rnd(.8, 1.15), filter: 'blur(1.5px)',
-    }, {x: 0, y: 0, rotation: 0, scale: 1, filter: 'blur(0px)', ease: 'power3.inOut', duration: .6}, .02 * i);
+    }, {x: 0, y: 0, rotation: 0, scale: 1, filter: 'blur(0px)', ease: 'expo.inOut', duration: 1.5}, .06 * i);
   });
-  tl.to(lanes, {y: 0, stagger: .08, duration: .3, ease: 'power2.out'}, .55);
-  steps.forEach((s, i) => {
-    ScrollTrigger.create({
-      trigger: order, start: () => `top+=${(i * 0.19 + .06) * (order.offsetHeight - innerHeight)} top`,
-      end: () => `top+=${((i + 1) * 0.19 + .06) * (order.offsetHeight - innerHeight)} top`,
-      onToggle: self => s.classList.toggle('is-on', self.isActive), onRefresh: self => s.classList.toggle('is-on', self.isActive),
-    });
-  });
+  tl.to(lanes, {y: 0, stagger: .08, duration: 1, ease: 'power3.out'}, .7);
+  steps.forEach((s, i) => tl.to({}, {
+    duration: .38, onStart: () => s.classList.add('is-on'), onReverseComplete: () => s.classList.remove('is-on'),
+  }, 1.45 + i * .38));
+  tl.addLabel('b1');
+  beats(tl, order, ['top 30%']);
 }
 
-/* ── STORY: real stroke order written by scroll, then scattered words settle into rows */
+/* ── STORY: the name is written in its real stroke order, then the scattered words settle into rows */
 $('.story-stage').forEach(stage => {
   const glyphs = $<SVGElement>('.hw', stage);
-  const tl = gsap.timeline({scrollTrigger: {trigger: stage, start: 'top top', end: 'bottom bottom', scrub: 1.1}});
+  const tl = gsap.timeline();
+  // a steady hand: ~2.8s for both characters, each stroke timed by its length, a breath between characters
+  const all = glyphs.map(svg => $<SVGPathElement>('.hw-med', svg).map(p => Number(p.dataset.len || 1)));
+  const sum = all.flat().reduce((a, b) => a + b, 0);
+  let t = 0;
   glyphs.forEach((svg, gi) => {
     const paths = $<SVGPathElement>('.hw-med', svg);
-    const lens = paths.map(p => Number(p.dataset.len || 1));
-    const total = lens.reduce((a, b) => a + b, 0);
-    let t = gi * .5;
+    tl.fromTo($('.hw-ghost', svg), {opacity: .35}, {opacity: .1, duration: .8, ease: 'power1.out'}, t);
     paths.forEach((p, i) => {
-      const d = (lens[i] / total) * (.46 / glyphs.length * glyphs.length) + .014;
+      const d = (all[gi][i] / sum) * 2.3 + .05;
       tl.fromTo(p, {strokeDashoffset: 1}, {strokeDashoffset: 0, ease: 'power1.inOut', duration: d}, t);
-      t += d * .92;
+      t += d * .9;
     });
-    tl.fromTo($('.hw-ghost', svg), {opacity: .35}, {opacity: .1, duration: .3}, gi * .5);
+    t += .22;
   });
+  tl.addLabel('b1');
   const words = $('.drift', stage);
   words.forEach((w, i) => {
-    tl.fromTo(w, {x: gsap.utils.random(-420, 420), y: gsap.utils.random(-300, 300), rotation: gsap.utils.random(-40, 40), opacity: .0, scale: gsap.utils.random(.7, 1.5), filter: 'blur(4px)'},
-      {x: 0, y: 0, rotation: 0, opacity: 1, scale: 1, filter: 'blur(0px)', ease: 'power3.inOut', duration: .4}, 1.0 + i * .02);
+    tl.fromTo(w, {x: gsap.utils.random(-420, 420), y: gsap.utils.random(-300, 300), rotation: gsap.utils.random(-40, 40), opacity: 0, scale: gsap.utils.random(.7, 1.5), filter: 'blur(4px)'},
+      {x: 0, y: 0, rotation: 0, opacity: 1, scale: 1, filter: 'blur(0px)', ease: 'expo.out', duration: 1.6}, 'b1+=' + i * .045);
   });
-  tl.from($('.story-cap', stage), {y: 40, opacity: 0, stagger: .12, duration: .3, ease: 'power2.out'}, 1.55);
-  tl.to({}, {duration: .25});
+  tl.from($('.story-cap', stage), {y: 32, opacity: 0, stagger: .14, duration: 1, ease: 'expo.out'}, 'b1+=.35');
+  tl.addLabel('b2');
+  beats(tl, stage, ['top 22%', into(stage, .38)]);
 });
 
-/* ── POSTER: dark immersive manifesto; lines arrive from depth, "数据库" is struck out */
+/* ── POSTER: dark immersive manifesto; lines arrive from depth, then "数据库" is struck out */
 $('.poster').forEach(poster => {
   const lines = $('.poster-line', poster);
   const strike = poster.querySelector<HTMLElement>('.strike');
   gsap.set(lines, {transformPerspective: 1100});
-  const tl = gsap.timeline({scrollTrigger: {trigger: poster, start: 'top top', end: 'bottom bottom', scrub: 1.2}});
+  const tl = gsap.timeline();
   lines.forEach((ln, i) => {
-    tl.fromTo($('.ci', ln), {yPercent: 118, rotate: 4}, {yPercent: 0, rotate: 0, duration: .26, stagger: .02, ease: 'power3.out'}, i * .18);
-    tl.fromTo(ln, {z: -520, opacity: 0}, {z: 0, opacity: 1, duration: .3, ease: 'power2.out'}, i * .18);
+    tl.fromTo($('.ci', ln), {yPercent: 118, rotate: 4}, {yPercent: 0, rotate: 0, duration: 1.1, stagger: .045, ease: 'expo.out'}, i * .26);
+    tl.fromTo(ln, {z: -520, opacity: 0}, {z: 0, opacity: 1, duration: 1.3, ease: 'expo.out'}, i * .26);
   });
+  tl.addLabel('b1', '-=.35');
   const last = lines.length - 1;
-  tl.to(lines.slice(0, last), {z: 340, opacity: 0, yPercent: -18, duration: .4, stagger: .05, ease: 'power2.in'}, 1.0);
-  tl.to(lines[last], {yPercent: -40, duration: .5, ease: 'power2.inOut'}, 1.0);
-  if (strike) tl.fromTo(strike, {scaleX: 0}, {scaleX: 1, duration: .22, ease: 'power3.inOut'}, 1.3);
-  tl.to($('.strike-target', poster), {opacity: .32, duration: .3}, 1.45);
-  tl.to($('.poster-tail', poster), {opacity: 1, y: 0, duration: .3}, 1.5);
-  tl.to({}, {duration: .2});
+  tl.to(lines.slice(0, last), {z: 340, opacity: 0, yPercent: -18, duration: 1, stagger: .08, ease: 'power3.in'}, 'b1');
+  tl.to(lines[last], {yPercent: -40, duration: 1.3, ease: 'expo.inOut'}, 'b1+=.2');
+  if (strike) tl.fromTo(strike, {scaleX: 0}, {scaleX: 1, duration: .7, ease: 'expo.inOut'}, 'b1+=1.05');
+  tl.to($('.strike-target', poster), {opacity: .32, duration: .6}, 'b1+=1.45');
+  tl.to($('.poster-tail', poster), {opacity: 1, y: 0, duration: 1, ease: 'expo.out'}, 'b1+=1.5');
+  tl.addLabel('b2');
+  beats(tl, poster, ['top 35%', into(poster, .42)]);
 });
 
 /* ── chapter headings drift in depth */
@@ -190,11 +215,11 @@ $('[data-depth]').forEach(el => {
   });
 });
 
-/* ── masked image-like cards: clip-path reveal */
+/* ── masked image-like cards: the clip opens on arrival with its own easing, and closes only below the fold */
 $('[data-mask]').forEach(el => {
   gsap.fromTo(el, {clipPath: 'inset(14% 8% 14% 8% round 32px)', scale: .94}, {
-    clipPath: 'inset(0% 0% 0% 0% round 32px)', scale: 1, ease: 'power2.out',
-    scrollTrigger: {trigger: el, start: 'top 92%', end: 'top 45%', scrub: .8},
+    clipPath: 'inset(0% 0% 0% 0% round 32px)', scale: 1, ease: 'expo.out', duration: 1.5,
+    scrollTrigger: {trigger: el, start: 'top 90%', toggleActions: 'play none none reverse'},
   });
 });
 

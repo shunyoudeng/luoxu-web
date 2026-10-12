@@ -127,7 +127,7 @@ test('3D mountain scene mounts with software GL, is aria-hidden and keeps layout
   await page.goto('/');
   await expect(page.locator('html')).toHaveClass(/webgl/,{timeout:20000});
   await expect(page.locator('#scene')).toHaveAttribute('aria-hidden','true');
-  await page.evaluate(() => scrollTo(0,innerHeight*13.3));
+  await page.evaluate(() => scrollTo(0,document.querySelector<HTMLElement>('.poster')!.getBoundingClientRect().top+scrollY+innerHeight*.5));
   await expect.poll(() => page.evaluate(() => document.documentElement.dataset.theme),{timeout:15000}).toBe('dark');
   expect(await page.evaluate(() => document.documentElement.scrollWidth>innerWidth)).toBe(false);
   expect(errors).toEqual([]);
