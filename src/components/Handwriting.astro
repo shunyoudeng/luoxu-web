@@ -24,6 +24,9 @@ const mpath = (m: number[][]) => 'M' + m.map(p => p.join(' ')).join('L');
       <g transform="translate(0,900) scale(1,-1)">
         <path class="hw-ghost" d={d}/>
         <path class="hw-fill" d={d} mask={`url(#hwm${gi})`}/>
+        <!-- Median masks follow a different typeface. Finish with the complete
+             licensed outline so its serif corners cannot remain unpainted. -->
+        <path class="hw-complete" d={d}/>
       </g>
     </svg>);
   })}
@@ -32,8 +35,10 @@ const mpath = (m: number[][]) => 'M' + m.map(p => p.join(' ')).join('L');
 .hw-wrap{display:flex;justify-content:center;gap:clamp(0px,2vw,32px)}
 .hw{width:min(36vw,46vh,420px);height:auto;overflow:visible}
 .hw-ghost{fill:var(--green);opacity:.1}
-.hw-fill{fill:var(--green-deep)}
+.hw-fill,.hw-complete{fill:var(--green-deep)}
 .hw-med{fill:none;stroke:#fff;stroke-width:190;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:1;stroke-dashoffset:0}
+:global(html.js) .hw-complete{opacity:0}
+:global(html.js) .hw-med{stroke-dashoffset:1}
 /* Without motion the characters are simply written. */
 
 </style>

@@ -90,11 +90,24 @@ if (bar) gsap.to(bar, {scaleX: 1, ease: 'none', scrollTrigger: {start: 0, end: '
    No pins, no sticky dwell. A stage owns one paused timeline; crossing its threshold on the way down plays it through
    to the end by itself, crossing back up reverses it (faster) from wherever it is. play()/reverse() only flip the
    direction of a single playhead, so quick flicks never restart, replay or jump. */
-function autoplay(tl: gsap.core.Timeline, trigger: HTMLElement, start: string) {
+function autoplay(tl: gsap.core.Timeline, trigger: HTMLElement, start: string, rate = 1) {
   tl.pause(0);
+  // Expose the real lifecycle for settled-state checks; GSAP tweens are not
+  // browser Web Animations and need not publish a global engine instance.
+  trigger.dataset.playback = 'ready';
+  tl.eventCallback('onComplete', () => {trigger.dataset.playback = 'complete';});
+  tl.eventCallback('onReverseComplete', () => {trigger.dataset.playback = 'ready';});
   ScrollTrigger.create({
     trigger, start, end: 'max',
-    onToggle: self => {if (self.isActive) tl.timeScale(1).play(); else tl.timeScale(1.8).reverse();},
+    onToggle: self => {
+      if (self.isActive) {
+        trigger.dataset.playback = tl.time() >= tl.duration() ? 'complete' : 'playing';
+        tl.timeScale(rate).play();
+      } else {
+        trigger.dataset.playback = tl.time() <= 0 ? 'ready' : 'rewinding';
+        tl.timeScale(rate * 1.8).reverse();
+      }
+    },
   });
 }
 /* light parallax for stages: the frame glides down through the stage's bottom padding, so the stage keeps moving with
@@ -186,12 +199,18 @@ $('.story-stage').forEach(stage => {
   let t = 0;
   glyphs.forEach((svg, gi) => {
     const paths = $<SVGPathElement>('.hw-med', svg);
+    let inkEnd = t;
     tl.fromTo($('.hw-ghost', svg), {opacity: .35}, {opacity: .1, duration: .8, ease: 'power1.out'}, t);
     paths.forEach((p, i) => {
       const d = (all[gi][i] / sum) * 2.3 + .05;
       tl.fromTo(p, {strokeDashoffset: 1}, {strokeDashoffset: 0, ease: 'power1.inOut', duration: d}, t);
+      inkEnd = Math.max(inkEnd, t + d);
       t += d * .9;
     });
+    // Crossfade to the identical, unmasked outline after this character's last
+    // stroke. Both tweens reverse naturally, so replay never flashes a full glyph.
+    tl.fromTo($('.hw-complete', svg), {opacity: 0}, {opacity: 1, duration: .12, ease: 'power1.out'}, inkEnd);
+    tl.to($('.hw-fill', svg), {opacity: 0, duration: .12, ease: 'power1.out'}, inkEnd);
     t += .22;
   });
   tl.addLabel('b1');
@@ -201,7 +220,7 @@ $('.story-stage').forEach(stage => {
       {x: 0, y: 0, rotation: 0, opacity: 1, scale: 1, filter: 'blur(0px)', ease: 'expo.out', duration: 1.6}, 'b1+=' + i * .045);
   });
   tl.from($('.story-cap', stage), {y: 32, opacity: 0, stagger: .14, duration: 1, ease: 'expo.out'}, 'b1+=.35');
-  autoplay(tl, stage, 'top 15%');
+  autoplay(tl, stage, 'top 15%', 2);
 });
 
 /* ── POSTER: dark immersive manifesto; lines arrive from depth, hold a breath, then "数据库" is struck out.
@@ -218,11 +237,15 @@ $('.poster').forEach(poster => {
   });
   tl.addLabel('b1', '+=.55'); // let the full sentence read before it resolves
   const last = lines.length - 1;
-  tl.to(lines.slice(0, last), {z: 340, opacity: 0, yPercent: -18, duration: 1, stagger: .08, ease: 'power3.in'}, 'b1');
-  tl.to(lines[last], {yPercent: -40, duration: 1.3, ease: 'expo.inOut'}, 'b1+=.2');
-  if (strike) tl.fromTo(strike, {scaleX: 0}, {scaleX: 1, duration: .7, ease: 'expo.inOut'}, 'b1+=1.05');
-  tl.to($('.strike-target', poster), {opacity: .32, duration: .6}, 'b1+=1.45');
-  tl.to($('.poster-tail', poster), {opacity: 1, y: 0, duration: 1, ease: 'expo.out'}, 'b1+=1.5');
+  // Only the resolution/strike sequence is accelerated. The sentence reveal and
+  // reading pause above retain their original timing, including reverse playback.
+  const resolution = gsap.timeline().timeScale(2);
+  resolution.to(lines.slice(0, last), {z: 340, opacity: 0, yPercent: -18, duration: 1, stagger: .08, ease: 'power3.in'}, 0);
+  resolution.to(lines[last], {yPercent: -40, duration: 1.3, ease: 'expo.inOut'}, .2);
+  if (strike) resolution.fromTo(strike, {scaleX: 0}, {scaleX: 1, duration: .7, ease: 'expo.inOut'}, 1.05);
+  resolution.to($('.strike-target', poster), {opacity: .32, duration: .6}, 1.45);
+  resolution.to($('.poster-tail', poster), {opacity: 1, y: 0, duration: 1, ease: 'expo.out'}, 1.5);
+  tl.add(resolution, 'b1');
   autoplay(tl, poster, 'top 22%');
 });
 

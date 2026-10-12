@@ -177,6 +177,8 @@ Apple-style editorial pass, same palette. Type voices (system fonts only, nothin
 
 ## Scroll Rules (2026-10-12，持续有效)
 
+NAME 舞台的笔画揭示与两侧词语归位按原时间轴的 2 倍速度播放；笔画结束后短暂交接至完整字形轮廓，确保衬线和边角全部着墨，反向播放恢复遮罩。隐私宣言的文字入场与完整句子的阅读停顿保持原节奏，仅后续“数据库”独立呈现、划线及结语使用 2 倍速度的子时间轴。布局、滚动阈值和无障碍降级不改变。
+
 滚轮与触摸始终用于浏览页面：不使用 pin、sticky 停留或任何让页面“停住、只推进动画”的结构。叙事舞台（ORDER、NAME、隐私宣言）为普通文档流，到达阈值后由自身时钟完整自动播放，上滑越过阈值后加速反向恢复；同一时间轴只切换播放方向，快速往返不重播、不跳变。只保留不阻碍移动的轻量 scrub（首屏推镜、进度条、`data-glide` 舞台约0.75倍速滑行）。手机端舞台内容全部在文档流中排布，容器随内容增高，不用固定 100svh 裁切文字。
 
 Layered arrival: elements carry data-layer (0 label, 1 headline, 2 lead, 3+ visual/detail); each layer is delayed 110ms (capped), so a section lands in about half a second. data-fx = scale | left | right sets the direction. Mountain ridges and the sun drift at different speeds on scroll via CSS scroll timelines (no scroll listener, no scroll hijacking). All of it is gated by html.js and disabled under prefers-reduced-motion.
