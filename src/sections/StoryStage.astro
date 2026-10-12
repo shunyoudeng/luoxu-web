@@ -1,0 +1,41 @@
+---
+import {withBase} from '../lib/urls';
+import Handwriting from '../components/Handwriting.astro';
+import Icon from '../components/Icon.astro';
+interface Props {full?:boolean;heading?:'h1'|'h2'}
+const {full=false,heading='h2'}=Astro.props;
+const H=heading;
+const words=['通知','群聊','DDL','作业','竞赛','报名','讲座','问卷','快递','考试','志愿','调课'];
+---
+<section class:list={['story-stage',{full}]} id="story" aria-labelledby="story-title">
+  <div class="story-sticky">
+    <p class="eyebrow story-eyebrow">02 / NAME</p>
+    <H id="story-title" class="visually-hidden">珞序：从纷杂到有序</H>
+    <div class="drift-field" aria-hidden="true">{words.map((w,i)=><span class="drift" data-i={i}>{w}</span>)}</div>
+    <Handwriting class="story-hw"/>
+    <div class="story-caps">
+      <p class="story-cap"><b>珞</b><span>取自珞珈山。山不动，万事皆有远近。</span></p>
+      <p class="story-cap"><b>序</b><span>整理与秩序。散落的信息，各自归位。</span></p>
+    </div>
+    <p class="story-line kai">从纷杂，到有序。<a class="text-link" href={withBase("/about")}>阅读品牌故事 <Icon/></a></p>
+  </div>
+</section>
+<style>
+.story-stage{position:relative;height:380svh}
+.story-stage.full{height:340svh;margin-top:-72px}
+.story-sticky{position:sticky;top:0;height:100svh;min-height:600px;overflow:clip;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:clamp(12px,2.4vh,28px);padding:calc(72px + 2vh) clamp(20px,4vw,64px) var(--s6)}
+.story-eyebrow{position:absolute;left:clamp(20px,4vw,64px);top:calc(72px + 4vh)}
+.drift-field{position:absolute;inset:calc(72px + 9vh) clamp(20px,4vw,64px) 24vh;display:grid;grid-auto-flow:column;grid-template-rows:repeat(6,auto);grid-template-columns:auto auto;justify-content:space-between;align-content:space-between;pointer-events:none;z-index:0}
+.drift{font:italic 400 clamp(.9rem,1.4vw,1.15rem) var(--serif);letter-spacing:.16em;color:var(--green);opacity:.62;padding:var(--s2) 0;text-transform:uppercase}
+.drift:nth-child(n+7){text-align:right}
+.story-hw{position:relative;z-index:1}
+.story-hw::before{content:'';position:absolute;inset:-14% -18%;z-index:-1;background:radial-gradient(closest-side,rgba(247,246,242,.86),rgba(247,246,242,.55) 62%,rgba(247,246,242,0));pointer-events:none}
+.story-caps{position:relative;z-index:1;display:grid;grid-template-columns:1fr 1fr;gap:clamp(24px,6vw,96px);width:min(720px,100%)}
+.story-cap{display:flex;align-items:baseline;gap:var(--s3);color:var(--secondary);font-size:var(--small)}
+.story-cap b{font:900 clamp(1.6rem,2.8vw,2.4rem)/1 var(--display-font);color:var(--green)}
+.story-line{position:relative;z-index:1;font-size:clamp(1.1rem,2vw,1.6rem);color:var(--ink);display:flex;align-items:center;gap:var(--s6);flex-wrap:wrap;justify-content:center}
+.visually-hidden{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+html:not(.js) .story-stage,html:not(.js) .story-stage.full{height:auto}html:not(.js) .story-sticky{position:static;height:auto;padding-block:var(--s16)}
+@media(max-width:700px){.story-stage{height:320svh}.story-caps{grid-template-columns:1fr;gap:var(--s3);text-align:left}.drift-field{inset-block:calc(72px + 5vh) 34vh}.drift{font-size:.8rem}.hw{width:min(40vw,34vh)!important}}
+@media(prefers-reduced-motion:reduce){.story-stage,.story-stage.full{height:auto}.story-sticky{position:static;height:auto;padding-block:var(--s16)}}
+</style>

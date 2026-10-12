@@ -77,3 +77,15 @@ if (menu && summary) {
   menu.querySelectorAll('a').forEach(link => link.addEventListener('click', () => close()));
   window.matchMedia('(min-width:701px)').addEventListener('change', event => {if (event.matches) close();});
 }
+
+/* ── V3 spatial layer: loaded after the document is usable; every part degrades to the static page. */
+const sceneCanvas = document.querySelector<HTMLCanvasElement>('#scene');
+const coarse = window.matchMedia('(pointer:coarse)').matches || window.matchMedia('(max-width:900px)').matches;
+if (!reducedMotion.matches) {
+  import('./motion').catch(() => {document.documentElement.classList.remove('js');finishReveals();});
+}
+if (sceneCanvas) {
+  const boot = () => import('./scene').then(m => m.startScene(sceneCanvas, {reduced: reducedMotion.matches, mobile: coarse})).catch(() => undefined);
+  const later = () => ('requestIdleCallback' in window ? (window as any).requestIdleCallback(boot, {timeout: 1200}) : setTimeout(boot, 300));
+  if (document.readyState === 'complete') later(); else window.addEventListener('load', later, {once: true});
+}

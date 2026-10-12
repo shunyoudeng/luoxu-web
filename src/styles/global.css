@@ -1,5 +1,7 @@
-﻿@import './tokens.css';
+@import './tokens.css';
+@import './tokens3.css';
 *{box-sizing:border-box} html{scroll-behavior:smooth;scroll-padding-top:var(--s12)}
+html.lenis,html.lenis body{height:auto}.lenis.lenis-smooth{scroll-behavior:auto!important}.lenis.lenis-stopped{overflow:hidden}
 body{margin:0;background:var(--paper);color:var(--ink);font:400 var(--body)/1.7 var(--sans);-webkit-font-smoothing:antialiased}
 a{color:inherit;text-underline-offset:var(--s1)} button,summary{font:inherit} button{cursor:pointer} svg{display:block} img{max-width:100%;height:auto}
 button,a,summary{touch-action:manipulation} :focus-visible{outline:2px solid var(--green);outline-offset:var(--s1)}

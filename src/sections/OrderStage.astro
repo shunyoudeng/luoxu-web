@@ -1,0 +1,68 @@
+---
+const lanes=[
+  {key:'task',n:'01',title:'任务',body:'需要亲自处理的事，有明确的时间和下一步。'},
+  {key:'assignment',n:'02',title:'作业',body:'课程里的练习与报告，单独成列，临近截止自动靠前。'},
+  {key:'opportunity',n:'03',title:'机会',body:'竞赛、招募、讲座——可以选择参加，不必被动错过。'},
+  {key:'info',n:'04',title:'校园信息',body:'停水、闭馆、调课：告知你校园发生了什么变化。'}
+];
+const msgs=[
+  ['task','周五前提交团日活动材料','QQ 群'],['task','下午三点拿快递','系统通知'],
+  ['assignment','高等数学第七章习题','微信群'],['assignment','大学物理实验报告','QQ 群'],
+  ['opportunity','大学生创新竞赛报名','QQ 群'],['opportunity','实验室本科生招募','微信群'],
+  ['info','工学部今晚停水','系统通知'],['info','图书馆开放时间调整','微信群']
+];
+---
+<section class="order-stage" id="order" aria-labelledby="order-title">
+  <div class="order-sticky">
+    <header class="order-head">
+      <p class="eyebrow">01 / ORDER</p>
+      <h2 id="order-title" class="disp" data-split><span class="soft">消息来得很散，</span><br/><span class="accent">事情可以清楚。</span></h2>
+      <p class="order-lead">向下滚动，看一百条消息各归其位。</p>
+    </header>
+    <div class="order-board">
+      {lanes.map(l=><div class="lane" data-key={l.key}><span class="lane-n">{l.n}</span><h3 class="lane-title">{l.title}</h3>
+        <div class="lane-msgs">{msgs.filter(m=>m[0]===l.key).map(m=><div class="msg" data-tilt><strong>{m[1]}</strong><span>{m[2]}</span></div>)}</div>
+      </div>)}
+    </div>
+    <ol class="order-steps" aria-label="整理过程">
+      {lanes.map(l=><li class="order-step"><span>{l.n}</span><div><h4>{l.title}</h4><p>{l.body}</p></div></li>)}
+    </ol>
+    <p class="order-note">以上均为示例内容，用于说明整理方式。</p>
+  </div>
+</section>
+<style>
+.order-stage{position:relative;height:420svh}
+.order-sticky{position:sticky;top:0;height:100svh;min-height:600px;display:grid;grid-template-rows:auto 1fr auto;gap:var(--s6);padding:calc(72px + 3vh) clamp(20px,4vw,64px) var(--s6);overflow:clip}
+.order-head{display:grid;grid-template-columns:repeat(12,1fr);align-items:end;gap:var(--s4)}
+.order-head .eyebrow{grid-column:1 / -1}
+.order-head h2{grid-column:1 / span 8}
+.order-lead{grid-column:9 / -1;color:var(--secondary);padding-bottom:var(--s2)}
+.order-board{display:grid;grid-template-columns:repeat(4,1fr);gap:clamp(10px,1.4vw,22px);align-content:center}
+.lane{padding:clamp(14px,1.6vw,22px);border-radius:28px;background:rgba(255,254,251,.58);border:1px solid rgba(213,221,212,.8);-webkit-backdrop-filter:blur(14px) saturate(1.4);backdrop-filter:blur(14px) saturate(1.4);box-shadow:var(--shadow-soft);display:flex;flex-direction:column;gap:var(--s3)}
+.js .lane{transform:translateY(24px)}
+.lane-n{font:italic 400 var(--caption) var(--serif);letter-spacing:.14em;color:var(--green)}
+.lane-title{font:900 clamp(1.25rem,2.2vw,2rem)/1.1 var(--display-font);letter-spacing:-.02em}
+.lane-msgs{display:grid;gap:var(--s2)}
+.msg{display:flex;flex-direction:column;gap:2px;padding:var(--s3) var(--s4);border-radius:var(--r3);background:var(--surface);border:1px solid var(--line);will-change:transform}
+.msg strong{font-size:var(--small);font-weight:600;line-height:1.45}
+.msg span{font-size:var(--caption);color:var(--secondary)}
+.order-steps{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(4,1fr);gap:clamp(10px,1.4vw,22px)}
+.order-step{display:flex;gap:var(--s3);color:var(--secondary);transition:color .5s var(--ease-out),transform .6s var(--ease-soft-spring);transform:translateY(6px)}
+.order-step.is-on{color:var(--ink);transform:none}
+.order-step.is-on h4{color:var(--green)}
+.order-step>span{font:italic var(--small) var(--serif);color:var(--green)}
+.order-step h4{font-weight:800;font-size:var(--body)}
+.order-step p{font-size:var(--caption);color:inherit;margin-top:2px;max-width:22ch}
+.order-note{font-size:var(--caption);color:var(--secondary);letter-spacing:.04em}
+html:not(.js) .order-stage{height:auto}html:not(.js) .order-sticky{position:static;height:auto;padding-block:var(--s16)}
+@media(max-width:900px){
+  .order-stage{height:360svh}
+  .order-head h2{grid-column:1 / -1}.order-lead{grid-column:1 / -1}
+  .order-board{grid-template-columns:1fr 1fr;gap:10px}
+  .order-steps{display:none}
+  .lane{padding:12px;border-radius:22px}
+  .msg{padding:10px 12px}
+  .order-sticky{padding-top:calc(72px + 1vh);gap:var(--s4)}
+}
+@media(prefers-reduced-motion:reduce){.order-stage{height:auto}.order-sticky{position:static;height:auto;padding-block:var(--s16)}}
+</style>

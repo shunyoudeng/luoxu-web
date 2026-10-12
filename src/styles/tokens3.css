@@ -1,0 +1,11 @@
+/* V3 tokens: type, space and depth. Imported after tokens.css. */
+@font-face{font-family:'LX Serif';src:url('../assets/fonts/lx-serif-900.woff2') format('woff2');font-weight:100 900;font-style:normal;font-display:swap}
+@font-face{font-family:'Instrument Serif';src:url('../assets/fonts/instrument-serif-italic.woff2') format('woff2');font-weight:400;font-style:italic;font-display:swap}
+@font-face{font-family:'Instrument Serif';src:url('../assets/fonts/instrument-serif.woff2') format('woff2');font-weight:400;font-style:normal;font-display:swap}
+:root{
+  --display-font:'LX Serif','Songti SC','Source Han Serif SC','Noto Serif SC','STSong','SimSun',serif;
+  --serif:'Instrument Serif',Georgia,'Times New Roman',serif;
+  --mega-sz:clamp(2.2rem,6.4vw,6rem);
+  --ease-cine:cubic-bezier(.7,0,.2,1);
+  --glass:rgba(255,254,251,.62);
+}

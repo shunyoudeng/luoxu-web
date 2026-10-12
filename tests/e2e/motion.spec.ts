@@ -91,7 +91,7 @@ test('scroll reveal arrives once; offscreen blocks wait hidden only while JS mot
   await page.setViewportSize({width:1440,height:900});
   await page.goto('/');
   await expect(page.locator('html')).toHaveClass(/js/);
-  const heading=page.locator('.privacy-story h2');
+  const heading=page.locator('.download-copy > p[data-layer="2"]');
   // Below the fold: waiting to arrive, but never display:none, so layout and find-in-page keep working.
   expect(await heading.evaluate(el => getComputedStyle(el).opacity)).toBe('0');
   expect(await heading.evaluate(el => getComputedStyle(el).display)).not.toBe('none');
@@ -112,10 +112,26 @@ test('hero arrives progressively on first paint', async ({page}) => {
   await page.setViewportSize({width:1440,height:900});
   await page.goto('/');
   const description=page.locator('.hero-description');
-  expect(await description.evaluate(el => el.getAnimations().length)).toBeGreaterThan(0);
   await expect(description).toBeVisible();
-  await expect.poll(() => description.evaluate(el => el.getAnimations().length),{timeout:5000}).toBe(0);
-  expect(await description.evaluate(el => getComputedStyle(el).opacity)).toBe('1');
+  await expect.poll(() => description.evaluate(el => getComputedStyle(el).opacity),{timeout:6000}).toBe('1');
+  // The headline is split into masked characters yet keeps its accessible text.
+  await expect(page.locator('h1')).toContainText('让消息各归其位');
+  await expect(page.locator('h1 .ci').first()).toBeVisible();
+});
+
+test('3D mountain scene mounts with software GL, is aria-hidden and keeps layout intact', async ({playwright}) => {
+  // The suite disables WebGL by default (software GL starves interaction timing); this test opts back in.
+  const browser = await playwright.chromium.launch({args:['--use-gl=angle','--use-angle=swiftshader','--enable-unsafe-swiftshader','--ignore-gpu-blocklist']});
+  const page = await browser.newPage({viewport:{width:1440,height:900}, baseURL:'http://127.0.0.1:4321'});
+  const errors:string[]=[];page.on('pageerror',e=>errors.push(e.message));
+  await page.goto('/');
+  await expect(page.locator('html')).toHaveClass(/webgl/,{timeout:20000});
+  await expect(page.locator('#scene')).toHaveAttribute('aria-hidden','true');
+  await page.evaluate(() => scrollTo(0,innerHeight*13.3));
+  await expect.poll(() => page.evaluate(() => document.documentElement.dataset.theme),{timeout:15000}).toBe('dark');
+  expect(await page.evaluate(() => document.documentElement.scrollWidth>innerWidth)).toBe(false);
+  expect(errors).toEqual([]);
+  await browser.close();
 });
 
 test('reduced motion removes transforms even while hovered and keeps copy readable', async ({page}) => {

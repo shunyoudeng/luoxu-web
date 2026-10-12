@@ -1,0 +1,81 @@
+---
+import {withBase} from '../lib/urls';
+import GitHubLink from '../components/GitHubLink.astro';
+import Icon from '../components/Icon.astro';
+import {latest} from '../lib/releases';
+const ridges=[
+  {name:'far',d:'M0 250C110 214 196 150 318 168C440 186 504 92 646 84C790 76 846 170 986 160C1106 152 1186 96 1304 116C1374 128 1412 150 1440 160'},
+  {name:'mid',d:'M0 330C98 304 188 244 298 258C420 274 470 196 604 206C726 216 794 292 924 284C1054 276 1112 208 1232 222C1332 234 1392 274 1440 284'},
+  {name:'near',d:'M0 410C140 390 232 346 360 358C500 372 562 316 702 326C842 336 902 398 1042 392C1162 386 1262 338 1440 368'}
+];
+---
+<section class="hero3" aria-labelledby="hero-title">
+  <!-- Static ridges: first paint, no-WebGL and reduced-motion fallback. Hidden once the 3D mountain is live. -->
+  <div class="ridge-fallback" aria-hidden="true">
+    {ridges.map(r=><svg class={`ridge ridge-${r.name}`} viewBox="0 0 1440 480" preserveAspectRatio="xMidYMax slice" fill="none"><path class="ridge-fill" d={`${r.d}V480H0Z`}/><path class="ridge-line" d={r.d}/></svg>)}
+  </div>
+  <div class="hero3-sticky">
+    <div class="mega" aria-hidden="true">
+      <span class="mega-layer mega-l3">珞序</span>
+      <span class="mega-layer mega-l2">珞序</span>
+      <span class="mega-layer mega-l1">珞序</span>
+      <span class="mega-layer mega-l0">珞序</span>
+    </div>
+    <div class="hero3-copy">
+      <p class="eyebrow" data-intro>LUOXU — YOUR CAMPUS, IN ORDER.</p>
+      <h1 id="hero-title" data-split data-intro-chars><span class="hero-line hero-line-soft">让消息各归其位，</span><span class="hero-line">让校园生活<span class="hero-em">自成秩序。</span></span></h1>
+      <p class="hero-description" data-intro>珞序是一款本地优先的校园 AI 助手。从通知与群聊中理出重点，让任务、作业、机会和校园信息各归其位。</p>
+      <div class="actions" data-intro>
+        <a class="button primary big" data-magnet href={withBase("/download")}><span class="mag-in">下载 Android 公测版 <Icon name="download"/></span></a>
+        <span data-magnet><GitHubLink/></span>
+      </div>
+      <p class="hero-version" data-intro>v{latest.version} · {latest.channel} · 公测开放</p>
+    </div>
+    <p class="scroll-hint" aria-hidden="true" data-intro><span class="scroll-line"></span>SCROLL · 向山而行</p>
+    <p class="hero-coords" aria-hidden="true" data-intro>30.54°N 114.37°E<br/>珞珈山 / LUOJIA MT.</p>
+  </div>
+</section>
+<style>
+.hero3{position:relative;height:150svh;margin-top:-72px}
+.hero3-sticky{position:sticky;top:0;height:100svh;min-height:560px;overflow:clip;display:grid;grid-template-columns:repeat(12,1fr);align-items:end;padding:0 clamp(20px,4vw,64px) clamp(36px,7vh,72px)}
+.ridge-fallback{position:absolute;inset:0;pointer-events:none;overflow:clip}
+.ridge-fallback .ridge{position:absolute;inset:auto 0 0 0;width:100%;height:62%}
+.ridge-fill{fill:var(--green)}
+.ridge-far .ridge-fill{opacity:.06}.ridge-mid .ridge-fill{opacity:.1}.ridge-near .ridge-fill{opacity:.16}
+.ridge-line{stroke:var(--green);stroke-width:1;vector-effect:non-scaling-stroke}
+.ridge-far .ridge-line{opacity:.18}.ridge-mid .ridge-line{opacity:.28}.ridge-near .ridge-line{opacity:.4}
+html.webgl .ridge-fallback{opacity:0;transition:opacity 1.2s ease}
+
+/* 3D spatial typography: four copies of the name stacked in depth, tilted by the pointer */
+.mega{position:absolute;left:clamp(8px,2vw,40px);top:50%;margin-top:calc(-.5 * var(--mega-size));width:max-content;transform-style:preserve-3d;pointer-events:none;
+  --mega-size:clamp(10rem,27vw,28rem);font:900 var(--mega-size)/.9 var(--display-font);letter-spacing:-.06em;will-change:transform}
+.mega-layer{position:absolute;left:0;top:0;white-space:nowrap;transform-style:preserve-3d;backface-visibility:hidden}
+.mega-layer.mega-l0{position:relative;color:var(--green)}
+.mega-l1{color:transparent;-webkit-text-stroke:1.5px rgba(36,93,80,.55)}
+.mega-l2{color:transparent;-webkit-text-stroke:1px rgba(36,93,80,.28)}
+.mega-l3{color:rgba(36,93,80,.07)}
+html[data-theme=dark] .mega-l0{color:var(--mint)}
+.hero3-copy{position:relative;z-index:2;grid-column:7 / -1;text-shadow:0 0 22px rgba(247,246,242,.95),0 0 6px rgba(247,246,242,.85);display:flex;flex-direction:column;align-items:flex-start;gap:var(--s5);padding-bottom:var(--s2)}
+.hero3-copy::before{content:'';position:absolute;inset:-8% -10% -6% -14%;z-index:-1;background:radial-gradient(closest-side,rgba(247,246,242,.82),rgba(247,246,242,0));pointer-events:none}
+.hero3-copy h1{font:900 clamp(1.9rem,3.5vw,3.4rem)/1.14 var(--display-font);letter-spacing:-.035em;max-width:11em}
+.hero-line{display:block}
+.hero-line-soft{color:var(--secondary);font-weight:700}
+.hero-em{color:var(--green)}
+.hero-description{max-width:31rem;font-size:clamp(1rem,1.25vw,1.15rem);line-height:1.8;color:var(--secondary)}
+.hero3-copy .actions{margin-top:var(--s3)}
+.button.big{min-height:56px;padding-inline:var(--s8);font-size:var(--body)}
+.hero-version{font:var(--caption) var(--serif);letter-spacing:.06em;color:var(--secondary);font-variant-numeric:tabular-nums}
+.scroll-hint{position:absolute;left:clamp(20px,4vw,64px);bottom:clamp(20px,4vh,40px);font:italic var(--caption) var(--serif);letter-spacing:.2em;color:var(--green);display:flex;align-items:center;gap:var(--s3)}
+.scroll-line{width:56px;height:1px;background:currentColor;transform-origin:left;animation:scrollline 2.4s var(--ease-out) infinite}
+@keyframes scrollline{0%{transform:scaleX(0)}55%{transform:scaleX(1);opacity:1}100%{transform:scaleX(1);opacity:0}}
+.hero-coords{position:absolute;right:clamp(20px,4vw,64px);top:calc(72px + 4vh);text-align:right;font:italic var(--caption)/1.7 var(--serif);letter-spacing:.14em;color:var(--secondary)}
+@media(max-width:900px){
+  .hero3-sticky{grid-template-columns:1fr;align-content:end;padding-bottom:clamp(88px,14vh,120px)}
+  .hero3-copy{grid-column:1}
+  .mega{--mega-size:clamp(8.5rem,44vw,20rem);top:23%;left:.02em}
+  .hero-coords{display:none}
+}
+@media(max-width:700px){.hero3-copy .actions{flex-direction:column;align-items:stretch;width:100%}.hero3-copy .actions>*{width:100%}.hero3{height:135svh}.scroll-hint{bottom:calc(env(safe-area-inset-bottom) + 18px)}}
+html:not(.js) .scroll-line{animation:none}
+@media(prefers-reduced-motion:reduce){.hero3{height:auto}.hero3-sticky{position:relative}}
+</style>

@@ -1,18 +1,19 @@
 ---
 import {withBase} from '../lib/urls';
 import SiteLayout from '../layouts/SiteLayout.astro';
-import HomeIntro from '../sections/HomeIntro.astro';
+import Hero3 from '../sections/Hero3.astro';
+import OrderStage from '../sections/OrderStage.astro';
+import StoryStage from '../sections/StoryStage.astro';
 import ProductStory from '../sections/ProductStory.astro';
+import PrivacyPoster from '../sections/PrivacyPoster.astro';
 import PrivacyStory from '../sections/PrivacyStory.astro';
 import ReleasePanel from '../components/ReleasePanel.astro';
 ---
-<SiteLayout><HomeIntro/><ProductStory/><PrivacyStory/><section class="chapter chapter-tint chapter-download"><div class="wrap download-home"><div class="download-copy"><p class="eyebrow" data-layer="0">06 / ANDROID BETA</p><h2 data-layer="1"><span class="soft">先在你的校园里，</span><br/><span class="accent">用起来。</span></h2><p data-layer="2">当前优先支持 Android。公测还在迭代，通知、分类和后台兼容性需要在不同设备上继续验证。</p><a class="text-link" data-layer="3" href={withBase("/changelog")}>每一次更新，都留有记录 →</a></div><div class="download-card" data-layer="3" data-fx="scale"><ReleasePanel compact/></div></div></section></SiteLayout>
+<SiteLayout scene="home"><Hero3/><OrderStage/><StoryStage/><ProductStory/><PrivacyPoster/><PrivacyStory/><section class="chapter chapter-download"><div class="wrap download-home"><div class="download-copy"><p class="eyebrow" data-layer="0">06 / ANDROID BETA</p><h2 data-split><span class="soft">先在你的校园里，</span><br/><span class="accent">用起来。</span></h2><p data-layer="2">当前优先支持 Android。公测还在迭代，通知、分类和后台兼容性需要在不同设备上继续验证。</p><a class="text-link" data-layer="3" href={withBase("/changelog")}>每一次更新，都留有记录 →</a></div><div class="download-card" data-layer="3" data-mask><ReleasePanel compact/></div></div></section></SiteLayout>
 <style>
-.download-home{display:grid;grid-template-columns:1fr 1fr;gap:var(--s16);align-items:center}
 .download-copy{display:flex;flex-direction:column;align-items:flex-start;gap:var(--s5)}
-.download-copy h2{font-size:var(--mega);line-height:1.18;font-weight:800;letter-spacing:-.025em}
-.download-copy .soft{color:var(--secondary);font-weight:600}
-.download-copy .accent{font-family:var(--song);font-weight:900;color:var(--green)}
+.download-copy .soft{color:var(--secondary);font-weight:700}
+.download-copy .accent{color:var(--green)}
 .download-copy p:not(.eyebrow){color:var(--secondary);max-width:30rem;font-size:var(--lead)}
-@media(max-width:900px){.download-home{grid-template-columns:1fr;gap:var(--s10)}}
+.chapter-download{padding-bottom:clamp(120px,16vw,220px)}
 </style>

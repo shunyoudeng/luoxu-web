@@ -2,5 +2,5 @@
 import {withBase} from '../lib/urls';
 import SiteLayout from '../layouts/SiteLayout.astro';
 ---
-<SiteLayout title="页面未找到 — 珞序 LUOXU" noindex><div class="wrap page-header not-found"><p class="eyebrow">404 / NOT FOUND</p><h1>这页，暂时不在这里。</h1><p>地址可能变了。回到首页，或看看当前的 Android 版本。</p><div class="actions"><a class="button primary" href={withBase("/")}>回到首页</a><a class="button secondary" href={withBase("/download")}>前往下载</a></div></div></SiteLayout>
+<SiteLayout title="页面未找到 — 珞序 LUOXU" noindex><div class="wrap page-header not-found"><p class="eyebrow">404 / NOT FOUND</p><h1 data-split data-intro-chars>这页，暂时不在这里。</h1><p>地址可能变了。回到首页，或看看当前的 Android 版本。</p><div class="actions"><a class="button primary" href={withBase("/")}>回到首页</a><a class="button secondary" href={withBase("/download")}>前往下载</a></div></div></SiteLayout>
 <style>.not-found{min-height:60vh;display:flex;flex-direction:column;justify-content:center}.actions{margin-top:var(--s8)}</style>

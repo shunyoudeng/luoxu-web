@@ -1,0 +1,105 @@
+/* LUOXU V3 — cinematic, spatial, editorial. Layered over global.css; every motion rule is progressive. */
+
+/* ── stage: the live mountain sits behind everything */
+#scene{position:fixed;inset:0;width:100%;height:100%;z-index:-1;display:block;pointer-events:none}
+html.webgl body{background:transparent}
+html.webgl .chapter-tint{background:none}
+.progress-bar{position:fixed;left:0;top:0;height:2px;width:100%;background:var(--green);transform:scaleX(0);transform-origin:left;z-index:40;pointer-events:none}
+html:not(.js) .progress-bar{display:none}
+.sr-text{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.js [data-split]:not([data-split-done]),.js [data-split-poster]:not([data-split-done]){visibility:hidden}
+.ch{display:inline-block;overflow:hidden;vertical-align:top;padding-bottom:.12em;margin-bottom:-.12em}
+.ci{display:inline-block;will-change:transform}
+
+/* ── header */
+.site-header{background:rgba(247,246,242,.55);border-bottom-color:transparent;transition:transform .6s var(--ease-cine),background-color .5s,color .5s;view-transition-name:site-header}
+.site-header.is-tucked{transform:translateY(-102%)}
+.brand strong{font:900 1.5rem/1 var(--display-font);letter-spacing:-.02em}
+.brand span{font-family:var(--serif);font-style:italic;font-size:.8125rem;letter-spacing:.12em}
+.nav-link{font-family:var(--serif);font-style:italic;font-size:1.0625rem;letter-spacing:.04em}
+html[data-theme=dark] .site-header{background:rgba(22,35,29,.5);color:var(--on-night);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)}
+html[data-theme=dark] .site-header .nav-link{color:var(--on-night-2)}
+html[data-theme=dark] .site-header .nav-link[aria-current=page],html[data-theme=dark] .site-header .nav-link:hover{color:#fff}
+html[data-theme=dark] .site-header .nav-link::after{background:var(--mint)}
+html[data-theme=dark] .site-header .brand span{color:var(--mint)}
+html[data-theme=dark] .site-header .button.primary{background:var(--mint);border-color:var(--mint);color:var(--night)}
+html[data-theme=dark] .mobile-menu summary{color:var(--on-night)}
+.mobile-menu nav{border-radius:20px;box-shadow:var(--shadow-lift);background:var(--surface);color:var(--ink)}
+
+/* ── buttons: weight, spring, wipe */
+.button{position:relative;overflow:hidden;isolation:isolate;will-change:transform}
+.button.primary::before{content:'';position:absolute;inset:0;z-index:-1;background:var(--ink);transform:translateY(101%);border-radius:inherit;transition:transform .55s var(--ease-cine)}
+.button .mag-in{display:inline-flex;align-items:center;gap:var(--s3)}
+@media(hover:hover) and (pointer:fine){
+  .button.primary:hover::before{transform:none}
+  .button.secondary{transition:background-color .3s,color .3s,box-shadow .5s var(--ease-out)}
+  .button.secondary:hover{box-shadow:0 12px 28px -14px rgba(36,93,80,.55)}
+}
+
+.text-link svg{transition:transform .5s var(--ease-soft-spring)}
+.text-link:hover svg{transform:translateX(5px)}
+
+/* ── cards */
+.bento-card,.release-panel,.lane,.device{transition:box-shadow .6s var(--ease-out)}
+.bento-card{border-radius:36px;background:var(--glass);-webkit-backdrop-filter:blur(14px) saturate(1.3);backdrop-filter:blur(14px) saturate(1.3)}
+.bento-card.tint{background:rgba(234,240,233,.7)}
+@media(hover:hover) and (pointer:fine){.bento-card:hover{box-shadow:var(--shadow-lift)}}
+
+/* ── editorial chapters */
+.disp{font:900 var(--mega-sz)/1.12 var(--display-font);letter-spacing:-.04em}
+.disp .soft{color:var(--secondary);font-weight:700}.disp .accent{color:var(--green)}
+.chapter{overflow-x:clip}
+.chapter-head{max-width:none;margin:0 0 clamp(40px,6vw,80px);text-align:left;align-items:flex-start}
+.chapter-head h2{font:900 var(--mega-sz)/1.12 var(--display-font);letter-spacing:-.04em}
+.chapter-head .soft{color:var(--secondary);font-weight:700;font-family:inherit}
+.chapter-head .accent{font-family:inherit;color:var(--green)}
+.chapter-head p{max-width:34rem}
+.preview-chapter,.chapter-last{position:relative}
+.open-source h2{font-family:var(--display-font);font-weight:900;letter-spacing:-.04em}
+.os-3{font-family:inherit!important}
+.disp .ci{will-change:transform}
+.eyebrow{font-family:var(--serif);font-size:.9375rem;letter-spacing:.14em}
+.architecture-local,.node-cloud{background:var(--glass)}
+.download-home{display:grid;grid-template-columns:1fr 1fr;gap:var(--s16);align-items:center}
+.download-copy h2{font:900 var(--mega-sz)/1.12 var(--display-font);letter-spacing:-.04em}
+.download-copy .accent{font-family:inherit}
+.release-panel{background:var(--glass);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px)}
+
+/* ── inner page headers: oversized, asymmetric */
+.page-header{padding-block:calc(72px + clamp(48px,10vh,120px)) clamp(32px,6vw,72px);display:grid;grid-template-columns:repeat(12,1fr);column-gap:var(--s6)}
+.page-header>*{grid-column:1 / -1}
+.page-header .eyebrow{margin-bottom:var(--s5)}
+.page-header :is(h1,h2){grid-column:1 / span 10;font:900 clamp(2.6rem,8.2vw,8rem)/1.04 var(--display-font)!important;letter-spacing:-.05em;margin-block:0 var(--s8)}
+.page-header p:not(.eyebrow){grid-column:6 / -1;max-width:30rem;color:var(--secondary);font-size:var(--lead)}
+@media(max-width:700px){.page-header p:not(.eyebrow){grid-column:1 / -1}.page-header :is(h1,h2){grid-column:1 / -1}}
+.article{background:var(--glass);-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);padding:clamp(24px,4vw,56px);border-radius:36px;margin-bottom:var(--s24);max-width:50rem}
+.release-history,.download-grid,.compatibility .wrap{position:relative}
+.release-entry,.download-grid>*,.testing-grid>*{}
+.section{border-top:0}
+.compatibility{background:linear-gradient(transparent,rgba(247,246,242,.7) 120px)}
+.feedback{position:relative}
+.site-footer{position:relative;border-top:0;padding-top:var(--s24);overflow:clip}
+.site-footer::before{content:'珞序';position:absolute;left:50%;bottom:-.22em;transform:translateX(-50%);font:900 clamp(10rem,36vw,34rem)/1 var(--display-font);letter-spacing:-.06em;color:rgba(36,93,80,.07);pointer-events:none;white-space:nowrap}
+.site-footer .wrap{position:relative}
+.footer-links a{font-family:var(--serif);font-style:italic;font-size:1.0625rem}
+
+/* ── page transitions: a mountain curtain rises over the old page (cross-document View Transitions) */
+@view-transition{navigation:auto}
+@media(prefers-reduced-motion:no-preference){
+  ::view-transition-group(root){animation-duration:1s}
+  ::view-transition-old(root){animation:vt-old 1s var(--ease-cine) both}
+  ::view-transition-new(root){animation:vt-new 1s var(--ease-cine) both;mix-blend-mode:normal}
+  ::view-transition-old(site-header),::view-transition-new(site-header){animation:none;mix-blend-mode:normal}
+  ::view-transition-group(site-header){animation-duration:0s}
+  @keyframes vt-old{to{transform:scale(.94) translateY(-3vh);filter:blur(6px) brightness(.9)}}
+  @keyframes vt-new{
+    from{clip-path:polygon(0 104%,12.5% 100%,25% 106%,37.5% 99%,50% 105%,62.5% 101%,75% 107%,87.5% 100%,100% 104%,100% 140%,0 140%)}
+    to{clip-path:polygon(0 -14%,12.5% -20%,25% -12%,37.5% -22%,50% -16%,62.5% -24%,75% -12%,87.5% -20%,100% -14%,100% 140%,0 140%)}
+  }
+}
+@media(prefers-reduced-motion:reduce){@view-transition{navigation:none}}
+
+/* ── mobile */
+@media(max-width:900px){.download-home{grid-template-columns:1fr;gap:var(--s10)}.chapter-head h2{font-size:clamp(2rem,9.4vw,3.4rem)}}
+@media(max-width:700px){.article{padding:22px;border-radius:28px}.page-header :is(h1,h2){font-size:clamp(2.4rem,12.4vw,4rem)}.bento-card{border-radius:28px}}
+@media(prefers-reduced-motion:reduce){.ci,.ch{transform:none!important}.site-header.is-tucked{transform:none}}

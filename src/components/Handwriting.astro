@@ -1,0 +1,39 @@
+---
+/**
+ * Real stroke-order handwriting. The stroke order and direction come from Hanzi Writer Data medians (Make Me a
+ * Hanzi; Arphic Public License, see THIRD_PARTY_NOTICES.md). The ink shape is a designed serif glyph outline
+ * (Noto Serif SC, SIL OFL, built by scripts/build-glyphs.py) revealed through a mask of the thick median lines.
+ */
+import glyphs from '../assets/glyphs.json';
+import luo from 'hanzi-writer-data/珞.json';
+import xu from 'hanzi-writer-data/序.json';
+interface Props {class?: string}
+const {class: cls = ''} = Astro.props;
+const chars = [luo, xu];
+const len = (m: number[][]) => m.slice(1).reduce((a, p, i) => a + Math.hypot(p[0] - m[i][0], p[1] - m[i][1]), 0);
+const mpath = (m: number[][]) => 'M' + m.map(p => p.join(' ')).join('L');
+---
+<div class:list={['hw-wrap', cls]} aria-hidden="true">
+  {chars.map((c, gi) => {
+    const d = glyphs[gi === 0 ? '珞' : '序'];
+    return (
+    <svg class="hw" viewBox="0 0 1024 1024" focusable="false">
+      <defs><mask id={`hwm${gi}`} maskUnits="userSpaceOnUse" x="-100" y="-100" width="1224" height="1224">
+        <g class="hw-ink">{c.medians.map(m => <path class="hw-med" d={mpath(m)} pathLength="1" data-len={Math.round(len(m))}/>)}</g>
+      </mask></defs>
+      <g transform="translate(0,900) scale(1,-1)">
+        <path class="hw-ghost" d={d}/>
+        <path class="hw-fill" d={d} mask={`url(#hwm${gi})`}/>
+      </g>
+    </svg>);
+  })}
+</div>
+<style>
+.hw-wrap{display:flex;justify-content:center;gap:clamp(0px,2vw,32px)}
+.hw{width:min(36vw,46vh,420px);height:auto;overflow:visible}
+.hw-ghost{fill:var(--green);opacity:.1}
+.hw-fill{fill:var(--green-deep)}
+.hw-med{fill:none;stroke:#fff;stroke-width:190;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:1;stroke-dashoffset:0}
+/* Without motion the characters are simply written. */
+
+</style>

@@ -1,6 +1,7 @@
 ---
 import {withBase} from '../lib/urls';
 import Icon from '../components/Icon.astro';
+import ProductPreview from '../components/ProductPreview.astro';
 const features=[
   {n:'01',title:'通知理解',size:'wide',body:'在你主动授权的 QQ、微信等系统通知里，理解内容和来源。系统没发出的通知，珞序无法凭空读取。'},
   {n:'02',title:'事务整理',size:'narrow',body:'需要亲自处理的是任务；课程里的练习和报告是作业。可选择参加的机会，与告知校园变化的信息，分别整理。'},
@@ -11,19 +12,15 @@ const features=[
 ];
 const week=[38,62,46,88,54,30,22];
 ---
-<section class="chapter"><div class="wrap">
-  <header class="chapter-head"><span class="eyebrow" data-layer="0">01 / ORDER</span><h2 data-layer="1"><span class="soft">消息来得很散，</span><br/><span class="accent">事情可以清楚。</span></h2><p data-layer="2">不用在每个群里反复翻找，把注意力留给真正需要处理的事。</p></header>
-  <div class="flow">
-    <div class="message-example" data-layer="3" data-fx="left"><span class="eyebrow">一条群通知</span><p class="kai">请各班团支书周五前<br/>提交团日活动材料，<br/>PDF格式，附3张照片。</p><span class="muted">示例内容</span></div>
-    <div class="flow-understand" data-layer="4"><span class="flow-path" aria-hidden="true"></span><span class="flow-label">珞序理解</span><p>结合身份，提取要求与时间</p></div>
-    <div class="flow-result" data-layer="5" data-fx="right"><p class="eyebrow">各归其位</p><div class="categories"><span>任务</span><span>作业</span><span>机会</span><span>校园信息</span></div><p>提醒 · 周视图 · AI秘书查询</p><span class="muted">重要信息，变成可以处理的事务。</span></div>
-  </div>
+<section class="chapter preview-chapter"><div class="wrap preview-grid">
+  <div class="preview-copy"><p class="eyebrow">02 / DAILY</p><h2 class="disp" data-split><span class="soft">从收到消息，</span><br/><span class="accent">到心里有数。</span></h2><p>把整理、时间和个人身份连在一起。不是再多一张需要自己填满的清单。</p><p class="muted">切换右侧标签，看四类事务如何各有位置。</p></div>
+  <div class="preview-stage"><ProductPreview/></div>
 </div></section>
 
 <section class="chapter chapter-tint"><div class="wrap">
-  <header class="chapter-head"><span class="eyebrow" data-layer="0">02 / DAILY</span><h2 data-layer="1"><span class="soft">从收到消息，</span><br/><span class="accent">到心里有数。</span></h2><p data-layer="2">把整理、时间和个人身份连在一起。不是再多一张需要自己填满的清单。</p></header>
+  <header class="chapter-head"><span class="eyebrow" data-layer="0">03 / CAPABILITIES</span><h2 class="disp" data-split><span class="soft">四件小事，</span><br/><span class="accent">一个有序的日常。</span></h2></header>
   <div class="bento">
-    {features.map((f,i)=><article class:list={['bento-card',`bento-${f.size}`,{tint:f.tint}]} data-layer={3+(i%2)} data-fx="scale" data-n={f.n}>
+    {features.map((f,i)=><article class:list={['bento-card',`bento-${f.size}`,{tint:f.tint}]} data-layer={3+(i%2)} data-mask data-tilt data-n={f.n}>
       <h3>{f.title}</h3><p>{f.body}</p>
       {f.n==='01'&&<div class="deco chips" aria-hidden="true"><span>QQ</span><span>微信</span><span>系统通知</span></div>}
       {f.n==='03'&&<div class="deco week" aria-hidden="true">{week.map((h,d)=><i style={`--h:${h}%;--d:${d}`}></i>)}</div>}
@@ -33,27 +30,7 @@ const week=[38,62,46,88,54,30,22];
   <a class="text-link more-link" data-layer="6" href={withBase("/about")}>更多产品说明 <Icon/></a>
 </div></section>
 <style>
-.chapter-head{max-width:52rem;margin:0 auto clamp(48px,7vw,88px);text-align:center;display:flex;flex-direction:column;align-items:center;gap:var(--s5)}
-.chapter-head h2{font-size:var(--mega);line-height:1.18;font-weight:800;letter-spacing:-.025em;margin:0}
-.chapter-head .soft{color:var(--secondary);font-weight:600}
-.chapter-head .accent{font-family:var(--song);font-weight:900;color:var(--green)}
-.chapter-head p{font-size:var(--lead);color:var(--secondary);max-width:34rem}
 
-.flow{display:grid;grid-template-columns:1fr minmax(160px,.55fr) 1.15fr;align-items:center;gap:var(--s6)}
-.message-example{padding:var(--s8);border-radius:28px;background:var(--surface);border:var(--stroke) solid var(--line);box-shadow:var(--shadow-soft)}
-.message-example p{margin-block:var(--s4);font-size:1.5rem;line-height:1.6;color:var(--ink)}
-.message-example>.muted{font-size:var(--caption)}
-.flow-understand{text-align:center;color:var(--green)}
-.flow-label{font-family:var(--song);font-weight:900;font-size:var(--lead)}
-.flow-understand p{font-size:var(--caption);color:var(--secondary);margin-top:var(--s2)}
-.flow-path{display:block;height:2px;margin-bottom:var(--s4);position:relative;background:linear-gradient(90deg,transparent,var(--green) 40%,var(--green-soft) 60%,var(--green));border-radius:2px}
-.flow-path:after{content:'';position:absolute;right:0;top:-4px;width:10px;height:10px;border-radius:50%;background:var(--green)}
-.flow-result{padding:var(--s8);border-radius:28px;background:var(--green-deep);color:var(--on-night)}
-.flow-result .eyebrow{color:var(--on-night-2)}
-.categories{display:grid;grid-template-columns:1fr 1fr;gap:var(--s3);margin-block:var(--s5) var(--s6)}
-.categories span{font-size:1.5rem;font-weight:800;padding:var(--s4) var(--s5);border-radius:var(--r3);background:rgba(241,243,236,.08);border:var(--stroke) solid rgba(241,243,236,.14)}
-.flow-result>p:not(.eyebrow){font-size:var(--small);color:var(--mint)}
-.flow-result>.muted{display:block;font-size:var(--caption);color:var(--on-night-2);margin-top:var(--s1)}
 
 .bento{display:grid;grid-template-columns:repeat(6,1fr);gap:var(--s4)}
 .bento-card{position:relative;overflow:hidden;display:flex;flex-direction:column;gap:var(--s3);padding:clamp(24px,3vw,40px);min-height:300px;border-radius:32px;background:var(--surface);border:var(--stroke) solid var(--line);box-shadow:var(--shadow-soft)}
@@ -76,4 +53,9 @@ const week=[38,62,46,88,54,30,22];
 
 @media(max-width:900px){.flow{grid-template-columns:1fr;gap:var(--s6)}.flow-understand{text-align:left;max-width:240px;margin-left:var(--s4)}.flow-path{background:linear-gradient(90deg,var(--green),transparent);width:80px}.bento-wide,.bento-narrow{grid-column:span 3}.chips{position:static;max-width:none;justify-content:flex-start;margin-top:var(--s2)}.deco.chat,.deco.week{position:static;align-items:flex-start;margin-top:var(--s4)}}
 @media(max-width:700px){.bento{grid-template-columns:1fr}.bento-wide,.bento-narrow,.bento-half{grid-column:auto;min-height:0}.bento-card::before{padding-bottom:var(--s4)}.bento-card{border-radius:26px}.message-example,.flow-result{padding:var(--s6);border-radius:24px}.message-example p{font-size:1.25rem}.categories span{font-size:1.25rem;padding:var(--s3) var(--s4)}.chapter-head{text-align:left;align-items:flex-start}}
+.preview-grid{display:grid;grid-template-columns:1fr minmax(0,420px);gap:clamp(32px,8vw,128px);align-items:center}
+.preview-copy{display:flex;flex-direction:column;gap:var(--s5)}
+.preview-copy p:not(.eyebrow){color:var(--secondary);max-width:28rem;font-size:var(--lead)}
+.preview-stage{will-change:transform}
+@media(max-width:900px){.preview-grid{grid-template-columns:1fr}.preview-stage{max-width:380px;margin-inline:auto;width:100%}}
 </style>

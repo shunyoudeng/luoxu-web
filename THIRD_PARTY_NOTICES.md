@@ -28,3 +28,17 @@ APK 是独立维护的 Android 应用分发文件；本声明不替代该应用�
 ## 设计研究参考
 
 本轮动效和排版组织参考了 [Luotopia公开官网](https://github.com/ClosedWHU/Luotopia) 的Token、状态及降级设计方法（审计快照 `ec32c97d5569df7211481fd9f162750510c8e15f`）。该快照README声明MIT但未包含LICENSE正文，未复制其源码、Logo或截图；新增交互由本项目自行实现。参考关系不产生新的运行时依赖。实现与验收说明见 [视觉与动效精修](docs/design-refinement.md)。
+
+
+## V3 视觉重构新增（`feat/v3-visual-refactor`）
+
+| 组件 | 版本 | 许可证 | 用途 |
+| --- | --- | --- | --- |
+| [three.js](https://github.com/mrdoob/three.js) | 0.180.0 | MIT | 首页/全站 3D 珞珈山场景（懒加载，约 130 KB gzip） |
+| [GSAP + ScrollTrigger](https://github.com/greensock/GSAP) | 3.15.0 | GSAP Standard License（免费，网站可商用） | 滚动驱动动画、磁吸与弹性微交互 |
+| [Lenis](https://github.com/darkroomengineering/lenis) | 1.3.26 | MIT | 带重量感的平滑滚动 |
+| [Hanzi Writer Data](https://github.com/chanind/hanzi-writer-data) | 2.0.1 | Arphic Public License | “珞”“序”的真实笔顺与笔画方向（仅用于构建期） |
+| [Noto Serif SC](https://github.com/notofonts/noto-cjk) | VF | SIL OFL 1.1 | 标题字体，构建期子集化为 25 KB woff2（`scripts/build-fonts.py`） |
+| [Instrument Serif](https://github.com/Instrument/instrument-serif) / @fontsource | 5.x | SIL OFL 1.1 | 英文斜体点缀 |
+
+山体、松树、阔叶树和岩石均为项目内程序化原创建模，未使用外部模型或照片。
