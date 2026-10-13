@@ -1,11 +1,13 @@
 ---
 import {withBase} from '../lib/urls';
 import Icon from '../components/Icon.astro';
+import SceneGap from '../components/SceneGap.astro';
 interface Props {heading?:'h1'|'h2';copy?:boolean}
 const {heading='h2',copy=true}=Astro.props;
 const H=heading;
 ---
 <section class="privacy-story" data-tone="dark">
+  <SceneGap/>
   <div class="poster" aria-labelledby="poster-title" data-glide>
     <div class="poster-frame">
       <p class="eyebrow poster-eyebrow">03 / YOUR LIFE, YOURS.</p>

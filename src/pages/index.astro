@@ -9,8 +9,9 @@ import PrivacyPoster from '../sections/PrivacyPoster.astro';
 import PrivacyStory from '../sections/PrivacyStory.astro';
 import ReleasePanel from '../components/ReleasePanel.astro';
 import ReadyStage from '../sections/ReadyStage.astro';
+import SceneGap from '../components/SceneGap.astro';
 ---
-<SiteLayout scene="home"><Hero3/><OrderStage/><StoryStage/><ProductStory/><PrivacyPoster/><PrivacyStory/><section class="chapter chapter-download"><div class="wrap download-home"><div class="download-copy"><p class="eyebrow" data-layer="0">06 / ANDROID BETA</p><h2 data-split><span class="soft">先在你的校园里，</span><br/><span class="accent">用起来。</span></h2><p data-layer="2">当前优先支持 Android。公测仍在迭代，不同手机上的通知读取、分类与后台运行表现可能有所不同，欢迎反馈。</p><a class="text-link" data-layer="3" href={withBase("/changelog")}>每一次更新，都留有记录 →</a></div><div class="download-card" data-layer="3" data-mask><ReleasePanel compact/></div></div></section><ReadyStage/></SiteLayout>
+<SiteLayout scene="home"><Hero3/><SceneGap/><OrderStage/><StoryStage/><SceneGap/><ProductStory/><PrivacyPoster/><SceneGap/><PrivacyStory/><SceneGap/><section class="chapter chapter-download"><div class="wrap download-home"><div class="download-copy"><p class="eyebrow" data-layer="0">06 / ANDROID BETA</p><h2 data-split><span class="soft">先在你的校园里，</span><br/><span class="accent">用起来。</span></h2><p data-layer="2">当前优先支持 Android。公测仍在迭代，不同手机上的通知读取、分类与后台运行表现可能有所不同，欢迎反馈。</p><a class="text-link" data-layer="3" href={withBase("/changelog")}>每一次更新，都留有记录 →</a></div><div class="download-card" data-layer="3" data-mask><ReleasePanel compact/></div></div></section><SceneGap/><ReadyStage/></SiteLayout>
 <style>
 .download-copy{display:flex;flex-direction:column;align-items:flex-start;gap:var(--s5)}
 .download-copy .soft{color:var(--secondary);font-weight:700}

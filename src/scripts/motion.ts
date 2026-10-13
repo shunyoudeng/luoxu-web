@@ -336,4 +336,5 @@ function refresh() {
 }
 document.fonts?.ready.then(refresh);
 addEventListener('load', refresh);
+addEventListener('luoxu:layout', refresh); // the scene opened the phone's scene gaps
 root.dataset.motion = 'ready';

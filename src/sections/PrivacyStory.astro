@@ -2,8 +2,9 @@
 import {withBase} from '../lib/urls';
 import Icon from '../components/Icon.astro';
 import GitHubLink from '../components/GitHubLink.astro';
+import SceneGap from '../components/SceneGap.astro';
 ---
-<section class="chapter"><div class="wrap">
+<section class="chapter chapter-local"><div class="wrap">
   <header class="chapter-head"><span class="eyebrow" data-layer="0">04 / LOCAL-FIRST</span><h2 class="disp" data-split><span class="soft">先留在手机，</span><br/><span class="accent">需要时再交给 AI。</span></h2><p data-layer="2">一个清楚的边界，比一个复杂的架构更重要。</p></header>
   <div class="architecture">
     <div class="architecture-local" data-layer="3" data-fx="left"><div class="node"><span class="eyebrow">YOUR PHONE</span><h3>你的手机</h3><p>已授权的通知与输入</p></div><span class="architecture-arrow" aria-hidden="true">→</span><div class="node"><span class="eyebrow">LOCAL DATABASE</span><h3>本地事务</h3><p>任务、画像与个人配置</p></div></div>
@@ -11,6 +12,7 @@ import GitHubLink from '../components/GitHubLink.astro';
   </div>
   <p class="architecture-note" data-layer="5">官网只负责介绍、下载与版本信息，不接收你的 API Key。</p>
 </div></section>
+<SceneGap/>
 
 <section class="chapter chapter-last"><div class="wrap open-source">
   <div><p class="eyebrow" data-layer="0">05 / BUILT TO LAST</p><h2 class="disp" data-split><span class="os-1">本地优先。</span><span class="os-2">持续维护。</span><span class="os-3">官网源码开放。</span></h2></div>

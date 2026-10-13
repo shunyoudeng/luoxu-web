@@ -1,7 +1,7 @@
 /**
  * LUOXU "纷杂 → 有序" — a GPU particle field.
  *
- * One cloud of points (≈90k desktop / ≈32k touch) carries six shapes at once, one per chapter: a drifting nebula
+ * One cloud of points (≈90k desktop / ≈56k touch) carries six shapes at once, one per chapter: a drifting nebula
  * (纷杂), stacked message strata (ORDER), the glyphs 珞序 (NAME), Luojia ridges drawn as contour lines (product),
  * a closed orb with an orbit (privacy), a twisted ribbon (download). Scroll position picks the blend; every point
  * leaves on its own small delay and rides a flow field between shapes, so transitions read as one breath.
@@ -36,6 +36,13 @@ const POSES: [number[], number[]][] = [
   [[-3, 3, 44], [0, 0, 0]],         // 9 three rings, close and level
   [[6, 18, 44], [0, -2, 0]],        // 10 tree rings, looking down
   [[-8, 12, 46], [0, -1, 0]],       // 11 the flower
+];
+/* Portrait screens frame every shape on its own: the frame is less than half as wide as it is tall, so one global
+   step back would either crop the wide forms or shrink the narrow ones. Per shape: the share of the screen width it
+   may fill (0: let it bleed past the edges, as the nebula, ridges and sea are meant to) and a camera roll in degrees
+   that lays wide forms along the diagonal. The distance itself is measured from the points (frameShapes). */
+const PORTRAIT: [number, number][] = [
+  [0, 0], [.96, -6], [.94, 0], [0, 0], [0, 0], [.86, -26], [.8, 8], [.92, 14], [.9, -20], [.9, -14], [.92, 6], [.9, -8],
 ];
 /* Colours per shape (light paper): body and accent. Green leads; each form adds one quiet note of its own. */
 const SHAPE_COLS: [string, string][] = [
@@ -362,7 +369,7 @@ const progress = (p: number) => dispatchEvent(new CustomEvent('luoxu:progress', 
 /* Home chapters → shape index. Other pages spread their SEQS entry over their top-level sections. */
 const HOME_ANCHORS: [string, number][] = [
   ['.hero3', 0], ['.order-stage', 1], ['.story-stage', 2], ['.preview-chapter', 3], ['.chapter-tint', 4], ['.privacy-story', 5],
-  ['.privacy-story + .chapter', 6], ['.chapter-last', 7], ['.chapter-download', 8], ['.ready-stage', 9],
+  ['.chapter-local', 6], ['.chapter-last', 7], ['.chapter-download', 8], ['.ready-stage', 9],
 ];
 
 /* Text blocks the background makes room for, with how much it yields (0..1). */
@@ -392,7 +399,7 @@ export async function startScene(canvas: HTMLCanvasElement, opts: {reduced: bool
   const camera = new PerspectiveCamera(40, 1, .5, 400);
 
   // ── geometry: one buffer per shape; three of them are bound to the slots at any time
-  const N = mobile ? 40000 : 90000;
+  const N = mobile ? 56000 : 90000;
   const geo = new BufferGeometry();
   const glyphData = await glyphPoints();
   progress(.4);
@@ -415,7 +422,7 @@ export async function startScene(canvas: HTMLCanvasElement, opts: {reduced: bool
   const rects = Array.from({length: MAX_RECTS}, () => new Vector4());
   const U = {
     uMorph: {value: 0}, uTime: {value: 0}, uVel: {value: 0}, uPx: {value: pixelRatio}, uFocus: {value: 62}, uIntro: {value: 0},
-    uScale: {value: mobile ? 1.45 : 1}, uTheme: {value: 0}, uMouse: {value: new Vector2(9, 9)}, uMouseV: {value: new Vector2()},
+    uScale: {value: 1}, uTheme: {value: 0}, uMouse: {value: new Vector2(9, 9)}, uMouseV: {value: new Vector2()},
     uRects: {value: rects}, uRectK: {value: new Array(MAX_RECTS).fill(0)}, uRectN: {value: 0},
     uRes: {value: new Vector3(1, 1, 0)}, uPad: {value: 90}, uQuiet: {value: 1},
     uSeqN: {value: 1}, uBase: {value: 0},
@@ -488,9 +495,47 @@ export async function startScene(canvas: HTMLCanvasElement, opts: {reduced: bool
     pageAnchors.forEach(a => {a.i += leadN;});
     U.uSeqN.value = seq.length;
     boundBase = -1;
+    buildCurves();
+  };
+  /* Each pose steps back (or in) along its own line of sight by the shape's framing factor. */
+  const fitK = new Array<number>(SHAPES).fill(1);
+  let portrait = false;
+  const buildCurves = () => {
     const pts = seq.length > 1 ? seq : [seq[0], seq[0]];
-    posCurve = new CatmullRomCurve3(pts.map(g => new Vector3(...POSES[g][0])), false, 'centripetal');
     lookCurve = new CatmullRomCurve3(pts.map(g => new Vector3(...POSES[g][1])), false, 'centripetal');
+    posCurve = new CatmullRomCurve3(pts.map(g => {
+      const look = new Vector3(...POSES[g][1]);
+      return new Vector3(...POSES[g][0]).sub(look).multiplyScalar(fitK[g]).add(look);
+    }), false, 'centripetal');
+  };
+  /* Portrait framing: project a sample of each shape from its pose (with its roll) and set the distance at which the
+     shape's outer edge (99th percentile: a few stray points may leave) meets its share of the width, and never runs off
+     the top or bottom. */
+  const probe = new PerspectiveCamera(40, 1, .5, 400), pv = new Vector3(), pl = new Vector3();
+  const frameShapes = () => {
+    portrait = camera.aspect < .9;
+    const wide = 1 / Math.pow(Math.min(1, camera.aspect), .6);
+    probe.aspect = camera.aspect; probe.updateProjectionMatrix();
+    const xs: number[] = [], ys: number[] = [], q = (v: number[]) => v.sort((a, b) => a - b)[Math.floor(v.length * .99)] || 1;
+    for (let g = 0; g < SHAPES; g++) {
+      const [fit, rollDeg] = PORTRAIT[g];
+      if (!portrait || !fit) {fitK[g] = wide; continue;}
+      const a = shapeAttrs[g].array as Float32Array;
+      pl.set(...(POSES[g][1] as [number, number, number]));
+      let k = wide;
+      for (let pass = 0; pass < 2; pass++) { // perspective makes it slightly non-linear; a second pass settles it
+        probe.position.set(...(POSES[g][0] as [number, number, number])).sub(pl).multiplyScalar(k).add(pl);
+        probe.lookAt(pl); probe.rotateZ(rollDeg * DEG); probe.updateMatrixWorld();
+        xs.length = ys.length = 0;
+        for (let i = 0; i < N; i += 29) {
+          pv.fromArray(a, i * 3).project(probe);
+          if (pv.z < 1) {xs.push(Math.abs(pv.x)); ys.push(Math.abs(pv.y));}
+        }
+        k *= Math.max(q(xs) / fit, q(ys) / .84);
+      }
+      fitK[g] = MathUtils.clamp(k, .8, 3.4);
+    }
+    buildCurves();
   };
   /* Bind the three sequence entries around the playhead. The window only moves once every point has left its first
      slot (uMorph - 0.17 crossed an integer), so a swap is never visible. Buffers are already on the GPU: a rebind. */
@@ -517,7 +562,10 @@ export async function startScene(canvas: HTMLCanvasElement, opts: {reduced: bool
     });
     anchors = [];
     for (const {el, i} of pageAnchors) {
-      const r = el.getBoundingClientRect();
+      // on phones a chapter opens with an open screen (.scene-gap, before it or first inside it): its shape forms there
+      const gap = el.querySelector<HTMLElement>(':scope > .scene-gap')
+        ?? (el.previousElementSibling?.classList.contains('scene-gap') ? el.previousElementSibling as HTMLElement : null);
+      const r = (gap?.offsetHeight ? gap : el).getBoundingClientRect();
       const y = !anchors.length ? 0 : Math.min(maxScroll, Math.max(0, r.top + scrollY + Math.min(r.height, vh * 1.4) * .5 - vh * .5));
       if (!anchors.length || y > anchors[anchors.length - 1].y + 1) anchors.push({y, i});
     }
@@ -533,8 +581,10 @@ export async function startScene(canvas: HTMLCanvasElement, opts: {reduced: bool
     return anchors[anchors.length - 1].i;
   };  const themeNow = () => {
     let t = 0;
+    // a dark chapter that opens with a phone's scene gap is already night by the time the gap is centred
+    const lead = portrait ? vh * .3 : 0;
     for (const z of zones) {
-      const enter = smooth(z.top - vh * .55, z.top + vh * .05, scrollY);
+      const enter = smooth(z.top - vh * .55 - lead, z.top + vh * .05 - lead, scrollY);
       const leave = 1 - smooth(z.bottom - vh * .6, z.bottom - vh * .1, scrollY);
       t = Math.max(t, enter * leave);
     }
@@ -623,21 +673,35 @@ export async function startScene(canvas: HTMLCanvasElement, opts: {reduced: bool
     if (e.gamma == null || e.beta == null) return;
     mouseX = MathUtils.clamp(e.gamma / 30, -1, 1); mouseY = MathUtils.clamp((e.beta - 50) / 40, -1, 1);
   };
+  // on touch the finger is the hand in the water: the field parts under it while it rests or scrolls the page
+  const touch = (e: TouchEvent) => {
+    const t = e.touches[0];
+    if (t) {ndcX = (t.clientX / innerWidth) * 2 - 1; ndcY = 1 - (t.clientY / innerHeight) * 2;}
+  };
+  const untouch = (e: TouchEvent) => {if (!e.touches.length) leave();};
   window.addEventListener('pointermove', ptr, {passive: true});
   document.documentElement.addEventListener('pointerleave', leave);
-  if (mobile && 'DeviceOrientationEvent' in window && !('requestPermission' in DeviceOrientationEvent)) {
-    window.addEventListener('deviceorientation', gyro, {passive: true});
+  if (mobile) {
+    addEventListener('touchstart', touch, {passive: true}); addEventListener('touchmove', touch, {passive: true});
+    addEventListener('touchend', untouch, {passive: true}); addEventListener('touchcancel', untouch, {passive: true});
+  }
+  // tilting the phone turns the camera; iOS asks first, inside the tap that enters the site
+  const DOE = (window as {DeviceOrientationEvent?: {requestPermission?: () => Promise<string>}}).DeviceOrientationEvent;
+  if (mobile && DOE) {
+    if (typeof DOE.requestPermission !== 'function') addEventListener('deviceorientation', gyro, {passive: true});
+    else addEventListener('luoxu:enter', () => {
+      DOE.requestPermission!().then(s => {if (s === 'granted') addEventListener('deviceorientation', gyro, {passive: true});}, () => undefined);
+    }, {once: true});
   }
 
-  let lastW = innerWidth, lastH = innerHeight, back = 1;
+  let lastW = innerWidth, lastH = innerHeight;
   const resize = () => {
     const w = innerWidth, h = innerHeight;
     renderer.setSize(w, h, false);
     rectsDirty = true;
     camera.aspect = w / h;
-    // portrait screens step back along the view so the shapes keep their width
-    back = 1 / Math.pow(Math.min(1, camera.aspect), .6);
     camera.updateProjectionMatrix();
+    frameShapes();
     (U.uRes.value as Vector3).set(w * renderer.getPixelRatio(), h * renderer.getPixelRatio(), 0);
     measure();
     lastW = w; lastH = h;
@@ -729,12 +793,18 @@ export async function startScene(canvas: HTMLCanvasElement, opts: {reduced: bool
     floatW += ((still > .6 ? 1 : 0) - floatW) * (1 - Math.exp(-dt * (still > .6 ? .8 : 6)));
     const u = seq.length > 1 ? clamp01(m / (seq.length - 1)) : 0;
     posCurve.getPoint(u, camP); lookCurve.getPoint(u, camL);
-    camP.sub(camL).multiplyScalar(back).add(camL);
+    // the two shapes in play blend their portrait framing: roll, and a point size that keeps pace with the distance
+    const s0 = Math.max(0, Math.floor(m)), sf = smooth(0, 1, m - s0);
+    const g0 = seq[Math.min(seq.length - 1, s0)], g1 = seq[Math.min(seq.length - 1, s0 + 1)];
+    const lean = portrait ? MathUtils.lerp(PORTRAIT[g0][1], PORTRAIT[g1][1], sf) * DEG : 0;
+    const kNow = MathUtils.lerp(fitK[g0], fitK[g1], sf);
+    U.uScale.value = (mobile ? 1.15 : 1) * Math.sqrt(kNow);
     fwd.subVectors(camL, camP).normalize(); right.crossVectors(fwd, UP).normalize();
-    camP.addScaledVector(right, mx.value * 1.8).addScaledVector(UP, -my.value * .9 + Math.sin(time * .9) * .4 * floatW)
-      .addScaledVector(right, Math.sin(time * .43) * .5 * floatW);
+    const sway = Math.sqrt(kNow); // a farther camera sways farther, so tilting a phone moves the shape as much
+    camP.addScaledVector(right, mx.value * 1.8 * sway).addScaledVector(UP, (-my.value * .9 + Math.sin(time * .9) * .4 * floatW) * sway)
+      .addScaledVector(right, Math.sin(time * .43) * .5 * floatW * sway);
     camera.position.copy(camP); camera.lookAt(camL);
-    camera.rotateY(-mx.value * 2.5 * DEG); camera.rotateX(-my.value * 2.4 * DEG); camera.rotateZ(roll.value - mx.value * 1.75 * DEG);
+    camera.rotateY(-mx.value * 2.5 * DEG); camera.rotateX(-my.value * 2.4 * DEG); camera.rotateZ(roll.value - mx.value * 1.75 * DEG + lean);
     U.uFocus.value = camP.distanceTo(camL);
     points.rotation.set(Math.sin(time * .11) * .025, Math.sin(time * .07) * .05, 0);
     const M = U.uMouse.value, MV = U.uMouseV.value, px = M.x, py = M.y, inside = Math.abs(ndcX) < 2;
@@ -752,7 +822,17 @@ export async function startScene(canvas: HTMLCanvasElement, opts: {reduced: bool
     updateRects();
     mixTheme(theme);
     renderer.render(scene, camera);
-    if (frames === 2) {document.documentElement.classList.add('webgl'); progress(1);}
+    if (frames === 2) {live(); progress(1);}
+  }
+  /* The field is up: html.webgl opens the phone's scene gaps. Whatever the reader is looking at stays put (the gaps
+     above it would push it down), and scroll-driven motion re-measures. */
+  function live() {
+    const ref = document.elementFromPoint(innerWidth / 2, innerHeight / 2), top = ref?.getBoundingClientRect().top ?? 0;
+    document.documentElement.classList.add('webgl');
+    const shift = ref ? ref.getBoundingClientRect().top - top : 0;
+    if (Math.abs(shift) > 1) scrollBy(0, shift);
+    measure();
+    dispatchEvent(new Event('luoxu:layout'));
   }
 
   const onVis = () => {running = !document.hidden; last = performance.now();};
@@ -777,13 +857,15 @@ export async function startScene(canvas: HTMLCanvasElement, opts: {reduced: bool
     const still = () => {morph.value = targetMorph(); theme = themeNow(); frame(performance.now()); cancelAnimationFrame(raf);};
     still();
     addEventListener('scroll', still, {passive: true});
-    document.documentElement.classList.add('webgl'); progress(1);
+    live(); still(); progress(1);
   } else raf = requestAnimationFrame(frame);
 
   return {
     dispose() {
       cancelAnimationFrame(raf); clearInterval(remeasure); ro.disconnect(); io.disconnect(); save();
       removeEventListener('pointermove', ptr); removeEventListener('deviceorientation', gyro);
+      removeEventListener('touchstart', touch); removeEventListener('touchmove', touch);
+      removeEventListener('touchend', untouch); removeEventListener('touchcancel', untouch);
       ['scroll', 'pointermove', 'wheel', 'touchstart'].forEach(t => removeEventListener(t, wake));
       document.documentElement.removeEventListener('pointerleave', leave); document.removeEventListener('astro:page-load', rescan);
       document.removeEventListener('visibilitychange', onVis); removeEventListener('pagehide', save);

@@ -2,6 +2,7 @@
 import {withBase} from '../lib/urls';
 import Icon from '../components/Icon.astro';
 import ProductPreview from '../components/ProductPreview.astro';
+import SceneGap from '../components/SceneGap.astro';
 const features=[
   {n:'01',title:'通知理解',size:'wide',body:'在你主动授权的 QQ、微信等系统通知里，理解内容和来源。系统没发出的通知，珞序无法凭空读取。'},
   {n:'02',title:'事务整理',size:'narrow',body:'需要亲自处理的是任务；课程里的练习和报告是作业。可选择参加的机会，与告知校园变化的信息，分别整理。'},
@@ -16,7 +17,7 @@ const week=[38,62,46,88,54,30,22];
   <div class="preview-copy"><p class="eyebrow">02 / DAILY</p><h2 class="disp" data-split><span class="soft">从收到消息，</span><br/><span class="accent">到心里有数。</span></h2><p>把整理、时间和个人身份连在一起。不是再多一张需要自己填满的清单。</p><p class="muted">切换示意中的标签，看四类事务如何各有位置。</p></div>
   <div class="preview-stage"><ProductPreview/></div>
 </div></section>
-
+<SceneGap/>
 <section class="chapter chapter-tint"><div class="wrap">
   <header class="chapter-head"><span class="eyebrow" data-layer="0">03 / CAPABILITIES</span><h2 class="disp" data-split><span class="soft">四件小事，</span><br/><span class="accent">一个有序的日常。</span></h2></header>
   <div class="bento">
