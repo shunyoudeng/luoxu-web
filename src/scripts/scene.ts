@@ -1,7 +1,7 @@
 /**
  * LUOXU "纷杂 → 有序" — a GPU particle field.
  *
- * One cloud of points (80k desktop / 46k touch, fixed) carries six shapes at once, one per chapter: a drifting nebula
+ * One cloud of points (80k desktop / 32k touch, fixed) carries six shapes at once, one per chapter: a drifting nebula
  * (纷杂), stacked message strata (ORDER), the glyphs 珞序 (NAME), Luojia ridges drawn as contour lines (product),
  * a closed orb with an orbit (privacy), a twisted ribbon (download). Scroll position picks the blend; every point
  * leaves on its own small delay and rides a flow field between shapes, so transitions read as one breath.
@@ -421,14 +421,20 @@ export async function startScene(canvas: HTMLCanvasElement, opts: {reduced: bool
   progress(.15);
 
   const mobile = opts.mobile;
-  // fixed per platform, set with headroom so mid-range hardware holds its refresh rate (soft points lose nothing below 2x)
-  const pixelRatio = Math.min(window.devicePixelRatio || 1, 1.75);
+  /* The frame the field is composed for. On phones that is the canvas itself, which CSS holds at the large viewport:
+     innerHeight moves with the URL bar on every fling, and following it reframed the whole field mid-scroll (a jump). */
+  const viewW = () => (mobile && canvas.clientWidth) || innerWidth;
+  const viewH = () => (mobile && canvas.clientHeight) || innerHeight;
+  // set per platform with headroom so modest hardware holds its refresh rate (soft points lose nothing below 2x). Phones
+  // start lower and may step down further if the GPU still cannot keep up (see `pace`): sharpness gives, never the form.
+  const PHONE_DPR = [1.3, 1.1, .9];
+  let dprStep = 0, pixelRatio = Math.min(window.devicePixelRatio || 1, mobile ? PHONE_DPR[0] : 1.75);
   renderer.setPixelRatio(pixelRatio);
   const scene = new Scene();
   const camera = new PerspectiveCamera(40, 1, .5, 400);
 
   // ── geometry: one buffer per shape; three of them are bound to the slots at any time
-  const N = mobile ? 46000 : 80000;
+  const N = mobile ? 32000 : 80000;
   const geo = new BufferGeometry();
   const glyphData = await glyphPoints();
   progress(.4);
@@ -454,7 +460,7 @@ export async function startScene(canvas: HTMLCanvasElement, opts: {reduced: bool
     uScale: {value: 1}, uTheme: {value: 0}, uMouse: {value: new Vector2(9, 9)}, uMouseV: {value: new Vector2()},
     uRects: {value: rects}, uRectK: {value: new Array(MAX_RECTS).fill(0)}, uRectN: {value: 0},
     uRes: {value: new Vector3(1, 1, 0)}, uPad: {value: 90}, uQuiet: {value: 1},
-    uSeqN: {value: 1}, uBase: {value: 0}, uMaxPx: {value: mobile ? 30 : 64},
+    uSeqN: {value: 1}, uBase: {value: 0}, uMaxPx: {value: mobile ? 22 : 64},
     uCA: {value: [new Color(), new Color(), new Color()]}, uCB: {value: [new Color(), new Color(), new Color()]},
     uSea: {value: new Vector3()}, uIri: {value: new Vector3()}, uCalm: {value: new Vector3()},
     uOrb: {value: new Vector3()}, uRingR: {value: mobile ? 8.6 : 14.5},
@@ -466,7 +472,7 @@ export async function startScene(canvas: HTMLCanvasElement, opts: {reduced: bool
   scene.add(points);
 
   // ── ambient streams behind the shapes
-  const T = mobile ? 34 : 56, PER = mobile ? 60 : 80, SN = T * PER;
+  const T = mobile ? 26 : 56, PER = mobile ? 50 : 80, SN = T * PER;
   const sGeo = new BufferGeometry();
   const jit = new Float32Array(SN * 3), thread = new Float32Array(SN * 4), sSeed = new Float32Array(SN * 2);
   for (let t = 0; t < T; t++) {
@@ -557,7 +563,7 @@ export async function startScene(canvas: HTMLCanvasElement, opts: {reduced: bool
         probe.position.set(...(POSES[g][0] as [number, number, number])).sub(pl).multiplyScalar(k).add(pl);
         probe.lookAt(pl); probe.rotateZ(rollDeg * DEG); probe.updateMatrixWorld();
         xs.length = ys.length = 0;
-        for (let i = 0; i < N; i += 29) {
+        for (let i = 0; i < N; i += 57) { // ~560 points on a phone: the same edge, a quarter of a phone's time
           pv.fromArray(a, i * 3).project(probe);
           if (pv.z < 1) {xs.push(Math.abs(pv.x)); ys.push(Math.abs(pv.y));}
         }
@@ -584,7 +590,7 @@ export async function startScene(canvas: HTMLCanvasElement, opts: {reduced: bool
     U.uSea.value.set(...flags(4)); U.uIri.value.set(...flags(9)); U.uCalm.value.set(...flags(0)); U.uOrb.value.set(...flags(5));
   };
   const measure = () => {
-    vh = innerHeight;
+    vh = viewH();
     maxScroll = Math.max(1, document.documentElement.scrollHeight - vh);
     zones = Array.from(document.querySelectorAll<HTMLElement>('[data-tone=dark]')).map(el => {
       const r = el.getBoundingClientRect();
@@ -733,22 +739,28 @@ export async function startScene(canvas: HTMLCanvasElement, opts: {reduced: bool
     }, {once: true});
   }
 
-  let lastW = innerWidth, lastH = innerHeight;
-  const resize = () => {
-    const w = innerWidth, h = innerHeight;
+  let lastW = 0, lastH = 0;
+  // the drawing buffer alone: a change of pixel ratio keeps the frame, so nothing is re-framed or re-measured
+  const setBuffer = (w: number, h: number) => {
+    renderer.setPixelRatio(pixelRatio); U.uPx.value = pixelRatio;
     renderer.setSize(w, h, false);
+    (U.uRes.value as Vector3).set(w * pixelRatio, h * pixelRatio, 0);
     rectsDirty = true;
+  };
+  const resize = () => {
+    const w = viewW(), h = viewH();
+    setBuffer(w, h);
     camera.aspect = w / h;
     camera.updateProjectionMatrix();
     frameShapes();
-    (U.uRes.value as Vector3).set(w * renderer.getPixelRatio(), h * renderer.getPixelRatio(), 0);
     measure();
     lastW = w; lastH = h;
   };
+  await new Promise<void>(r => setTimeout(r, 0)); // framing measures every shape: its own task
   resize();
   ro = new ResizeObserver(() => {
     rectsDirty = true;
-    if (innerWidth !== lastW || innerHeight !== lastH) resize(); else measure();
+    if (viewW() !== lastW || viewH() !== lastH) resize(); else measure();
   });
   ro.observe(document.documentElement);
   scanQuiet();
@@ -780,9 +792,24 @@ export async function startScene(canvas: HTMLCanvasElement, opts: {reduced: bool
     if (document.documentElement.dataset.theme !== mode) document.documentElement.dataset.theme = mode;
   }
 
-  /* One fixed quality per platform (point count and pixel ratio above): a picture that thins out halfway through the
-     page reads as a fault. The display's refresh is still measured, for the idle frame skip below. */
-  let vsync = 1000 / 60, vsyncN = 0, vsyncMin = 1e9;
+  /* One fixed point count per platform: a picture that thins out halfway through the page reads as a fault. The
+     display's refresh is measured, for the frame skips below and a phone's resolution step (`pace`). */
+  let vsync = 1000 / 60, vsyncN = 0;
+  const vsyncS: number[] = [];
+  /* Phones only: if the field still misses its frames (the median interval of ~1.5 s well above the refresh), draw at
+     the next lower resolution. Point counts and forms stay; point sizes follow the pixel ratio, so the picture only
+     softens. The switch waits for the page to rest, so it never lands mid-fling. */
+  const paceS: number[] = [];
+  let stepTo = 0;
+  const pace = (dtMs: number, k: number) => {
+    if (stepTo || dprStep >= PHONE_DPR.length - 1 || vsyncN < 120 || dtMs > 250) return;
+    paceS.push(dtMs / k);
+    if (paceS.length < 90) return;
+    const med = paceS.sort((a, b) => a - b)[45]; paceS.length = 0;
+    if (med < vsync * 1.4) return;
+    const next = Math.min(window.devicePixelRatio || 1, PHONE_DPR[++dprStep]);
+    if (next < pixelRatio) stepTo = next;
+  };
   let running = true, raf = 0, last = performance.now(), time = 0, frames = 0;
   let lastInput = 0, skipTick = 0, skipped = false;
   const wake = () => {lastInput = performance.now();};
@@ -794,17 +821,22 @@ export async function startScene(canvas: HTMLCanvasElement, opts: {reduced: bool
     /* At rest on a fast display (≥ 90 Hz) the field only drifts; drawing every other refresh still gives 60+ fps there
        and halves the GPU's work while nobody is touching the page. Any input restores full rate on the next frame. */
     const idle = vsync < 11 && still > 2 && now - lastInput > 1500 && Math.abs(morph.velocity) < 1e-3;
-    if (idle && (++skipTick & 1)) {skipped = true; return;}
+    /* A phone on a 120 Hz panel draws the field at 60 fps all the time: the page itself still scrolls at the panel's
+       rate (the compositor moves it), the fixed field only morphs, and the GPU has half the frames to fill. */
+    const halve = idle || (mobile && vsync < 9.5);
+    if (halve && (++skipTick & 1)) {skipped = true; return;}
     const dtMs = now - last;
     const dt = Math.min(.05, dtMs / 1000); last = now; time += dt;
     const after = skipped; skipped = false;
 
     if (!after && dtMs > 2 && dtMs < 40) {
-      // the refresh interval is the shortest interval seen (robust to occasional misses)
-      vsyncMin = Math.min(vsyncMin, dtMs);
-      if (++vsyncN % 120 === 0) {vsync = vsyncMin; vsyncMin = 1e9;}
+      // the refresh interval is a low percentile of the intervals seen: robust to misses, and to the odd early
+      // callback that would make a 60 Hz phone look like a 120 Hz one (and halve its frame rate)
+      vsyncS.push(dtMs);
+      if (++vsyncN % 120 === 0) {vsync = vsyncS.sort((a, b) => a - b)[12]; vsyncS.length = 0;}
     }
     ++frames;
+    if (mobile) pace(dtMs, halve ? 2 : 1);
 
     const y = scrollY;
     velocity += ((y - lastY) / Math.max(dt, .001) / vh - velocity) * Math.min(1, dt * 8); lastY = y;
@@ -820,11 +852,12 @@ export async function startScene(canvas: HTMLCanvasElement, opts: {reduced: bool
     const between = Math.sin(Math.PI * (m - Math.floor(m)));
     U.uVel.value = v * (.3 + .7 * between);
     // a fast fling on a phone: smaller bokeh, so points sweeping past the camera cannot flood the fill rate
-    U.uMaxPx.value = mobile ? 30 - 16 * Math.min(1, v) : 64;
+    U.uMaxPx.value = mobile ? 22 - 10 * Math.min(1, v) : 64;
     if (introOn) U.uIntro.value = damp(intro, 1, 1.1, dt);
 
     // drone camera: the spline carries it between chapter poses; the pointer turns the head; at rest it floats
     still = Math.abs(velocity) < .02 ? still + dt : 0;
+    if (stepTo && still > .25) {pixelRatio = stepTo; stepTo = 0; setBuffer(lastW, lastH);}
     floatW += ((still > .6 ? 1 : 0) - floatW) * (1 - Math.exp(-dt * (still > .6 ? .8 : 6)));
     const u = seq.length > 1 ? clamp01(m / (seq.length - 1)) : 0;
     posCurve.getPoint(u, camP); lookCurve.getPoint(u, camL);
@@ -833,7 +866,8 @@ export async function startScene(canvas: HTMLCanvasElement, opts: {reduced: bool
     const g0 = seq[Math.min(seq.length - 1, s0)], g1 = seq[Math.min(seq.length - 1, s0 + 1)];
     const lean = portrait ? MathUtils.lerp(PORTRAIT[g0][1], PORTRAIT[g1][1], sf) * DEG : 0;
     const kNow = MathUtils.lerp(fitK[g0], fitK[g1], sf);
-    U.uScale.value = (mobile ? 1.15 : 1) * Math.sqrt(kNow);
+    // phones carry fewer points; slightly larger ones keep the forms (the rings above all) as full
+    U.uScale.value = (mobile ? 1.28 : 1) * Math.sqrt(kNow);
     // `level`: how much of the strata is on screen. Its rows must read as straight, level lines, so there the camera
     // neither rolls, yaws nor sways sideways, and the field's own slow turn stops.
     const level = (g0 === 1 ? 1 - sf : 0) + (g1 === 1 ? sf : 0), free = 1 - Math.min(1, level);
@@ -888,8 +922,9 @@ export async function startScene(canvas: HTMLCanvasElement, opts: {reduced: bool
   await renderer.compileAsync(scene, camera);
   // Upload every shape buffer now, behind the loader, by drawing a single point with each bound once. Otherwise the
   // first time a chapter's shape comes into play its ~1 MB buffer would be uploaded mid-scroll.
+  // One buffer per task: a returning visitor has no veil, and twelve uploads at once stalled a phone's intro.
   geo.setDrawRange(0, 1);
-  for (const a of shapeAttrs) {geo.setAttribute('aP0', a); renderer.render(scene, camera);}
+  for (const a of shapeAttrs) {geo.setAttribute('aP0', a); renderer.render(scene, camera); await new Promise<void>(r => setTimeout(r, 0));}
   geo.setDrawRange(0, N); boundBase = -1;
   progress(.92);
   last = performance.now();

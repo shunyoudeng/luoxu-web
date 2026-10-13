@@ -344,5 +344,6 @@ function refresh() {
 }
 document.fonts?.ready.then(refresh);
 addEventListener('load', refresh);
-addEventListener('luoxu:layout', refresh); // the scene opened the phone's scene gaps
+// the scene opened the phone's scene gaps; re-measure in the next quiet moment, not in the frame the field appears
+addEventListener('luoxu:layout', () => ('requestIdleCallback' in window ? requestIdleCallback(refresh, {timeout: 600}) : setTimeout(refresh, 200)));
 root.dataset.motion = 'ready';

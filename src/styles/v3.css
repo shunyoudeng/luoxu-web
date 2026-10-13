@@ -2,6 +2,9 @@
 
 /* ── stage: the live mountain sits behind everything */
 #scene{position:fixed;inset:0;width:100%;height:100%;z-index:-1;display:block;pointer-events:none}
+/* Phones: the canvas spans the large viewport, so the URL bar sliding in or out during a fling neither stretches the
+   picture nor makes scene.ts reframe the field mid-scroll. */
+@supports(height:100lvh){@media(max-width:900px),(pointer:coarse){#scene{bottom:auto;height:100lvh}}}
 html.webgl body{background:transparent}
 html.webgl .chapter-tint{background:none}
 /* Text that sits over the live field wears a halo in the field's own colour (--scene-bg, set by scene.ts: paper in
@@ -110,7 +113,13 @@ html[data-theme=dark] .mobile-menu summary{color:var(--on-night)}
 /* Touch / narrow screens: the live canvas repaints every frame, so each backdrop blur is re-sampled every frame.
    Cards trade the blur for a denser glass there (the header keeps its blur); it reads the same and scrolls far lighter. */
 @media(max-width:900px),(pointer:coarse){
-  .lane,.bento-card,.release-panel,.article{-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
+  .lane,.bento-card,.release-panel,.article,.site-header,.sound-toggle,.preview-tabs{-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
+  .site-header{background:rgba(247,246,242,.9)}
+  html[data-theme=dark] .site-header{background:rgba(22,35,29,.88)}
+  /* The blurred text halo cost a phone GPU ~150 ms of raster each time a chapter's text came in, which froze the
+     field mid-fling. There the field's own clearing behind text blocks (quiet mask in scene.ts) carries legibility. */
+  html.webgl{--halo:none}
+  html.webgl .poster-line{text-shadow:none!important}
   .release-panel{background:rgba(255,254,251,.86)}
   .article{background:rgba(255,254,251,.9)}
 }
@@ -144,6 +153,11 @@ html.gate-out .gate-veil{opacity:0;visibility:hidden;pointer-events:none}
 .sound-toggle{display:none}
 html.js:not(.gate) .sound-toggle,html.gate-out .sound-toggle{display:inline-flex;align-items:center;gap:3px;position:fixed;left:clamp(14px,2vw,28px);bottom:calc(env(safe-area-inset-bottom) + clamp(14px,2vw,26px));z-index:45;height:36px;padding:0 12px;border:1px solid rgba(38,53,45,.18);border-radius:999px;background:rgba(247,246,242,.6);color:var(--ink);cursor:pointer;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
 html[data-theme=dark] .sound-toggle{color:var(--on-night);background:rgba(22,35,29,.5);border-color:rgba(241,243,236,.2)}
+/* touch: no backdrop blur over the live canvas (see the mobile block above), so a denser fill instead */
+@media(max-width:900px),(pointer:coarse){
+  html.js:not(.gate) .sound-toggle,html.gate-out .sound-toggle{background:rgba(247,246,242,.88)}
+  html.js:not(.gate)[data-theme=dark] .sound-toggle,html.gate-out[data-theme=dark] .sound-toggle{color:var(--on-night);background:rgba(22,35,29,.85)}
+}
 .sound-toggle i{width:2px;height:4px;background:currentColor;border-radius:1px;transform-origin:bottom}
 .sound-toggle span{margin-left:8px;font:400 .66rem/1 Georgia,serif;letter-spacing:.18em}
 html.sound-on .sound-toggle i{animation:lx-eq 1.1s ease-in-out infinite alternate}
