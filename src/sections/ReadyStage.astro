@@ -1,0 +1,45 @@
+---
+/* 07 — the closing chapter: where LUOXU runs today, and where it is going. Status is stated plainly. */
+const platforms=[
+  {name:'Android',en:'AVAILABLE NOW',state:'公测中',note:'当前公测版本，可在上方直接下载。',live:true},
+  {name:'iOS',en:'IN PREPARATION',state:'筹备中',note:'为 iPhone 与 Apple 生态的通知方式重新设计。',live:false},
+  {name:'HarmonyOS',en:'IN PREPARATION',state:'筹备中',note:'面向 HarmonyOS NEXT 的原生版本。',live:false},
+];
+---
+<section class="chapter ready-stage" aria-labelledby="ready-title"><div class="wrap">
+  <header class="ready-head">
+    <p class="eyebrow" data-layer="0">07 / READY FOR WHAT'S NEXT</p>
+    <h2 id="ready-title" class="disp" data-split><span class="soft">为 Apple 和 HarmonyOS</span><br/><span class="ready-glow">预备好。</span></h2>
+    <p class="ready-lead" data-layer="2">秩序不该只属于一种系统。珞序正在为更多设备准备同样安静、有序的体验。</p>
+  </header>
+  <ul class="ready-list" role="list">
+    {platforms.map((p,i)=><li class:list={['ready-item',{live:p.live}]} data-layer={String(3+i)}>
+      <span class="ready-en">{p.en}</span>
+      <h3>{p.name}</h3>
+      <p class="ready-state"><i aria-hidden="true"></i>{p.state}</p>
+      <p class="ready-note">{p.note}</p>
+    </li>)}
+  </ul>
+  <p class="ready-foot" data-layer="6">目前仅提供 Android 版本。iOS 与 HarmonyOS 版本尚未发布，进展将记录在更新日志中。</p>
+</div></section>
+<style>
+.ready-stage{padding-block:clamp(96px,14vw,200px) clamp(120px,16vw,220px)}
+.ready-head{max-width:52rem}
+.ready-head h2{margin-top:var(--s5)}
+.ready-head .soft{color:var(--secondary);font-weight:700}
+.ready-glow{color:var(--green);font-family:var(--display-font)}
+.ready-lead{margin-top:var(--s6);max-width:32rem;color:var(--secondary);font-size:var(--lead)}
+.ready-list{list-style:none;margin:clamp(48px,7vw,96px) 0 0;padding:0;display:grid;grid-template-columns:repeat(3,1fr);border-top:var(--stroke) solid var(--line)}
+.ready-item{padding:var(--s8) var(--s6) var(--s8) 0;display:flex;flex-direction:column;gap:var(--s2)}
+.ready-item+.ready-item{padding-left:var(--s6);border-left:var(--stroke) solid var(--line)}
+.ready-en{font:italic 400 .8rem/1.4 'Instrument Serif',Georgia,serif;letter-spacing:.14em;color:var(--secondary)}
+.ready-item h3{font:900 clamp(1.8rem,3.4vw,2.8rem)/1.1 var(--display-font);letter-spacing:-.02em;color:var(--ink)}
+.ready-item:not(.live) h3{color:var(--secondary)}
+.ready-state{display:inline-flex;align-items:center;gap:8px;font-size:var(--small);font-weight:600;color:var(--secondary)}
+.ready-state i{width:7px;height:7px;border-radius:50%;border:1.5px solid currentColor}
+.live .ready-state{color:var(--green)}
+.live .ready-state i{background:currentColor}
+.ready-note{font-size:var(--small);color:var(--secondary);max-width:18rem}
+.ready-foot{margin-top:var(--s8);font-size:var(--caption);color:var(--secondary)}
+@media(max-width:700px){.ready-list{grid-template-columns:1fr}.ready-item,.ready-item+.ready-item{padding:var(--s6) 0;border-left:0;border-bottom:var(--stroke) solid var(--line)}}
+</style>

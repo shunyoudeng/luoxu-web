@@ -14,16 +14,16 @@ test('idle scene keeps drawing while unchanged text boxes are cached', async ({p
       const canvas = document.querySelector<HTMLCanvasElement>('#scene')!;
       const gl = canvas.getContext('webgl2')!;
       const rect = Element.prototype.getBoundingClientRect;
-      const draw = gl.drawElements.bind(gl);
+      const draw = gl.drawArrays.bind(gl);
       let reads = 0, draws = 0;
       Element.prototype.getBoundingClientRect = function () {reads++; return rect.call(this);};
-      gl.drawElements = (...args) => {draws++; draw(...args);};
+      gl.drawArrays = (...args) => {draws++; draw(...args);};
       try {
         await new Promise(resolve => setTimeout(resolve, 2000));
         return {reads, draws, width: canvas.width, height: canvas.height};
       } finally {
         Element.prototype.getBoundingClientRect = rect;
-        gl.drawElements = draw;
+        gl.drawArrays = draw;
       }
     });
     expect(probe.draws).toBeGreaterThan(0);

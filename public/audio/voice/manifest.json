@@ -1,0 +1,16 @@
+{
+  "enabled": false,
+  "note": "Narration per home chapter (section = scene shape index). Put recorded files next to this manifest and set enabled to true.",
+  "lines": [
+    {"section": 0, "src": "00-hero.mp3", "text": "每天，消息从四面八方涌来。"},
+    {"section": 1, "src": "01-order.mp3", "text": "珞序把它们轻轻拾起，排成可以看清的次序。"},
+    {"section": 2, "src": "02-name.mp3", "text": "珞，是珞珈；序，是秩序。"},
+    {"section": 3, "src": "03-ridges.mp3", "text": "像山的层次，重要的事，总在最前面。"},
+    {"section": 4, "src": "04-sea.mp3", "text": "其余的，就让它们像潮水一样，安静地退去。"},
+    {"section": 5, "src": "05-privacy.mp3", "text": "你的校园生活，只属于你自己。"},
+    {"section": 6, "src": "06-local.mp3", "text": "它们先留在你的手机里，安静而有序。"},
+    {"section": 7, "src": "07-last.mp3", "text": "也会一直在这里，慢慢生长。"},
+    {"section": 8, "src": "08-download.mp3", "text": "现在，让一切各归其位。"},
+    {"section": 9, "src": "09-ready.mp3", "text": "下一次相遇，也许在另一块屏幕上。"}
+  ]
+}

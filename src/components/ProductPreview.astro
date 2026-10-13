@@ -6,8 +6,10 @@ const categories=[{key:'task',label:'任务',heading:'今天需要处理',items:
 <div class="preview-panels">{categories.map((c,i)=><div id={'panel-'+c.key} role="tabpanel" aria-labelledby={'tab-'+c.key} tabindex="0" hidden={i!==0}><h3>{c.heading}</h3>{c.items.map(([time,title,note],j)=><div class:list={['preview-item',{focus:j===0}]}><span class="item-time">{time}</span><div><h4>{title}</h4><p>{note}</p></div></div>)}<div class="preview-assistant"><span>珞序</span><p>{c.key==='task'?'“有什么快截止了？”':c.key==='assignment'?'“这周还有什么作业？”':c.key==='opportunity'?'“最近有哪些科研竞赛？”':'“今天校园有什么变化？”'}</p></div></div>)}
 </div><div class="device-bottom"><span>首页</span><span>事务</span><span>AI秘书</span><span>数据箱</span><span>我的</span></div></div><p class="preview-caption">功能示意 · 非当前版本截图</p></div>
 <script>
-const preview=document.querySelector<HTMLElement>('[data-preview]');
+// re-run on every page view: with client-side navigation the module itself executes only once
+document.addEventListener('astro:page-load',()=>{const preview=document.querySelector<HTMLElement>('[data-preview]');
 if(preview){const tabs=Array.from(preview.querySelectorAll<HTMLButtonElement>('[role=tab]'));const select=(tab:HTMLButtonElement)=>{tabs.forEach(t=>{const on=t===tab;t.setAttribute('aria-selected',String(on));t.tabIndex=on?0:-1;const panel=document.getElementById(t.getAttribute('aria-controls')||'');if(panel)panel.hidden=!on;});};tabs.forEach((tab,index)=>{tab.addEventListener('click',()=>select(tab));tab.addEventListener('keydown',event=>{let next=index;if(event.key==='ArrowRight')next=(index+1)%tabs.length;else if(event.key==='ArrowLeft')next=(index-1+tabs.length)%tabs.length;else if(event.key==='Home')next=0;else if(event.key==='End')next=tabs.length-1;else return;event.preventDefault();select(tabs[next]);tabs[next].focus();});});}
+});
 </script>
 <style>
 .product-preview{width:100%;max-width:372px;margin-inline:auto;text-align:left}

@@ -16,6 +16,7 @@ const $ = <T extends Element = HTMLElement>(sel: string, ctx: ParentNode = docum
 /* ── smooth scroll with weight: light enough that the page always follows the wheel closely (touch stays native) */
 const lenis = new Lenis({lerp: .12, wheelMultiplier: 1, smoothWheel: true, anchors: {offset: -24}});
 root.classList.add('lenis-on');
+if (root.classList.contains('gate')) {lenis.stop(); addEventListener('luoxu:enter', () => lenis.start(), {once: true});}
 lenis.on('scroll', ScrollTrigger.update);
 gsap.ticker.add(t => lenis.raf(t * 1000));
 gsap.ticker.lagSmoothing(0);
@@ -67,6 +68,15 @@ function splitChars(el: HTMLElement) {
   el.dataset.splitDone = '1';
   return $('.ci', el);
 }
+/* Everything below belongs to one page. With client-side navigation the document survives, so each page builds its
+   motion inside a gsap.context (reverted on swap) and registers window listeners with an AbortSignal. */
+let pageCtx: gsap.Context | null = null, pageAbort: AbortController | null = null, pageBody: HTMLElement | null = null;
+function setupPage() {
+  if (pageBody === document.body) return;
+  pageBody = document.body;
+  pageAbort = new AbortController();
+  const signal = pageAbort.signal;
+  pageCtx = gsap.context(() => {
 const splitEls = $('[data-split],[data-split-poster]');
 splitEls.forEach(el => splitChars(el));
 root.classList.add('split-ready');
@@ -75,12 +85,13 @@ root.classList.add('split-ready');
 const header = document.querySelector<HTMLElement>('.site-header');
 if (header) {
   let hidden = false;
-  lenis.on('scroll', ({scroll, direction}: {scroll: number; direction: number}) => {
+  const off = lenis.on('scroll', ({scroll, direction}: {scroll: number; direction: number}) => {
     const shouldHide = scroll > 240 && direction === 1;
     const shouldShow = direction === -1 || scroll < 120;
     if (shouldHide && !hidden) {hidden = true; header.classList.add('is-tucked');}
     else if (shouldShow && hidden) {hidden = false; header.classList.remove('is-tucked');}
   });
+  signal.addEventListener('abort', off);
   header.addEventListener('focusin', () => {hidden = false; header.classList.remove('is-tucked');});
 }
 const bar = document.querySelector<HTMLElement>('.progress-bar');
@@ -158,7 +169,7 @@ if (hero) {
   if (fine) addEventListener('pointermove', e => {
     const nx = e.clientX / innerWidth - .5, ny = e.clientY / innerHeight - .5;
     ry(nx * 16); rx(-ny * 11); mx(nx * -26);
-  }, {passive: true});
+  }, {passive: true, signal});
   gsap.set(mega, {transformPerspective: 1400, transformOrigin: '30% 60%'});
   layers.forEach((l, i) => gsap.set(l, {z: -i * 70}));
   gsap.from(layers, {opacity: 0, z: '-=420', duration: 2.2, stagger: .14, ease: 'expo.out', delay: .1});
@@ -283,7 +294,7 @@ if (fine) {
       if (inner !== el) gsap.to(inner, {x: 0, y: 0, duration: 1.1, ease: 'elastic.out(1,.38)', overwrite: 'auto'});
     });
     el.addEventListener('pointerdown', () => gsap.to(el, {scale: .94, duration: .18, ease: 'power3.out'}));
-    addEventListener('pointerup', () => gsap.to(el, {scale: 1, duration: .8, ease: 'elastic.out(1.1,.4)'}));
+    addEventListener('pointerup', () => gsap.to(el, {scale: 1, duration: .8, ease: 'elastic.out(1.1,.4)'}), {signal});
   });
   $('[data-tilt]').forEach(el => {
     gsap.set(el, {transformPerspective: 900});
@@ -298,8 +309,31 @@ if (fine) {
   });
 }
 
+  });
+}
+setupPage();
+let swapped = false;
+document.addEventListener('astro:before-swap', () => {swapped = true; pageCtx?.revert(); pageAbort?.abort(); pageCtx = null; lenis.stop();});
+document.addEventListener('astro:page-load', () => {
+  if (!swapped) return; // the first page-load is the initial document, already set up
+  swapped = false;
+  // the router has already placed the new page at its scroll target; Lenis takes over from there
+  lenis.resize(); lenis.scrollTo(scrollY, {immediate: true, force: true}); lenis.start();
+  setupPage();
+  // ScrollTrigger.refresh() briefly scrolls to 0 and restores its cached position, so only call it here, after a swap,
+  // when the router has already set the scroll; on first load the load/fonts refresh below covers it.
+  ScrollTrigger.refresh();
+});
+
 /* fonts and pins settle late; recalc once so scrub ranges are exact */
-const refresh = () => ScrollTrigger.refresh();
+/* ScrollTrigger.refresh() scrolls to 0 to measure and then restores its own cached scroll position. A scroll it has not
+   seen yet (a restored position, a jump made while this module was still loading) would be lost, so put back the real
+   position afterwards. */
+function refresh() {
+  const y = scrollY;
+  ScrollTrigger.refresh();
+  if (Math.abs(scrollY - y) > 1) {scrollTo(0, y); lenis.scrollTo(y, {immediate: true, force: true}); ScrollTrigger.update();}
+}
 document.fonts?.ready.then(refresh);
 addEventListener('load', refresh);
 root.dataset.motion = 'ready';
