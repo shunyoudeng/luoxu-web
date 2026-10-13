@@ -1,7 +1,7 @@
 /**
  * LUOXU "纷杂 → 有序" — a GPU particle field.
  *
- * One cloud of points (≈90k desktop / ≈56k touch) carries six shapes at once, one per chapter: a drifting nebula
+ * One cloud of points (80k desktop / 46k touch, fixed) carries six shapes at once, one per chapter: a drifting nebula
  * (纷杂), stacked message strata (ORDER), the glyphs 珞序 (NAME), Luojia ridges drawn as contour lines (product),
  * a closed orb with an orbit (privacy), a twisted ribbon (download). Scroll position picks the blend; every point
  * leaves on its own small delay and rides a flow field between shapes, so transitions read as one breath.
@@ -25,7 +25,7 @@ const MAX_SEQ = 12;
    shape sequence: left/right, forward and up between chapters; nothing spins on its own. */
 const POSES: [number[], number[]][] = [
   [[0, 5, 60], [0, 0, 0]],          // 0 nebula, seen from slightly above
-  [[-15, 6, 50], [3, 0, -4]],       // 1 strata from the left
+  [[0, 0, 50], [0, 0, 0]],          // 1 strata, square on: no yaw, no pitch, so every row stays level
   [[7, 1, 50], [0, 1, 0]],          // 2 the glyphs, almost frontal
   [[-12, 10, 42], [4, -5, -12]],    // 3 over the ridges, looking down the valleys
   [[14, 7, 34], [-3, -7, -18]],     // 4 low over the sea, banking right
@@ -42,8 +42,14 @@ const POSES: [number[], number[]][] = [
    may fill (0: let it bleed past the edges, as the nebula, ridges and sea are meant to) and a camera roll in degrees
    that lays wide forms along the diagonal. The distance itself is measured from the points (frameShapes). */
 const PORTRAIT: [number, number][] = [
-  [0, 0], [.96, -6], [.94, 0], [0, 0], [0, 0], [.86, -26], [.8, 8], [.92, 14], [.9, -20], [.9, -14], [.92, 6], [.9, -8],
+  [0, 0], [.96, 0], [.94, 0], [0, 0], [0, 0], [.86, -26], [.8, 8], [.92, 14], [.9, -20], [.9, -14], [.92, 6], [.9, -8],
 ];
+/* Where each shape sits on a wide screen, as a sideways shift of the frame (NDC, + = right): some forms hold the centre,
+   others step aside to the half the chapter's text leaves free. Between two shapes the field also swings out to one
+   side and back (alternating), so a change of form travels instead of only dissolving in place. Portrait keeps every
+   shape centred (the frame is too narrow) and swings less. */
+const SHIFT = [-.1, 0, 0, 0, 0, .34, .3, 0, 0, 0, .3, -.28];
+const SWING = .22, SWING_PORTRAIT = .12;
 /* Colours per shape (light paper): body and accent. Green leads; each form adds one quiet note of its own. */
 const SHAPE_COLS: [string, string][] = [
   ['#26352D', '#2F7A66'], ['#22463B', '#3C8A74'], ['#173A31', '#2F7A66'], ['#2E5E50', '#7DAF96'],
@@ -77,8 +83,8 @@ const VERT = /* glsl */ `
 // three shape buffers to slots aP0..aP2 (sequence entries uBase, uBase+1, uBase+2). Per frame the GPU reads 3 shapes
 // instead of 12: a quarter of the vertex bandwidth, same picture.
 attribute vec3 aP0; attribute vec3 aP1; attribute vec3 aP2; attribute vec2 aSeed;
-uniform float uMorph,uTime,uVel,uPx,uFocus,uIntro,uQuiet,uScale,uTheme,uSeqN,uBase;
-uniform vec2 uMouse,uMouseV; uniform vec3 uCA[3],uCB[3],uSea,uIri,uCalm;
+uniform float uMorph,uTime,uVel,uPx,uFocus,uIntro,uQuiet,uScale,uTheme,uSeqN,uBase,uMaxPx;
+uniform vec2 uMouse,uMouseV; uniform vec3 uCA[3],uCB[3],uSea,uIri,uCalm,uOrb; uniform float uRingR;
 varying float vA; varying vec3 vCol; varying float vSoft;
 ${QUIET_GLSL}
 vec3 flow(vec3 p,float t){
@@ -89,8 +95,9 @@ vec3 flow(vec3 p,float t){
 vec3 slot(float j){return vec3(step(j,.5),step(.5,j)*step(j,1.5),step(1.5,j));}
 void main(){
   float s=aSeed.x;
-  // each point leaves on its own small delay; eased within a segment so shapes hold while being read
-  float m=clamp(uMorph+(s-.5)*.34,0.,uSeqN-1.);
+  // each point leaves on its own small delay; eased within a segment so shapes hold while being read. The delay
+  // fades out towards whole numbers, so a shape at rest is complete (no point is already on its way to the next one).
+  float m=clamp(uMorph+(s-.5)*.34*sin(3.14159*fract(uMorph)),0.,uSeqN-1.);
   float i0=floor(m), f=m-i0, e=f*f*f*(f*(f*6.-15.)+10.);
   vec3 w=slot(clamp(i0-uBase,0.,2.))*(1.-e)+slot(clamp(min(i0+1.,uSeqN-1.)-uBase,0.,2.))*e;
   vec3 p=aP0*w.x+aP1*w.y+aP2*w.z;
@@ -102,8 +109,10 @@ void main(){
   float t=uTime*.35+s*6.2831;
   p+=flow(p*.55+s*3.,t)*(.07+tr*tr*2.6+uVel*.9)*(.45+s);
   p+=vec3(sin(t*1.3),cos(t*1.1),sin(t*.9))*(.05+.05*dot(w,uCalm));  // idle breathing
+  // the orb's rings: every point outside the planet's radius, in whichever slot holds the orb
+  float ring=dot(w*uOrb,step(uRingR,vec3(length(aP0),length(aP1),length(aP2))));
   float intro=uIntro*uIntro*(3.-2.*uIntro);
-  p=mix(normalize(p+.001)*(.4+s*1.5)+flow(p,t)*1.5,p,intro); // the field blooms from a seed on entry
+  if(intro<.999)p=mix(normalize(p+.001)*(.4+s*1.5)+flow(p,t)*1.5,p,intro); // the field blooms from a seed on entry
   vec4 mv=modelViewMatrix*vec4(p,1.);
   vec4 clip=projectionMatrix*mv;
   // the pointer moves through the field like a hand through water: a ragged parting, a slow eddy, and a wake
@@ -122,18 +131,21 @@ void main(){
   float d=-mv.z;
   float coc=abs(d-uFocus)/uFocus;                            // depth of field: circle of confusion
   float big=pow(aSeed.y,6.)*2.4;
-  gl_PointSize=uPx*uScale*(1.1+big+coc*7.)*(55./d);
+  gl_PointSize=uPx*uScale*(1.1+big+coc*7.)*(55./d)*(1.+ring*.3);
   vec2 sp=vec2((ndc.x*.5+.5)*uRes.x,(.5-ndc.y*.5)*uRes.y);
-  vA=(.62+big*.18)/(1.+coc*coc*30.)*(1.-quiet(sp)*uQuiet)*mix(.25,1.,intro);
+  // the rings glow a little brighter than the planet and give way to text a little less: they always read
+  vA=(.62+big*.18)*(1.+ring*.45)/(1.+coc*coc*30.)*(1.-quiet(sp)*uQuiet*(1.-ring*.3))*mix(.25,1.,intro);
   vA*=.85+.15*sin(uTime*(1.5+s*3.)+s*40.);                   // a slow shimmer
   vSoft=clamp(coc*3.,0.,1.);
-  // a point too faint to see (deep bokeh, behind text, off screen) costs no fill: zero size, the GPU skips it
-  gl_PointSize=(vA<.006||abs(ndc.x)>1.15||abs(ndc.y)>1.15)?0.:min(gl_PointSize,64.*uPx);
+  // a point too faint to see (deep bokeh, behind text, off screen) costs no fill: zero size, the GPU skips it.
+  // uMaxPx bounds the bokeh: mid-transition points pass close to the camera, and on phones that overdraw dropped frames.
+  gl_PointSize=(vA<.006||abs(ndc.x)>1.15||abs(ndc.y)>1.15)?0.:min(gl_PointSize,uMaxPx*uPx);
   vCol=mix(cA,cB,step(.78,aSeed.y));
   // the closing rings carry a soft iridescence (green · blue · violet · amber), drifting along each ring
   vec3 iri=.5+.5*cos(6.2831*(s*.6+uTime*.03+vec3(.0,.33,.67)));
   iri=mix(vec3(.16,.48,.42),vec3(.32,.42,.86),iri.x)*.7+mix(vec3(.62,.38,.84),vec3(.92,.58,.36),iri.y)*.3*iri.z;
   vCol=mix(vCol,iri,w9*.9);
+  vCol=mix(vCol,cB,ring*.5);                                 // ring dust takes the accent colour
   // on the night chapter every colour turns to light: same hue, lifted towards mint-white
   vCol=mix(vCol,vec3(.80,.91,.86)+(vCol-vec3(.2,.36,.3))*.5,uTheme);
 }`;
@@ -214,11 +226,11 @@ const strata: Fill = (a, n) => {
       x = -22 + rnd() * 44;
       if (Math.sin(x * .36 + row * 1.7) + Math.sin(x * .13 + row * 3.1) > -1.05) break;
     }
-    a[i * 3] = x * (1 - Math.abs(row - 4) * .03);
-    a[i * 3 + 1] = (row - (rows - 1) / 2) * 2.7 + gauss() * .07;
-    a[i * 3 + 2] = gauss() * .22 - row * .5;
+    a[i * 3] = x;
+    a[i * 3 + 1] = (row - (rows - 1) / 2) * 2.7 + gauss() * .045;
+    a[i * 3 + 2] = gauss() * .12;
   }
-  turn(a, .16, -.38);
+  // no tilt at all: seen square on (and the camera holds level here, see `level`), every row is a straight line
 };
 const glyph = (pts: number[], W: number, H: number): Fill => (a, n) => {
   const width = 34, height = width * H / W, count = pts.length / 2;
@@ -241,25 +253,41 @@ const ridges: Fill = (a, n) => {
   }
   turn(a, .2, 0);
 };
-const orb: Fill = (a, n) => {
-  const shell = Math.floor(n * .58);
+/* `phone`: on a narrow screen the ball read as a dull disc, so there the planet is small and the rings carry the form:
+   two bands, a thin ring, an inclined orbit and a faint spiral of star dust (a small galaxy around the planet).
+   Planet and ring points are interleaved through the buffer, so the adaptive draw range (which drops points from
+   the end) thins both evenly: even at the lowest quality the rings stay, faint. */
+const orbOf = (phone: boolean): Fill => (a, n) => {
+  const f = phone ? .2 : .42, shell = Math.floor(n * f), Rs = phone ? 7.2 : 12.5, tilt = phone ? .62 : .42;
   for (let i = 0; i < n; i++) {
-    let x, y, z;
-    if (i < shell) {
-      const yy = 1 - (i + .5) / shell * 2, r = Math.sqrt(1 - yy * yy), th = i * 2.39996, R = 12.5 + gauss() * .12;
+    let x, y, z, t = tilt;
+    if (Math.floor((i + 1) * f) > Math.floor(i * f)) {
+      const j = Math.floor(i * f), yy = 1 - (j + .5) / shell * 2, r = Math.sqrt(Math.max(0, 1 - yy * yy)), th = j * 2.39996, R = Rs + gauss() * .12;
       x = Math.cos(th) * r * R; y = yy * R; z = Math.sin(th) * r * R;
     } else {
-      // Saturn-like rings: a dense inner band, a gap, a broad outer band and a faint halo
+      // Saturn-like rings: a dense inner band, a gap, a broad outer band, then faint star dust
       const b = rnd();
-      const R = b < .55 ? 16.8 + Math.pow(rnd(), .7) * 2.8 : b < .9 ? 20.6 + rnd() * 2.6 : 24 + rnd() * 1.4;
-      const th = rnd() * Math.PI * 2;
-      x = Math.cos(th) * R; y = gauss() * .09; z = Math.sin(th) * R;
-      const c = Math.cos(.42), s = Math.sin(.42); [y, z] = [y * c - z * s, y * s + z * c];
+      let R: number, th = rnd() * Math.PI * 2, dy = phone ? .07 : .09;
+      if (phone) {
+        if (b < .34) R = 10.4 + Math.pow(rnd(), .7) * 3.2;
+        else if (b < .66) R = 15.2 + rnd() * 3.8;
+        else if (b < .76) R = 20.8 + rnd() * 1;
+        else if (b < .86) {R = 24 + gauss() * .12; t = -.35;} // the orbit crosses the rings at its own angle
+        else {R = 9 + Math.pow(rnd(), .8) * 17; th = ((rnd() * 2) | 0) * Math.PI + R * .32 + gauss() * .45; dy = .35;} // two spiral arms
+      } else {
+        if (b < .5) R = 16.8 + Math.pow(rnd(), .7) * 2.8;
+        else if (b < .82) R = 20.6 + rnd() * 2.6;
+        else if (b < .9) R = 24 + rnd() * 1.4;
+        else {R = 26.5 + Math.abs(gauss()) * 2.2; dy = .3;} // a faint halo of star dust
+      }
+      x = Math.cos(th) * R; y = gauss() * dy; z = Math.sin(th) * R;
+      const c = Math.cos(t), s = Math.sin(t); [y, z] = [y * c - z * s, y * s + z * c];
     }
     a[i * 3] = x; a[i * 3 + 1] = y; a[i * 3 + 2] = z;
   }
   turn(a, 0, 0, -.18);
 };
+const orb = orbOf(false);
 const sea: Fill = (a, n) => {
   const L = 64;
   for (let i = 0; i < n; i++) {
@@ -393,17 +421,18 @@ export async function startScene(canvas: HTMLCanvasElement, opts: {reduced: bool
   progress(.15);
 
   const mobile = opts.mobile;
-  let pixelRatio = Math.min(window.devicePixelRatio || 1, mobile ? 2 : 2);
+  // fixed per platform, set with headroom so mid-range hardware holds its refresh rate (soft points lose nothing below 2x)
+  const pixelRatio = Math.min(window.devicePixelRatio || 1, 1.75);
   renderer.setPixelRatio(pixelRatio);
   const scene = new Scene();
   const camera = new PerspectiveCamera(40, 1, .5, 400);
 
   // ── geometry: one buffer per shape; three of them are bound to the slots at any time
-  const N = mobile ? 56000 : 90000;
+  const N = mobile ? 46000 : 80000;
   const geo = new BufferGeometry();
   const glyphData = await glyphPoints();
   progress(.4);
-  const fills: Fill[] = [nebula, strata, glyphData ? glyph(glyphData.pts, glyphData.W, glyphData.H) : orb, ridges, sea, orb,
+  const fills: Fill[] = [nebula, strata, glyphData ? glyph(glyphData.pts, glyphData.W, glyphData.H) : orb, ridges, sea, mobile ? orbOf(true) : orb,
     lattice, helix, ribbon, trio, treeRings, flower];
   const shapeAttrs: BufferAttribute[] = [];
   for (const [i, fill] of fills.entries()) {
@@ -425,9 +454,10 @@ export async function startScene(canvas: HTMLCanvasElement, opts: {reduced: bool
     uScale: {value: 1}, uTheme: {value: 0}, uMouse: {value: new Vector2(9, 9)}, uMouseV: {value: new Vector2()},
     uRects: {value: rects}, uRectK: {value: new Array(MAX_RECTS).fill(0)}, uRectN: {value: 0},
     uRes: {value: new Vector3(1, 1, 0)}, uPad: {value: 90}, uQuiet: {value: 1},
-    uSeqN: {value: 1}, uBase: {value: 0},
+    uSeqN: {value: 1}, uBase: {value: 0}, uMaxPx: {value: mobile ? 30 : 64},
     uCA: {value: [new Color(), new Color(), new Color()]}, uCB: {value: [new Color(), new Color(), new Color()]},
     uSea: {value: new Vector3()}, uIri: {value: new Vector3()}, uCalm: {value: new Vector3()},
+    uOrb: {value: new Vector3()}, uRingR: {value: mobile ? 8.6 : 14.5},
   };
   const mat = new ShaderMaterial({vertexShader: VERT, fragmentShader: FRAG, uniforms: U, transparent: true, depthTest: false, depthWrite: false, blending: NormalBlending});
   const points = new Points(geo, mat);
@@ -466,7 +496,7 @@ export async function startScene(canvas: HTMLCanvasElement, opts: {reduced: bool
 
   // ── state: the page's shape sequence, its scroll anchors and dark zones
   let zones: {top: number; bottom: number}[] = [];
-  let anchors: {y: number; i: number}[] = [];          // i: index into seq
+  let anchors: {y: number; y1: number; i: number; gap: boolean}[] = [];  // i: index into seq
   let pageAnchors: {el: HTMLElement; i: number}[] = [];
   let seq: number[] = [0], leadN = 0, maxScroll = 1, vh = innerHeight;
   let posCurve = new CatmullRomCurve3([new Vector3(), new Vector3(0, 0, 1)]), lookCurve = posCurve;
@@ -551,7 +581,7 @@ export async function startScene(canvas: HTMLCanvasElement, opts: {reduced: bool
       geo.setAttribute(`aP${k}`, shapeAttrs[g]);
       (U.uCA.value as Color[])[k].copy(COLS[g][0]); (U.uCB.value as Color[])[k].copy(COLS[g][1]);
     }
-    U.uSea.value.set(...flags(4)); U.uIri.value.set(...flags(9)); U.uCalm.value.set(...flags(0));
+    U.uSea.value.set(...flags(4)); U.uIri.value.set(...flags(9)); U.uCalm.value.set(...flags(0)); U.uOrb.value.set(...flags(5));
   };
   const measure = () => {
     vh = innerHeight;
@@ -561,25 +591,42 @@ export async function startScene(canvas: HTMLCanvasElement, opts: {reduced: bool
       return {top: r.top + scrollY, bottom: r.top + scrollY + r.height};
     });
     anchors = [];
+    const lim = (v: number) => Math.min(maxScroll, Math.max(0, v));
     for (const {el, i} of pageAnchors) {
-      // on phones a chapter opens with an open screen (.scene-gap, before it or first inside it): its shape forms there
+      // on phones a chapter opens with an open screen (.scene-gap, before it or first inside it): the shape begins to
+      // condense as the gap comes up, keeps condensing while it crosses the screen, and is complete only once the
+      // chapter's text fills the screen (its top a quarter down); it then holds, whole, while the text is read
       const gap = el.querySelector<HTMLElement>(':scope > .scene-gap')
         ?? (el.previousElementSibling?.classList.contains('scene-gap') ? el.previousElementSibling as HTMLElement : null);
-      const r = (gap?.offsetHeight ? gap : el).getBoundingClientRect();
-      const y = !anchors.length ? 0 : Math.min(maxScroll, Math.max(0, r.top + scrollY + Math.min(r.height, vh * 1.4) * .5 - vh * .5));
-      if (!anchors.length || y > anchors[anchors.length - 1].y + 1) anchors.push({y, i});
+      const prev = anchors[anchors.length - 1];
+      if (!prev) {anchors.push({y: 0, y1: 0, i, gap: false}); continue;}
+      if (gap?.offsetHeight) {
+        const r = gap.getBoundingClientRect(), top = r.top + scrollY;
+        const from = lim(Math.max(prev.y, top - vh * .72)), y = lim(top + r.height - vh * .25);
+        if (y > from + 1) {prev.y1 = from; anchors.push({y, y1: y, i, gap: true});}
+        continue;
+      }
+      const r = el.getBoundingClientRect(), top = r.top + scrollY;
+      const y = lim(top + Math.min(r.height, vh * 1.4) * .5 - vh * .5);
+      // phones, no gap between two chapters: the earlier shape stays whole until the next chapter is well up the screen
+      if (portrait) prev.y1 = Math.max(prev.y1, Math.min(lim(top - vh * .6), y - vh * .5));
+      if (y > prev.y1 + 1) anchors.push({y, y1: y, i, gap: false});
     }
   };
+  /* y..y1: the shape is held; between one anchor's y1 and the next one's y it morphs. A gap transition already excludes
+     the holds, so it eases over its whole span; a plain one keeps a short hold at each end. */
   const targetMorph = () => {
     const y = scrollY;
     if (!anchors.length) return seq.length - 1;
-    if (y <= anchors[0].y) return anchors[0].i;
+    if (y <= anchors[0].y1) return anchors[0].i;
     for (let k = 1; k < anchors.length; k++) {
       const a = anchors[k - 1], b = anchors[k];
-      if (y <= b.y) return a.i + (b.i - a.i) * smooth(.18, .82, (y - a.y) / (b.y - a.y));
+      if (y <= a.y1) return a.i;
+      if (y <= b.y) return a.i + (b.i - a.i) * (b.gap ? smooth(0, 1, (y - a.y1) / (b.y - a.y1)) : smooth(.18, .82, (y - a.y1) / (b.y - a.y1)));
     }
     return anchors[anchors.length - 1].i;
-  };  const themeNow = () => {
+  };
+  const themeNow = () => {
     let t = 0;
     // a dark chapter that opens with a phone's scene gap is already night by the time the gap is centred
     const lead = portrait ? vh * .3 : 0;
@@ -729,11 +776,10 @@ export async function startScene(canvas: HTMLCanvasElement, opts: {reduced: bool
     document.documentElement.dataset.theme = t > .5 ? 'dark' : 'light';
   }
 
-  /* Adaptive quality, judged against the display's own refresh: a 60 Hz panel (or a laptop in power-saving mode that
-     drops to 60 Hz) is not "slow" just because its frames take 16.7 ms. Only frames that miss vsync count, and any
-     step down waits until the page is at rest, so it can never hitch a scroll. */
+  /* One fixed quality per platform (point count and pixel ratio above): a picture that thins out halfway through the
+     page reads as a fault. The display's refresh is still measured, for the idle frame skip below. */
   let vsync = 1000 / 60, vsyncN = 0, vsyncMin = 1e9;
-  let running = true, raf = 0, last = performance.now(), time = 0, slow = 0, frames = 0, drawN = N, pendingDrop = false;
+  let running = true, raf = 0, last = performance.now(), time = 0, frames = 0;
   let lastInput = 0, skipTick = 0, skipped = false;
   const wake = () => {lastInput = performance.now();};
   addEventListener('scroll', wake, {passive: true}); addEventListener('pointermove', wake, {passive: true});
@@ -754,20 +800,7 @@ export async function startScene(canvas: HTMLCanvasElement, opts: {reduced: bool
       vsyncMin = Math.min(vsyncMin, dtMs);
       if (++vsyncN % 120 === 0) {vsync = vsyncMin; vsyncMin = 1e9;}
     }
-    if (frames > 180 && !after) { // ignore warm-up (first frames, first scroll while caches fill)
-      if (dtMs > vsync * 1.7) slow++; else slow = Math.max(0, slow - .5);
-      if (slow > 45) {pendingDrop = true; slow = 0;}
-    }
     ++frames;
-    if (pendingDrop && still > .8) {
-      pendingDrop = false;
-      if (drawN > N * .6) {drawN = Math.floor(drawN * .85); geo.setDrawRange(0, drawN);}
-      else if (pixelRatio > 1.25) {
-        pixelRatio = Math.max(1.25, pixelRatio - .25); renderer.setPixelRatio(pixelRatio); U.uPx.value = pixelRatio;
-        renderer.setSize(innerWidth, innerHeight, false);
-        (U.uRes.value as Vector3).set(innerWidth * pixelRatio, innerHeight * pixelRatio, 0); rectsDirty = true;
-      }
-    }
 
     const y = scrollY;
     velocity += ((y - lastY) / Math.max(dt, .001) / vh - velocity) * Math.min(1, dt * 8); lastY = y;
@@ -777,7 +810,13 @@ export async function startScene(canvas: HTMLCanvasElement, opts: {reduced: bool
     theme += (themeNow() - theme) * (1 - Math.exp(-dt * 6));
     damp(mx, mouseX, .9, dt); damp(my, mouseY, .9, dt);
     damp(roll, MathUtils.clamp(-velocity * .04, -.06, .06), .5, dt);
-    U.uVel.value = damp(vel, Math.min(2.5, Math.abs(velocity)), .35, dt);
+    // a phone fling reaches several screens a second; past ~1 the extra scatter only throws points at the camera
+    const v = damp(vel, Math.min(mobile ? 1 : 2.5, Math.abs(velocity)), .35, dt);
+    // a shape that is held while its text is read stays whole when scrolled through; the scatter belongs to transitions
+    const between = Math.sin(Math.PI * (m - Math.floor(m)));
+    U.uVel.value = v * (.3 + .7 * between);
+    // a fast fling on a phone: smaller bokeh, so points sweeping past the camera cannot flood the fill rate
+    U.uMaxPx.value = mobile ? 30 - 16 * Math.min(1, v) : 64;
     if (introOn) U.uIntro.value = damp(intro, 1, 1.1, dt);
 
     // drone camera: the spline carries it between chapter poses; the pointer turns the head; at rest it floats
@@ -791,14 +830,20 @@ export async function startScene(canvas: HTMLCanvasElement, opts: {reduced: bool
     const lean = portrait ? MathUtils.lerp(PORTRAIT[g0][1], PORTRAIT[g1][1], sf) * DEG : 0;
     const kNow = MathUtils.lerp(fitK[g0], fitK[g1], sf);
     U.uScale.value = (mobile ? 1.15 : 1) * Math.sqrt(kNow);
+    // `level`: how much of the strata is on screen. Its rows must read as straight, level lines, so there the camera
+    // neither rolls, yaws nor sways sideways, and the field's own slow turn stops.
+    const level = (g0 === 1 ? 1 - sf : 0) + (g1 === 1 ? sf : 0), free = 1 - Math.min(1, level);
     fwd.subVectors(camL, camP).normalize(); right.crossVectors(fwd, UP).normalize();
     const sway = Math.sqrt(kNow); // a farther camera sways farther, so tilting a phone moves the shape as much
-    camP.addScaledVector(right, mx.value * 1.8 * sway).addScaledVector(UP, (-my.value * .9 + Math.sin(time * .9) * .4 * floatW) * sway)
-      .addScaledVector(right, Math.sin(time * .43) * .5 * floatW * sway);
+    camP.addScaledVector(right, mx.value * 1.8 * sway * free).addScaledVector(UP, (-my.value * .9 + Math.sin(time * .9) * .4 * floatW) * sway)
+      .addScaledVector(right, Math.sin(time * .43) * .5 * floatW * sway * free);
     camera.position.copy(camP); camera.lookAt(camL);
-    camera.rotateY(-mx.value * 2.5 * DEG); camera.rotateX(-my.value * 2.4 * DEG); camera.rotateZ(roll.value - mx.value * 1.75 * DEG + lean);
+    camera.rotateY(-mx.value * 2.5 * DEG * free); camera.rotateX(-my.value * 2.4 * DEG); camera.rotateZ((roll.value - mx.value * 1.75 * DEG + lean) * free);
     U.uFocus.value = camP.distanceTo(camL);
-    points.rotation.set(Math.sin(time * .11) * .025, Math.sin(time * .07) * .05, 0);
+    const rest = portrait ? 0 : MathUtils.lerp(SHIFT[g0], SHIFT[g1], sf);
+    const swing = Math.sin(Math.PI * (m - s0)) * (s0 & 1 ? -1 : 1) * (portrait ? SWING_PORTRAIT : SWING) * free;
+    camera.projectionMatrix.elements[8] = -(rest + swing); // an off-axis frame: the form moves, nothing tilts
+    points.rotation.set(Math.sin(time * .11) * .025 * free, Math.sin(time * .07) * .05 * free, 0);
     const M = U.uMouse.value, MV = U.uMouseV.value, px = M.x, py = M.y, inside = Math.abs(ndcX) < 2;
     if (inside && Math.abs(px) >= 2) M.set(ndcX, ndcY); // entering the window: no streak from off-screen
     // the parting sits under the cursor (only a frame of easing); the wake keeps a short memory of the motion
@@ -841,7 +886,7 @@ export async function startScene(canvas: HTMLCanvasElement, opts: {reduced: bool
   // first time a chapter's shape comes into play its ~1 MB buffer would be uploaded mid-scroll.
   geo.setDrawRange(0, 1);
   for (const a of shapeAttrs) {geo.setAttribute('aP0', a); renderer.render(scene, camera);}
-  geo.setDrawRange(0, drawN); boundBase = -1;
+  geo.setDrawRange(0, N); boundBase = -1;
   progress(.92);
   last = performance.now();
   if (opts.reduced) {

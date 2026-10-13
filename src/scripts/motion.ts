@@ -101,7 +101,13 @@ if (bar) gsap.to(bar, {scaleX: 1, ease: 'none', scrollTrigger: {start: 0, end: '
    No pins, no sticky dwell. A stage owns one paused timeline; crossing its threshold on the way down plays it through
    to the end by itself, crossing back up reverses it (faster) from wherever it is. play()/reverse() only flip the
    direction of a single playhead, so quick flicks never restart, replay or jump. */
+/* Run a timeline to its end and back once, silently, while the page loads: every tween reads its start values now, so
+   none of them forces a style recalculation the first time it plays in the middle of a fast scroll. */
+const warm = (tl: gsap.core.Timeline) => tl.progress(1, true).progress(0, true);
+/* Animated blur re-filters an element every frame; on phones the cards and words arrive without it. */
+const blur = (px: number) => (mobile ? 'none' : `blur(${px}px)`);
 function autoplay(tl: gsap.core.Timeline, trigger: HTMLElement, start: string, rate = 1) {
+  warm(tl);
   tl.pause(0);
   // Expose the real lifecycle for settled-state checks; GSAP tweens are not
   // browser Web Animations and need not publish a global engine instance.
@@ -178,6 +184,7 @@ if (hero) {
     .to(layers, {z: (i: number) => -i * 70 + i * 150, ease: 'none'}, 0)
     .to('.hero3-copy', {yPercent: -30, opacity: 0, ease: 'none'}, 0)
     .to('.mega', {opacity: 0, ease: 'power1.in', duration: .4}, .3);
+  warm(push); // the first flick out of the hero would otherwise read every layer's style mid-scroll
 }
 
 /* ── ORDER stage: once the stage arrives, scattered notifications settle into four lanes and the steps light in turn */
@@ -190,8 +197,8 @@ if (order) {
   const rnd = gsap.utils.random;
   cards.forEach((c, i) => {
     tl.fromTo(c, {
-      x: rnd(-300, 300), y: rnd(-260, 260), rotation: rnd(-26, 26), scale: rnd(.8, 1.15), filter: 'blur(1.5px)',
-    }, {x: 0, y: 0, rotation: 0, scale: 1, filter: 'blur(0px)', ease: 'expo.inOut', duration: 1.5}, .06 * i);
+      x: rnd(-300, 300), y: rnd(-260, 260), rotation: rnd(-26, 26), scale: rnd(.8, 1.15), ...(mobile ? {} : {filter: blur(1.5)}),
+    }, {x: 0, y: 0, rotation: 0, scale: 1, ...(mobile ? {} : {filter: blur(0)}), force3D: true, ease: 'expo.inOut', duration: 1.5}, .06 * i);
   });
   tl.to(lanes, {y: 0, stagger: .08, duration: 1, ease: 'power3.out'}, .7);
   steps.forEach((s, i) => tl.to({}, {
@@ -227,8 +234,8 @@ $('.story-stage').forEach(stage => {
   tl.addLabel('b1');
   const words = $('.drift', stage);
   words.forEach((w, i) => {
-    tl.fromTo(w, {x: gsap.utils.random(-420, 420), y: gsap.utils.random(-300, 300), rotation: gsap.utils.random(-40, 40), opacity: 0, scale: gsap.utils.random(.7, 1.5), filter: 'blur(4px)'},
-      {x: 0, y: 0, rotation: 0, opacity: 1, scale: 1, filter: 'blur(0px)', ease: 'expo.out', duration: 1.6}, 'b1+=' + i * .045);
+    tl.fromTo(w, {x: gsap.utils.random(-420, 420), y: gsap.utils.random(-300, 300), rotation: gsap.utils.random(-40, 40), opacity: 0, scale: gsap.utils.random(.7, 1.5), ...(mobile ? {} : {filter: blur(4)})},
+      {x: 0, y: 0, rotation: 0, opacity: 1, scale: 1, ...(mobile ? {} : {filter: blur(0)}), ease: 'expo.out', duration: 1.6}, 'b1+=' + i * .045);
   });
   tl.from($('.story-cap', stage), {y: 32, opacity: 0, stagger: .14, duration: 1, ease: 'expo.out'}, 'b1+=.35');
   autoplay(tl, stage, 'top 15%', 2);
