@@ -763,17 +763,21 @@ export async function startScene(canvas: HTMLCanvasElement, opts: {reduced: bool
   document.addEventListener('astro:page-load', rescan);
 
   const cA = new Color();
-  let lastTheme = -1;
+  let lastTheme = -1, lastHalo = '';
   function mixTheme(t: number) {
     if (Math.abs(t - lastTheme) < .0005) return;
     lastTheme = t;
     const L = palette.light, D = palette.dark;
     const bg = cA.copy(L.bg).lerp(D.bg, t);
     renderer.setClearColor(bg, 1);
-    document.documentElement.style.setProperty('--scene-bg', '#' + bg.getHexString());
+    /* --scene-bg feeds the text halo on most of the page: every write restyles and repaints all of that text. On phones
+       a day/night crossing rewrote it every frame and dropped half the frames, so there it only flips at the midpoint. */
+    const halo = mobile ? (t > .5 ? D.bg : L.bg).getHexString() : bg.getHexString();
+    if (halo !== lastHalo) {lastHalo = halo; document.documentElement.style.setProperty('--scene-bg', '#' + halo);}
     [SU.uC0, SU.uC1, SU.uC2, SU.uC3].forEach((u, i) => u.value.copy(L.s[i]).lerp(D.s[i], t));
     U.uQuiet.value = MathUtils.lerp(1, .85, t); U.uTheme.value = t;
-    document.documentElement.dataset.theme = t > .5 ? 'dark' : 'light';
+    const mode = t > .5 ? 'dark' : 'light';
+    if (document.documentElement.dataset.theme !== mode) document.documentElement.dataset.theme = mode;
   }
 
   /* One fixed quality per platform (point count and pixel ratio above): a picture that thins out halfway through the
