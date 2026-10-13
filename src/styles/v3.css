@@ -4,6 +4,10 @@
 #scene{position:fixed;inset:0;width:100%;height:100%;z-index:-1;display:block;pointer-events:none}
 html.webgl body{background:transparent}
 html.webgl .chapter-tint{background:none}
+/* Text that sits over the live field wears a halo in the field's own colour (--scene-bg, set by scene.ts: paper in
+   light chapters, night in dark ones), so passing particles never run through the strokes. */
+html.webgl{--hb:var(--scene-bg,#F7F6F2);--halo:0 0 2px var(--hb),0 0 4px var(--hb),0 0 8px var(--hb),0 0 8px var(--hb),0 0 16px var(--hb)}
+html.webgl :is(.eyebrow,.drift,.story-cap,.story-line,.hero-description,.hero-version,.preview-copy p,.chapter-head p,.order-lead,.order-note,.download-copy p,.os-copy p,.architecture-note,.ready-lead,.ready-foot,.page-header p,.text-link,.privacy-copy p,.poster-tail){text-shadow:var(--halo)}
 .progress-bar{position:fixed;left:0;top:0;height:2px;width:100%;background:var(--green);transform:scaleX(0);transform-origin:left;z-index:40;pointer-events:none}
 html:not(.js) .progress-bar{display:none}
 .sr-text{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}

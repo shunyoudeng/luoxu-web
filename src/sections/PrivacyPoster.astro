@@ -36,6 +36,8 @@ html.js .poster{padding-bottom:32svh}
 .poster-frame{position:relative;min-height:max(100svh,600px);overflow:clip;display:flex;flex-direction:column;justify-content:center;padding:calc(72px + 2vh) clamp(20px,4vw,64px) var(--s8)}
 .poster-eyebrow{position:absolute;left:clamp(20px,4vw,64px);top:calc(72px + 4vh)}
 .poster-h{position:relative;font-weight:900;letter-spacing:-.05em;line-height:.98;perspective:1100px;transform-style:preserve-3d}
+/* tight halo: each glyph is clipped to its own box (.ch), a wide one would show the box edges over the field */
+html.webgl .poster-line{text-shadow:0 0 1px var(--night),0 0 5px var(--night)}
 .poster-line{display:block;color:var(--on-night);font:900 clamp(3rem,min(12.4vw,16svh),12.5rem)/1 var(--display-font);will-change:transform}
 .poster-line.l1{font:400 clamp(1.4rem,3.2vw,3rem)/1.4 var(--kai);letter-spacing:.06em;color:var(--mint);margin-bottom:.4em}
 .poster-line.l2{margin-left:-.02em}
@@ -51,7 +53,8 @@ html:not(.js) .strike{transform:none}
 html:not(.js) .poster-tail{opacity:1;transform:none}
 .m-br{display:none}
 .privacy-copy{display:grid;grid-template-columns:1fr 1fr;gap:var(--s16);padding-block:clamp(48px,7vw,96px) clamp(96px,12vw,176px);border-top:var(--stroke) solid rgba(241,243,236,.16)}
-.privacy-copy p{color:var(--on-night-2);max-width:34rem}
+/* brighter than --on-night-2: this copy is read over the bright ring of the field */
+.privacy-copy p{color:#CFDBD3;max-width:34rem}
 .privacy-copy p+p{margin-top:var(--s4)}
 .privacy-pull{font-family:var(--kai);font-size:clamp(1.25rem,2vw,1.625rem);line-height:1.8;color:var(--on-night)!important}
 .privacy-story .text-link{color:var(--mint);margin-top:var(--s4)}

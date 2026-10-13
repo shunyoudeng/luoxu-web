@@ -261,7 +261,8 @@ $('.poster').forEach(poster => {
   resolution.to(lines.slice(0, last), {z: 340, opacity: 0, yPercent: -18, duration: 1, stagger: .08, ease: 'power3.in'}, 0);
   resolution.to(lines[last], {yPercent: -40, duration: 1.3, ease: 'expo.inOut'}, .2);
   if (strike) resolution.fromTo(strike, {scaleX: 0}, {scaleX: 1, duration: .7, ease: 'expo.inOut'}, 1.05);
-  resolution.to($('.strike-target', poster), {opacity: .32, duration: .6}, 1.45);
+  // dim to a solid tone, not opacity: a translucent word lets the field's bright ring show through its strokes
+  resolution.to($('.strike-target', poster), {color: '#8FA398', duration: .6}, 1.45);
   resolution.to($('.poster-tail', poster), {opacity: 1, y: 0, duration: 1, ease: 'expo.out'}, 1.5);
   tl.add(resolution, 'b1');
   autoplay(tl, poster, 'top 22%');
