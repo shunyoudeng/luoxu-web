@@ -113,7 +113,7 @@ html[data-theme=dark] .mobile-menu summary{color:var(--on-night)}
 /* Phones: side-by-side text and form become one column, so the form would always sit under the text. Each chapter of
    the home page opens with an open screen instead, where the particle form (framed by scene.ts) is seen whole. */
 .scene-gap{display:none}
-@media(max-width:700px){html.webgl body[data-scene=home] .scene-gap{display:block;height:82svh;pointer-events:none}}
+@media(max-width:700px){html.webgl body[data-scene=home] .scene-gap{display:block;height:21svh;pointer-events:none}}
 @media(prefers-reduced-motion:reduce){.ci,.ch{transform:none!important}.site-header.is-tucked{transform:none}}
 
 /* ── entry veil: loads the field, then asks how to enter (sound / quiet). Only with JS, once per session. */

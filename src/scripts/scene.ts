@@ -664,27 +664,19 @@ export async function startScene(canvas: HTMLCanvasElement, opts: {reduced: bool
   let mouseX = 0, mouseY = 0, ndcX = 9, ndcY = 9, lastY = scrollY, velocity = 0, section = -1, still = 0, floatW = 0;
   const camP = new Vector3(), camL = new Vector3(), fwd = new Vector3(), right = new Vector3(), UP = new Vector3(0, 1, 0);
 
+  // only a mouse moves the field; on touch the finger has no effect (the parting jittered while scrolling)
   const ptr = (e: PointerEvent) => {
+    if (e.pointerType !== 'mouse') return;
     mouseX = (e.clientX / innerWidth) * 2 - 1; mouseY = (e.clientY / innerHeight) * 2 - 1;
-    if (e.pointerType === 'mouse') {ndcX = mouseX; ndcY = -mouseY;}
+    ndcX = mouseX; ndcY = -mouseY;
   };
   const leave = () => {ndcX = ndcY = 9;};
   const gyro = (e: DeviceOrientationEvent) => {
     if (e.gamma == null || e.beta == null) return;
     mouseX = MathUtils.clamp(e.gamma / 30, -1, 1); mouseY = MathUtils.clamp((e.beta - 50) / 40, -1, 1);
   };
-  // on touch the finger is the hand in the water: the field parts under it while it rests or scrolls the page
-  const touch = (e: TouchEvent) => {
-    const t = e.touches[0];
-    if (t) {ndcX = (t.clientX / innerWidth) * 2 - 1; ndcY = 1 - (t.clientY / innerHeight) * 2;}
-  };
-  const untouch = (e: TouchEvent) => {if (!e.touches.length) leave();};
   window.addEventListener('pointermove', ptr, {passive: true});
   document.documentElement.addEventListener('pointerleave', leave);
-  if (mobile) {
-    addEventListener('touchstart', touch, {passive: true}); addEventListener('touchmove', touch, {passive: true});
-    addEventListener('touchend', untouch, {passive: true}); addEventListener('touchcancel', untouch, {passive: true});
-  }
   // tilting the phone turns the camera; iOS asks first, inside the tap that enters the site
   const DOE = (window as {DeviceOrientationEvent?: {requestPermission?: () => Promise<string>}}).DeviceOrientationEvent;
   if (mobile && DOE) {
@@ -864,8 +856,6 @@ export async function startScene(canvas: HTMLCanvasElement, opts: {reduced: bool
     dispose() {
       cancelAnimationFrame(raf); clearInterval(remeasure); ro.disconnect(); io.disconnect(); save();
       removeEventListener('pointermove', ptr); removeEventListener('deviceorientation', gyro);
-      removeEventListener('touchstart', touch); removeEventListener('touchmove', touch);
-      removeEventListener('touchend', untouch); removeEventListener('touchcancel', untouch);
       ['scroll', 'pointermove', 'wheel', 'touchstart'].forEach(t => removeEventListener(t, wake));
       document.documentElement.removeEventListener('pointerleave', leave); document.removeEventListener('astro:page-load', rescan);
       document.removeEventListener('visibilitychange', onVis); removeEventListener('pagehide', save);
