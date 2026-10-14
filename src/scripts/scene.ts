@@ -410,6 +410,11 @@ const QUIET_SELECTORS: [string, number][] = [
   ['.feedback', .88], ['.ready-head', .9], ['.ready-list', .85], ['.ready-foot', .8], ['.footer-top', .85], ['.footer-note', .8],
 ];
 
+/* Text that wears the halo (keep in step with the text-shadow rule at the top of v3.css). */
+const HALO_SELECTOR = '.eyebrow,.drift,.story-cap,.story-line,.hero-description,.hero-version,.preview-copy p,.chapter-head p,'
+  + '.order-lead,.order-note,.download-copy p,.os-copy p,.architecture-note,.ready-lead,.ready-foot,.page-header p,.text-link,'
+  + '.privacy-copy p,.poster-tail';
+
 export interface SceneHandle {dispose(): void}
 
 export async function startScene(canvas: HTMLCanvasElement, opts: {reduced: boolean; mobile: boolean}): Promise<SceneHandle | null> {
@@ -648,7 +653,10 @@ export async function startScene(canvas: HTMLCanvasElement, opts: {reduced: bool
   const quietEls = new Map<Element, number>();
   const visible = new Set<Element>();
   let ro: ResizeObserver | null = null;
+  let haloEls: HTMLElement[] = [], lastTheme = -1, lastRoot = '', lastHalo = '';
   const scanQuiet = () => {
+    haloEls = mobile ? [] : Array.from(document.querySelectorAll<HTMLElement>(HALO_SELECTOR));
+    lastTheme = -1; lastHalo = ''; // the next frame paints the new page's halo elements in the current colour
     io.disconnect(); visible.clear();
     quietEls.forEach((_, el) => ro?.unobserve(el)); quietEls.clear();
     for (const [sel, k] of QUIET_SELECTORS) document.querySelectorAll(sel).forEach(el => quietEls.set(el, k));
@@ -775,17 +783,25 @@ export async function startScene(canvas: HTMLCanvasElement, opts: {reduced: bool
   document.addEventListener('astro:page-load', rescan);
 
   const cA = new Color();
-  let lastTheme = -1, lastHalo = '';
+  /* The halo colour goes on the halo elements themselves (--halo-bg, read in v3.css), never on <html>: a custom
+     property written on the root restyles every element of the page, which during a day/night crossing cost a desktop
+     several ms of style recalculation per frame (the stutter around the privacy chapter). Written on the ~50 text
+     blocks it restyles only those, so the halo still follows the background smoothly, frame by frame. */
+  const applyHalo = (hex: string) => {for (const el of haloEls) el.style.setProperty('--halo-bg', hex);};
   function mixTheme(t: number) {
     if (Math.abs(t - lastTheme) < .0005) return;
     lastTheme = t;
     const L = palette.light, D = palette.dark;
     const bg = cA.copy(L.bg).lerp(D.bg, t);
     renderer.setClearColor(bg, 1);
-    /* --scene-bg feeds the text halo on most of the page: every write restyles and repaints all of that text. On phones
-       a day/night crossing rewrote it every frame and dropped half the frames, so there it only flips at the midpoint. */
-    const halo = mobile ? (t > .5 ? D.bg : L.bg).getHexString() : bg.getHexString();
-    if (halo !== lastHalo) {lastHalo = halo; document.documentElement.style.setProperty('--scene-bg', '#' + halo);}
+    /* --scene-bg on <html> is only the fallback a page swap carries over until its halo elements are scanned: it flips
+       once per crossing, at the midpoint (on phones, whose CSS drops the halo, that is all there is). */
+    const root = (t > .5 ? D.bg : L.bg).getHexString();
+    if (root !== lastRoot) {lastRoot = root; document.documentElement.style.setProperty('--scene-bg', '#' + root);}
+    if (!mobile) {
+      const halo = '#' + bg.getHexString();
+      if (halo !== lastHalo) {lastHalo = halo; applyHalo(halo);}
+    }
     [SU.uC0, SU.uC1, SU.uC2, SU.uC3].forEach((u, i) => u.value.copy(L.s[i]).lerp(D.s[i], t));
     U.uQuiet.value = MathUtils.lerp(1, .85, t); U.uTheme.value = t;
     const mode = t > .5 ? 'dark' : 'light';
