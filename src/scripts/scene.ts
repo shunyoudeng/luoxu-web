@@ -427,7 +427,7 @@ export async function startScene(canvas: HTMLCanvasElement, opts: {reduced: bool
   const viewH = () => (mobile && canvas.clientHeight) || innerHeight;
   // set per platform with headroom so modest hardware holds its refresh rate (soft points lose nothing below 2x). Phones
   // start lower and may step down further if the GPU still cannot keep up (see `pace`): sharpness gives, never the form.
-  const PHONE_DPR = [1.3, 1.1, .9];
+  const PHONE_DPR = [1.3, 1.1, .9, .75];
   let dprStep = 0, pixelRatio = Math.min(window.devicePixelRatio || 1, mobile ? PHONE_DPR[0] : 1.75);
   renderer.setPixelRatio(pixelRatio);
   const scene = new Scene();
@@ -793,50 +793,40 @@ export async function startScene(canvas: HTMLCanvasElement, opts: {reduced: bool
   }
 
   /* One fixed point count per platform: a picture that thins out halfway through the page reads as a fault. The
-     display's refresh is measured, for the frame skips below and a phone's resolution step (`pace`). */
+     display's refresh is measured for a phone's resolution step (`pace`). */
   let vsync = 1000 / 60, vsyncN = 0;
   const vsyncS: number[] = [];
-  /* Phones only: if the field still misses its frames (the median interval of ~1.5 s well above the refresh), draw at
+  /* Phones only: if the field still misses its frames (the median interval of ~90 frames above the refresh), draw at
      the next lower resolution. Point counts and forms stay; point sizes follow the pixel ratio, so the picture only
      softens. The switch waits for the page to rest, so it never lands mid-fling. */
   const paceS: number[] = [];
   let stepTo = 0;
-  const pace = (dtMs: number, k: number) => {
+  const pace = (dtMs: number) => {
     if (stepTo || dprStep >= PHONE_DPR.length - 1 || vsyncN < 120 || dtMs > 250) return;
-    paceS.push(dtMs / k);
+    paceS.push(dtMs);
     if (paceS.length < 90) return;
     const med = paceS.sort((a, b) => a - b)[45]; paceS.length = 0;
-    if (med < vsync * 1.4) return;
+    if (med < vsync * 1.2) return; // at 120 Hz, a field holding only 90 fps already counts as missing
     const next = Math.min(window.devicePixelRatio || 1, PHONE_DPR[++dprStep]);
     if (next < pixelRatio) stepTo = next;
   };
   let running = true, raf = 0, last = performance.now(), time = 0, frames = 0;
-  let lastInput = 0, skipTick = 0, skipped = false;
-  const wake = () => {lastInput = performance.now();};
-  addEventListener('scroll', wake, {passive: true}); addEventListener('pointermove', wake, {passive: true});
-  addEventListener('wheel', wake, {passive: true}); addEventListener('touchstart', wake, {passive: true});
+  /* Every refresh is drawn, at full quality, whatever the panel's rate: a 120 Hz page under a 60 fps field reads as
+     stutter. Only a GPU that measurably cannot keep up gives anything, and then resolution (`pace`), never frames. */
   function frame(now: number) {
     raf = requestAnimationFrame(frame);
     if (!running) return;
-    /* At rest on a fast display (≥ 90 Hz) the field only drifts; drawing every other refresh still gives 60+ fps there
-       and halves the GPU's work while nobody is touching the page. Any input restores full rate on the next frame. */
-    const idle = vsync < 11 && still > 2 && now - lastInput > 1500 && Math.abs(morph.velocity) < 1e-3;
-    /* A phone on a 120 Hz panel draws the field at 60 fps all the time: the page itself still scrolls at the panel's
-       rate (the compositor moves it), the fixed field only morphs, and the GPU has half the frames to fill. */
-    const halve = idle || (mobile && vsync < 9.5);
-    if (halve && (++skipTick & 1)) {skipped = true; return;}
     const dtMs = now - last;
     const dt = Math.min(.05, dtMs / 1000); last = now; time += dt;
-    const after = skipped; skipped = false;
 
-    if (!after && dtMs > 2 && dtMs < 40) {
+    if (dtMs > 2 && dtMs < 40) {
       // the refresh interval is a low percentile of the intervals seen: robust to misses, and to the odd early
-      // callback that would make a 60 Hz phone look like a 120 Hz one (and halve its frame rate)
+      // callback that would make a 60 Hz phone look like a 120 Hz one
       vsyncS.push(dtMs);
       if (++vsyncN % 120 === 0) {vsync = vsyncS.sort((a, b) => a - b)[12]; vsyncS.length = 0;}
     }
     ++frames;
-    if (mobile) pace(dtMs, halve ? 2 : 1);
+    if (mobile) pace(dtMs);
 
     const y = scrollY;
     velocity += ((y - lastY) / Math.max(dt, .001) / vh - velocity) * Math.min(1, dt * 8); lastY = y;
@@ -851,8 +841,6 @@ export async function startScene(canvas: HTMLCanvasElement, opts: {reduced: bool
     // a shape that is held while its text is read stays whole when scrolled through; the scatter belongs to transitions
     const between = Math.sin(Math.PI * (m - Math.floor(m)));
     U.uVel.value = v * (.3 + .7 * between);
-    // a fast fling on a phone: smaller bokeh, so points sweeping past the camera cannot flood the fill rate
-    U.uMaxPx.value = mobile ? 22 - 10 * Math.min(1, v) : 64;
     if (introOn) U.uIntro.value = damp(intro, 1, 1.1, dt);
 
     // drone camera: the spline carries it between chapter poses; the pointer turns the head; at rest it floats
@@ -940,7 +928,6 @@ export async function startScene(canvas: HTMLCanvasElement, opts: {reduced: bool
     dispose() {
       cancelAnimationFrame(raf); clearInterval(remeasure); ro.disconnect(); io.disconnect(); save();
       removeEventListener('pointermove', ptr); removeEventListener('deviceorientation', gyro);
-      ['scroll', 'pointermove', 'wheel', 'touchstart'].forEach(t => removeEventListener(t, wake));
       document.documentElement.removeEventListener('pointerleave', leave); document.removeEventListener('astro:page-load', rescan);
       document.removeEventListener('visibilitychange', onVis); removeEventListener('pagehide', save);
       geo.dispose(); mat.dispose(); sGeo.dispose(); sMat.dispose(); renderer.dispose();
