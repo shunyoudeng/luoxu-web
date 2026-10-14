@@ -31,8 +31,11 @@
 .js [data-layer="0"]:not([data-revealed=true]):not(:focus-within):not([hidden]) {transform:translate3d(0,14px,0);filter:blur(3px)}
 .js [data-layer="1"]:not([data-revealed=true]):not(:focus-within):not([hidden]) {transform:translate3d(0,40px,0);filter:blur(8px)}
 .js [data-fx=scale]:not([data-revealed=true]):not(:focus-within):not([hidden]) {transform:translate3d(0,48px,0) scale(.94);filter:blur(8px)}
-.js [data-fx=left]:not([data-revealed=true]):not(:focus-within):not([hidden]) {transform:translate3d(-40px,16px,0) scale(.98)}
-.js [data-fx=right]:not([data-revealed=true]):not(:focus-within):not([hidden]) {transform:translate3d(40px,16px,0) scale(.98)}
+/* Side arrivals: the two large architecture cards that come up as the privacy chapter turns light. They slide in
+   unblurred, and wait at a trace of opacity rather than none: a fully transparent block is not rasterised until its
+   reveal, and painting both cards then, mid-crossing over the live field, cost a desktop GPU a 70-90 ms frame. */
+.js [data-fx=left]:not([data-revealed=true]):not(:focus-within):not([hidden]) {opacity:.002;transform:translate3d(-40px,16px,0) scale(.98);filter:none}
+.js [data-fx=right]:not([data-revealed=true]):not(:focus-within):not([hidden]) {opacity:.002;transform:translate3d(40px,16px,0) scale(.98);filter:none}
 
 @media (prefers-reduced-motion:reduce) {
   :is(a.button, .text-link, .nav-link, .footer-links a, .preview-tabs button,

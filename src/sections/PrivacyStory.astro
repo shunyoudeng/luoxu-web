@@ -20,13 +20,16 @@ import SceneGap from '../components/SceneGap.astro';
 </div></section>
 <style>
 .architecture{display:grid;grid-template-columns:1.35fr 1fr;gap:var(--s8);align-items:stretch}
-.architecture-local{display:flex;gap:var(--s6);align-items:center;justify-content:space-between;padding:clamp(24px,3vw,40px);border-radius:32px;background:var(--surface);border:var(--stroke) solid var(--line);box-shadow:var(--shadow-soft)}
+/* Kept cheap to paint: these cards are painted as the privacy chapter turns light over the live field, where the soft
+   shadow, the dashed border and the label halo together cost a desktop GPU a dropped frame. */
+.architecture-local{display:flex;gap:var(--s6);align-items:center;justify-content:space-between;padding:clamp(24px,3vw,40px);border-radius:32px;background:var(--surface);border:var(--stroke) solid var(--line)}
+html.webgl .architecture .eyebrow{text-shadow:none}
 .node h3{font-size:var(--title);font-weight:800;margin-top:var(--s3)}
 .node p{font-size:var(--small);color:var(--secondary);margin-top:var(--s2)}
 .architecture-arrow{color:var(--green);font-size:1.75rem}
 .architecture-cloud{display:flex;gap:var(--s5);align-items:center}
 .connection-label{font-size:var(--caption);color:var(--green);max-width:84px;line-height:1.5}
-.node-cloud{flex:1;height:100%;display:flex;flex-direction:column;justify-content:center;padding:clamp(24px,3vw,40px);border-radius:32px;border:1.5px dashed var(--green-soft);background:var(--mist)}
+.node-cloud{flex:1;height:100%;display:flex;flex-direction:column;justify-content:center;padding:clamp(24px,3vw,40px);border-radius:32px;border:1.5px solid var(--green-soft);background:var(--mist)}
 .architecture-note{font-size:var(--small);color:var(--secondary);margin-top:var(--s8);text-align:center}
 
 .chapter-last{padding-bottom:clamp(96px,12vw,176px)}
