@@ -4,9 +4,9 @@ import Icon from '../components/Icon.astro';
 import ProductPreview from '../components/ProductPreview.astro';
 import SceneGap from '../components/SceneGap.astro';
 const features=[
-  {n:'01',title:'通知理解',size:'wide',body:'在你主动授权的 QQ、微信等系统通知里，理解内容和来源。系统没发出的通知，珞序无法凭空读取。'},
+  {n:'01',title:'通知理解',size:'wide',body:'在你主动授权的 QQ、微信等系统通知里，理解内容和来源；也可以连接本人学习通账号，同步个人通知。系统没发出的通知，珞序无法凭空读取。'},
   {n:'02',title:'事务整理',size:'narrow',body:'需要亲自处理的是任务；课程里的练习和报告是作业。可选择参加的机会，与告知校园变化的信息，分别整理。'},
-  {n:'03',title:'一屏周视图',size:'narrow',body:'用一周看清时间。临近截止的事项、未确定日期和长期事项，各有清楚的位置。'},
+  {n:'03',title:'一屏周视图',size:'narrow',body:'用一周看清时间。课程显示起止时间，临近截止的事项、未确定日期和长期事项，各有清楚的位置；每件事都能单独设置提醒。'},
   {n:'04',title:'AI秘书',size:'wide',body:'问“这周还有什么作业”，也可以说“下午三点提醒我拿快递”。查询、创建和修改，放在自然对话里完成。'},
   {n:'05',title:'与你有关',size:'half',tint:true,body:'结合校园身份、角色、兴趣和关注目标判断相关性。AI判断有误时，你可以纠正。'},
   {n:'06',title:'由你掌握',size:'half',tint:true,body:'事务数据库与个人配置主要保存在自己的设备。监听哪些来源、什么时候暂停，由你选择。'}
@@ -24,7 +24,7 @@ const week=[38,62,46,88,54,30,22];
     {features.map((f,i)=><article class:list={['bento-card',`bento-${f.size}`,{tint:f.tint}]} data-layer={3+(i%2)} data-mask data-tilt data-n={f.n}>
       <h3>{f.title}</h3><p>{f.body}</p>
       {f.n==='01'&&<div class="deco chips" aria-hidden="true"><span>QQ</span><span>微信</span><span>系统通知</span></div>}
-      {f.n==='03'&&<div class="deco week" aria-hidden="true">{week.map((h,d)=><i style={`--h:${h}%;--d:${d}`}></i>)}</div>}
+      {f.n==='03'&&<div class="deco week" aria-hidden="true">{week.map((h,d)=><i style={`--h:${h}%;--d:${d}`}></i>)}<span class="week-stack"><b></b><b></b></span></div>}
       {f.n==='04'&&<div class="deco chat kai" aria-hidden="true"><span>这周还有什么作业？</span><span class="me">下午三点提醒我拿快递</span></div>}
     </article>)}
   </div>
@@ -47,12 +47,18 @@ const week=[38,62,46,88,54,30,22];
 .week{display:flex;align-items:flex-end;gap:6px;height:72px}
 .week i{display:block;width:10px;height:var(--h);border-radius:5px;background:var(--green);opacity:.18}
 .week i:nth-child(4){opacity:.9}
+/* Tasks outrank the course they overlap: two glass cards stacked above Thursday's block. */
+.week-stack{position:absolute;left:37px;bottom:26px;width:32px;height:30px;pointer-events:none}
+.week-stack b{position:absolute;left:0;right:0;height:14px;border-radius:5px;background:rgba(255,255,255,.62);-webkit-backdrop-filter:blur(6px) saturate(170%);backdrop-filter:blur(6px) saturate(170%);box-shadow:0 0 0 .5px rgba(38,53,45,.1),0 4px 10px -4px rgba(23,58,49,.32),inset 0 1px 0 #fff}
+.week-stack b:first-child{top:0;transform:translateX(5px) scale(.92);opacity:.85}
+.week-stack b+b{top:8px}
+.week-stack b+b::before{content:'';position:absolute;left:5px;top:5px;width:14px;height:4px;border-radius:2px;background:var(--green);opacity:.55}
 .chat{display:flex;flex-direction:column;gap:var(--s2);align-items:flex-end;font-size:var(--small)}
 .chat span{padding:var(--s2) var(--s4);border-radius:18px 18px 18px 4px;background:var(--mist);color:var(--ink)}
 .chat .me{border-radius:18px 18px 4px 18px;background:var(--green);color:var(--paper)}
 .more-link{margin-top:var(--s8);justify-content:center;width:100%}
 
-@media(max-width:900px){.flow{grid-template-columns:1fr;gap:var(--s6)}.flow-understand{text-align:left;max-width:240px;margin-left:var(--s4)}.flow-path{background:linear-gradient(90deg,var(--green),transparent);width:80px}.bento-wide,.bento-narrow{grid-column:span 3}.chips{position:static;max-width:none;justify-content:flex-start;margin-top:var(--s2)}.deco.chat,.deco.week{position:static;align-items:flex-start;margin-top:var(--s4)}}
+@media(max-width:900px){.flow{grid-template-columns:1fr;gap:var(--s6)}.flow-understand{text-align:left;max-width:240px;margin-left:var(--s4)}.flow-path{background:linear-gradient(90deg,var(--green),transparent);width:80px}.bento-wide,.bento-narrow{grid-column:span 3}.chips{position:static;max-width:none;justify-content:flex-start;margin-top:var(--s2)}.deco.chat,.deco.week{position:static;align-items:flex-start;margin-top:var(--s4)}.deco.week{position:relative;inset:auto;align-items:flex-end;align-self:flex-start}}
 @media(max-width:700px){.bento{grid-template-columns:1fr}.bento-wide,.bento-narrow,.bento-half{grid-column:auto;min-height:0}.bento-card::before{padding-bottom:var(--s4)}.bento-card{border-radius:26px}.message-example,.flow-result{padding:var(--s6);border-radius:24px}.message-example p{font-size:1.25rem}.categories span{font-size:1.25rem;padding:var(--s3) var(--s4)}.chapter-head{text-align:left;align-items:flex-start}}
 .preview-grid{display:grid;grid-template-columns:1fr minmax(0,420px);gap:clamp(32px,8vw,128px);align-items:center}
 .preview-copy{display:flex;flex-direction:column;gap:var(--s5)}

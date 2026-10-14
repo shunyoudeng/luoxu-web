@@ -4,9 +4,9 @@
 
 珞序是一款面向大学生日常生活的校园 AI 助手，将授权来源的通知整理为任务、作业、机会和校园信息。本仓库是其官方产品网站源码，Android 应用独立维护。
 
-App 当前公测版本为 **0.7.2 / Public Beta**。官网与 App 分别维护版本，下载信息以官网发布的版本元数据为准。
+App 当前公测版本为 **0.8.0 / Public Beta**。官网与 App 分别维护版本，下载信息以官网发布的版本元数据为准。
 
-**[Website / 官方网站](https://shunyoudeng.github.io/luoxu-web/)** · **[GitHub / 官网源码](https://github.com/shunyoudeng/luoxu-web)** · **[Latest Release / 安装包](https://github.com/shunyoudeng/luoxu-web/releases/tag/v0.7.2)**
+**[Website / 官方网站](https://shunyoudeng.github.io/luoxu-web/)** · **[GitHub / 官网源码](https://github.com/shunyoudeng/luoxu-web)** · **[Latest Release / 安装包](https://github.com/shunyoudeng/luoxu-web/releases/tag/v0.8.0)**
 
 [下载说明](https://shunyoudeng.github.io/luoxu-web/download/) · [更新日志](https://shunyoudeng.github.io/luoxu-web/changelog/) · [反馈邮箱](mailto:luoxufeedback@163.com) · [开发者 Issue](https://github.com/shunyoudeng/luoxu-web/issues) · [官网源码](https://github.com/shunyoudeng/luoxu-web)
 

@@ -51,3 +51,12 @@ APK 是独立维护的 Android 应用分发文件；本声明不替代该应用�
 | [maath](https://github.com/pmndrs/maath/tree/maath@0.10.8) `easing.damp` | 0.10.8（约 20 行改写，见 `src/scripts/damp.ts`） | MIT（Copyright (c) 2022 Poimandres） | 临界阻尼弹簧（Game Programming Gems 4 §1.10 SmoothDamp），用于镜头惯性与鼠标跟随 |
 
 动效机制研究参考了 [Aevion — Lidar Drone Scanning](https://drone.riotters.com/)（Riotters）：滚动进度经阻尼驱动镜头、鼠标仅转动视角（偏航/俯仰/横滚）、滚动停止后的轻微悬浮、能力段落的分段自动播放。仅参考公开页面的运动参数思路，未复制其代码、模型或素材。
+
+
+## 液态玻璃分段控件（v0.8.0 功能示意）
+
+| 组件 | 版本 | 许可证 | 用途 |
+| --- | --- | --- | --- |
+| [quickLiquid](https://github.com/amarnath3003/quickLiquid) `animations/spring.ts` | 提交 `fbb19b5f1cd4097e62831da44df0bee0097433ca`（约 60 行改写，见 `src/scripts/liquid-spring.ts`，文件内保留原版权与许可正文） | MIT（Copyright (c) 2026 Amarnath） | 阻尼谐振子解析解弹簧，驱动功能示意分段控件玻璃滑块的前后两条边，实现拉伸与弹性回落 |
+
+玻璃材质（模糊、饱和度、白色高光边与柔和阴影）、底部悬浮胶囊和拉伸策略（前缘快、后缘慢，两条边各用一个弹簧）由本项目以 CSS 与少量 TypeScript 自行实现，无新增运行时依赖。

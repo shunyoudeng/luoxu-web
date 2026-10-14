@@ -67,3 +67,8 @@ Git 历史会保存每次提交的二进制版本。长期发布推荐 Releases�
 ## 发布边界
 
 Android Source = PRIVATE；Website / Website Source / APK = PUBLIC。PUBLISHING_POLICY.json 和 AGENTS.md 持续有效，直至负责人明确要求恢复开源。公开APK只放官网仓库Releases，上传仅限APK和SHA256SUMS.txt；网站源码归档只含官网代码。不得修改Android visibility为Public，不复制应用/后端源码、Prompt实现、内部文档、数据库、凭据或缓存。构建运行 npm run check:public，发布后验证匿名下载及SHA256。
+
+
+## 0.8.0 发布（2026-10-14）
+
+本次按现有官网工作区原样发布，版本0.8.0 / build31。最新版性能APK沿用原签名，不重签、不重建。发布到公开官网仓库Release；当前大小46447351字节，SHA-256 3748df57bc4f4dd7533aebbcd266608a357722736157011a61bc43cbc93dd78e。下载元数据与现有更新日志同步，官网新动效和布局不作调整。Android源码继续私有。

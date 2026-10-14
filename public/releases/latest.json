@@ -1,23 +1,23 @@
 {
-  "version": "0.7.2",
-  "build": 30,
+  "version": "0.8.0",
+  "build": 31,
   "channel": "公测 / Public Beta",
   "status": "beta",
-  "releaseDate": "2026-10-11",
-  "buildDate": "2026-10-11",
-  "downloadUrl": "https://github.com/shunyoudeng/luoxu-web/releases/download/v0.7.2/LUOXU-v0.7.2-performance.apk",
+  "releaseDate": "2026-10-14",
+  "buildDate": "2026-10-14",
+  "downloadUrl": "https://github.com/shunyoudeng/luoxu-web/releases/download/v0.8.0/LUOXU-v0.8.0-performance.apk",
   "githubUrl": "https://github.com/shunyoudeng/luoxu-web",
   "changelogUrl": "../changelog",
   "minimumAndroid": "8.0",
   "minSdk": 26,
   "applicationId": "com.campusai.app",
-  "sizeBytes": 46282705,
-  "sha256": "5dc7337940c9d3c30fdf7d14e4a436ebb0bfa62e4348f7de65bf4b9565ddd41c",
+  "sizeBytes": 46447351,
+  "sha256": "3748df57bc4f4dd7533aebbcd266608a357722736157011a61bc43cbc93dd78e",
   "highlights": [
-    "武大课表自动同步：在学校官方页面登录后自动读取课表，结果正常时直接保存并回到时间表，有异常时可先核对。",
-    "时间表顶部集中显示重点事务与待安排；有具体时刻的事务按时间排列，截止与日期事项落在对应日期。",
-    "周课表更紧凑，课格空间更多，仍支持七天、13节、翻周与课程详情。",
-    "学期起算日期、阶段目标和事务时间改用日历选择。",
-    "事务与课程重叠时不再互相遮挡；重复同步不影响手动添加的课程、笔记与关联作业。"
+    "连接本人学习通账号，个人通知自动整理进珞序；作业可手动预览后逐项加入。",
+    "每件事务可单独设置提醒：最多 6 个提前量、指定时间，或每天/隔几天跟进网课。",
+    "底栏改为首页、日程、AI秘书、我的四个入口，数据箱移到首页标题旁和“我的”页。",
+    "考核、教材、教学计划等课程资料归入对应课程，不再变成首页任务。",
+    "周课表课块显示起止时间；页面切换、翻周与按压反馈更顺滑。"
   ]
 }
