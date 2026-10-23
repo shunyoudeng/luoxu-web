@@ -7,7 +7,7 @@ const desktop=validateDesktopRelease(json);
 ---
 <div class="desktop-release-panel">
   <div class="release-title"><div><span class="status">Windows · 桌面增强</span><h3>珞序 Windows v{desktop.version}</h3></div><span class="release-stage">预览版</span></div>
-  <dl class="release-meta"><div><dt>适用系统</dt><dd>Windows 10 / 11 · 64位</dd></div><div><dt>安装包</dt><dd>{formatBytes(desktop.sizeBytes)}</dd></div><div><dt>发布日期</dt><dd>{formatDate(desktop.releaseDate)}</dd></div></dl>
+  <dl class="release-meta"><div><dt>适用系统</dt><dd>Windows 10/11 x64</dd></div><div><dt>安装包</dt><dd>{formatBytes(desktop.sizeBytes)}</dd></div><div><dt>发布日期</dt><dd>{formatDate(desktop.releaseDate)}</dd></div></dl>
   <ul class="release-highlights">{desktop.highlights.map((line:string)=><li>{line}</li>)}</ul>
   <div class="actions"><a class="button primary exe-download" href={desktop.downloadUrl} download>下载 Windows EXE <Icon name="download"/></a></div>
   <details class="checksum"><summary>校验安装包（SHA-256）</summary><code>{desktop.sha256}</code></details>
