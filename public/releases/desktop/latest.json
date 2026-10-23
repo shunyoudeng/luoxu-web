@@ -1,0 +1,18 @@
+{
+  "version": "0.1.0",
+  "status": "preview",
+  "platform": "windows-x64",
+  "minimumWindows": "10",
+  "releaseDate": "2026-10-23",
+  "buildDate": "2026-10-22",
+  "androidVersion": "0.9.0",
+  "filename": "LUOXU-Desktop-v0.1.0-win-x64.exe",
+  "downloadUrl": "https://github.com/shunyoudeng/luoxu-web/releases/download/desktop-v0.1.0/LUOXU-Desktop-v0.1.0-win-x64.exe",
+  "sizeBytes": 26353765,
+  "sha256": "91732790e4e6a854ba2f2405ed4ecbff8ebd69a681bd31fe82ae1b4fead0dfdc",
+  "highlights": [
+    "双击打开，无需另装Python；提供连接概览、设置和使用说明。",
+    "窗口内启动、停止、检测连接，并显示手机配对二维码。",
+    "连接凭据可选择由Windows加密保存，首次连接默认不选择任何群。"
+  ]
+}

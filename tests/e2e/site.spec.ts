@@ -1,6 +1,7 @@
 import {test,expect} from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import release from '../../public/releases/latest.json' with {type:'json'};
+import desktop from '../../public/releases/desktop/latest.json' with {type:'json'};
 import {mkdirSync} from 'node:fs';
 import {createHash} from 'node:crypto';
 import {releaseHref} from '../../src/lib/paths.mjs';
@@ -8,10 +9,10 @@ const pages=['/','/download','/changelog','/privacy','/terms','/about'];
 test('public beta and feedback destinations are consistent across current pages',async({page})=>{
   for(const path of pages){await page.goto(path);await expect(page.getByRole('navigation',{name:'页脚导航'}).getByRole('link',{name:'反馈',exact:true})).toHaveAttribute('href','mailto:luoxufeedback@163.com');}
   await page.goto('/download');
-  await expect(page.locator('.release-stage')).toHaveText('公测版');
+  await expect(page.locator('.release-panel .release-stage')).toHaveText('公测版');
   await expect(page.locator('body')).not.toContainText('内测');
-  await expect(page.locator('.release-highlights li')).toHaveCount(release.highlights.length);
-  await expect(page.locator('.release-highlights li').first()).toHaveText(release.highlights[0]);
+  await expect(page.locator('.release-panel .release-highlights li')).toHaveCount(release.highlights.length);
+  await expect(page.locator('.release-panel .release-highlights li').first()).toHaveText(release.highlights[0]);
   for(const path of pages){await page.goto(path);await expect(page.locator('body'),path).not.toContainText(/Lint|联调|签名|真机|Debug|候选构建|验收|测试\s*\d+\s*项/);}
   await expect(page.getByRole('link',{name:'反馈 Bug'})).toHaveAttribute('href',/^mailto:luoxufeedback@163\.com\?/);
   await expect(page.getByRole('link',{name:'luoxufeedback@163.com',exact:true})).toHaveAttribute('href','mailto:luoxufeedback@163.com');
@@ -33,4 +34,20 @@ test('reduced motion and keyboard skip link',async({page})=>{await page.emulateM
 
 test('visual review captures desktop and mobile key pages',async({page})=>{mkdirSync('docs/screenshots',{recursive:true});for(const width of [390,1440]){await page.setViewportSize({width,height:1000});for(const path of ['/','/download','/changelog','/privacy']){await page.goto(path);await page.screenshot({path:`docs/screenshots/${path==='/'?'home-first-screen':path.slice(1)}-${width}.png`,fullPage:path!=='/'});}}});
 
-test("only website source links are visible",async({page})=>{for(const path of pages){await page.goto(path);expect(await page.locator("a[href*=luoxu-android]").count()).toBe(0);}await page.goto("/about");await expect(page.locator("body")).toContainText("Android 应用源码现阶段暂不公开");await expect(page.getByRole("link",{name:"GitHub · 官网源码",exact:true})).toHaveAttribute("href","https://github.com/shunyoudeng/luoxu-web");});
+test("only website source links are visible",async({page})=>{for(const path of pages){await page.goto(path);expect(await page.locator("a[href*=luoxu-android],a[href*=luoxu-desktop]").count()).toBe(0);}await page.goto("/about");await expect(page.locator("body")).toContainText("Android 应用源码现阶段暂不公开");await expect(page.getByRole("link",{name:"GitHub · 官网源码",exact:true})).toHaveAttribute("href","https://github.com/shunyoudeng/luoxu-web");});
+
+
+test('Windows download is independent and the three products are described accurately',async({page,request})=>{
+  const response=await request.get('/releases/desktop/latest.json');expect(response.ok()).toBeTruthy();
+  const metadata=await response.json();expect(metadata.version).toBe(desktop.version);expect(metadata.sha256).toBe(desktop.sha256);
+  for(const width of [375,1440]){
+    await page.setViewportSize({width,height:900});await page.goto('/download#windows');
+    await expect(page.locator('.exe-download')).toHaveAttribute('href',desktop.downloadUrl);
+    await expect(page.locator('.desktop-release-panel .release-stage')).toHaveText('预览版');
+    await expect(page.locator('.apk-download')).toHaveAttribute('href',release.downloadUrl);
+    await expect(page.locator('#windows')).toContainText('NapCat/OneBot');
+    expect(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth)).toBeFalsy();
+  }
+  await page.goto('/');await expect(page.locator('.ready-list')).toContainText('Windows');await expect(page.locator('.ready-list')).toContainText('Website');
+  await page.goto('/changelog');await expect(page.locator('#windows-v010')).toContainText('Windows v'+desktop.version);
+});

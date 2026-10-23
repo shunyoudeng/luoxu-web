@@ -1,0 +1,17 @@
+---
+import json from '../../public/releases/desktop/latest.json';
+import {validateDesktopRelease} from '../lib/desktop-release.mjs';
+import {formatBytes,formatDate} from '../lib/releases';
+import Icon from './Icon.astro';
+const desktop=validateDesktopRelease(json);
+---
+<div class="desktop-release-panel">
+  <div class="release-title"><div><span class="status">Windows · 桌面增强</span><h3>珞序 Windows v{desktop.version}</h3></div><span class="release-stage">预览版</span></div>
+  <dl class="release-meta"><div><dt>适用系统</dt><dd>Windows 10 / 11 · 64位</dd></div><div><dt>安装包</dt><dd>{formatBytes(desktop.sizeBytes)}</dd></div><div><dt>发布日期</dt><dd>{formatDate(desktop.releaseDate)}</dd></div></dl>
+  <ul class="release-highlights">{desktop.highlights.map((line:string)=><li>{line}</li>)}</ul>
+  <div class="actions"><a class="button primary exe-download" href={desktop.downloadUrl} download>下载 Windows EXE <Icon name="download"/></a></div>
+  <details class="checksum"><summary>校验安装包（SHA-256）</summary><code>{desktop.sha256}</code></details>
+</div>
+<style>
+.desktop-release-panel{border:var(--stroke) solid var(--line);padding:var(--s8);background:var(--surface);border-radius:32px;box-shadow:var(--shadow-soft)}.release-title{display:flex;justify-content:space-between;align-items:center;gap:var(--s4)}.release-title h3{font-size:1.75rem;font-weight:800;letter-spacing:-.015em}.release-stage{font-size:var(--caption);font-weight:500;color:var(--green);background:var(--mist);padding:var(--s1) var(--s3);border-radius:999px;white-space:nowrap}.release-meta{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--s6);margin-block:var(--s8);padding-block:var(--s6);border-block:var(--stroke) solid var(--line)}dt{font-size:var(--caption);color:var(--secondary)}dd{font-variant-numeric:tabular-nums;font-size:var(--small);margin-top:var(--s1)}.release-highlights{margin:0 0 var(--s6);padding-left:var(--s5);font-size:var(--small);color:var(--secondary)}.release-highlights li{margin-block:var(--s1)}.checksum{margin-top:var(--s4);font-size:var(--caption);color:var(--secondary)}.checksum summary{min-height:48px;cursor:pointer;display:flex;align-items:center}.checksum code{display:block;overflow-wrap:anywhere;font-size:var(--caption);padding:var(--s4);background:var(--paper)}@media(max-width:700px){.desktop-release-panel{padding:var(--s6)}.release-title{align-items:flex-start;flex-direction:column;gap:var(--s2)}.release-meta{grid-template-columns:1fr;gap:var(--s4);margin-block:var(--s6)}.release-meta div{display:flex;justify-content:space-between;gap:var(--s4)}dd{margin-top:0}.actions{align-items:stretch;flex-direction:column}}
+</style>

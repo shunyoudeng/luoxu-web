@@ -1,23 +1,23 @@
 {
-  "version": "0.8.0",
-  "build": 31,
+  "version": "0.9.0",
+  "build": 32,
   "channel": "公测 / Public Beta",
   "status": "beta",
-  "releaseDate": "2026-10-14",
-  "buildDate": "2026-10-14",
-  "downloadUrl": "https://github.com/shunyoudeng/luoxu-web/releases/download/v0.8.0/LUOXU-v0.8.0-performance.apk",
+  "releaseDate": "2026-10-23",
+  "buildDate": "2026-10-22",
+  "downloadUrl": "https://github.com/shunyoudeng/luoxu-web/releases/download/v0.9.0/LUOXU-v0.9.0-performance.apk",
   "githubUrl": "https://github.com/shunyoudeng/luoxu-web",
   "changelogUrl": "../changelog",
   "minimumAndroid": "8.0",
   "minSdk": 26,
   "applicationId": "com.campusai.app",
-  "sizeBytes": 46447351,
-  "sha256": "3748df57bc4f4dd7533aebbcd266608a357722736157011a61bc43cbc93dd78e",
+  "sizeBytes": 52765588,
+  "sha256": "febcff6a9ada88baba516facf1e5ddbf66d2521b30c837db0b465770ea1679a8",
   "highlights": [
-    "连接本人学习通账号，个人通知自动整理进珞序；作业可手动预览后逐项加入。",
-    "每件事务可单独设置提醒：最多 6 个提前量、指定时间，或每天/隔几天跟进网课。",
-    "底栏改为首页、日程、AI秘书、我的四个入口，数据箱移到首页标题旁和“我的”页。",
-    "考核、教材、教学计划等课程资料归入对应课程，不再变成首页任务。",
-    "周课表课块显示起止时间；页面切换、翻周与按压反馈更顺滑。"
+    "新增可选QQ桌面增强，手机扫码连接自己的电脑，再选择允许处理的群。",
+    "手机通知与桌面消息汇入同一整理流程，能够对应的消息合并来源证据。",
+    "支持主动回溯可访问的群消息缓存，待确认内容可在数据箱继续整理。",
+    "已授权附件可提取PDF、DOCX、XLSX、PPTX文字，图片复用本机识别。",
+    "新增ICS日历文件导出，可自行保存、分享或导入日历。"
   ]
 }

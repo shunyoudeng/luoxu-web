@@ -8,10 +8,12 @@ let count = 0;
 for (const name of names) {
   assertPublicPath(name);
   if (!existsSync(name) || !statSync(name).isFile()) continue;
-  if (statSync(name).size < 5000000 && !/\.(png|jpg|jpeg|webp|ico|woff2?|apk)$/i.test(name)) assertPublicText(readFileSync(name, 'utf8'), name);
+  if (statSync(name).size < 5000000 && !/\.(png|jpg|jpeg|webp|ico|woff2?|apk|exe)$/i.test(name)) assertPublicText(readFileSync(name, 'utf8'), name);
   count++;
 }
 const release = JSON.parse(readFileSync('public/releases/latest.json', 'utf8'));
 assertDownload(release.downloadUrl);
 if (release.githubUrl?.includes('/luoxu-android')) throw new Error('Private Android source entry in release metadata');
+const desktop = JSON.parse(readFileSync('public/releases/desktop/latest.json', 'utf8'));
+if (desktop.downloadUrl?.includes('/luoxu-desktop/')) throw new Error('Windows downloads cannot point at a private source repository');
 console.log('Public boundary verified: ' + count + ' website files; Android source PRIVATE.');

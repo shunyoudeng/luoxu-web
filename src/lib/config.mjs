@@ -9,15 +9,16 @@ export function optionalHttps(value, name) {
 export function readConfig(env = {}) {
   const email = String(env.PUBLIC_FEEDBACK_EMAIL || '').trim();
   if (email && !/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/.test(email)) throw new Error('Invalid feedback email');
-  const privateRepo = 'https://github.com/shunyoudeng/luoxu-android';
+  const privateRepos = ['https://github.com/shunyoudeng/luoxu-android','https://github.com/shunyoudeng/luoxu-desktop'];
+  const isPrivate = value => privateRepos.some(repo => value === repo || value.startsWith(repo+'/'));
   const supplied = optionalHttps(env.PUBLIC_GITHUB_URL, 'PUBLIC_GITHUB_URL');
   // Stale deployment variables cannot restore the private Android source entry.
-  const github = supplied === privateRepo ? 'https://github.com/shunyoudeng/luoxu-web' : supplied;
+  const github = isPrivate(supplied) ? 'https://github.com/shunyoudeng/luoxu-web' : supplied;
   const releases = optionalHttps(env.PUBLIC_GITHUB_RELEASES_URL || (github ? github+'/releases' : ''), 'PUBLIC_GITHUB_RELEASES_URL');
   return Object.freeze({
     siteUrl: optionalHttps(env.PUBLIC_SITE_URL, 'PUBLIC_SITE_URL'), github,
     hostingProvider: String(env.PUBLIC_HOSTING_PROVIDER || '').trim(),
-    githubReleases: releases.startsWith(privateRepo+'/') ? 'https://github.com/shunyoudeng/luoxu-web/releases' : releases,
+    githubReleases: isPrivate(releases) ? 'https://github.com/shunyoudeng/luoxu-web/releases' : releases,
     feedbackEmail: email, icp: String(env.PUBLIC_ICP_NUMBER || '').trim(),
     policeRecord: String(env.PUBLIC_POLICE_RECORD || '').trim(),
     policeUrl: optionalHttps(env.PUBLIC_POLICE_RECORD_URL, 'PUBLIC_POLICE_RECORD_URL')

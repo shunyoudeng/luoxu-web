@@ -166,6 +166,10 @@ hover仅用于hover:hover且pointer:fine设备。触屏使用按压反馈；pref
 
 App 版本与网站版本分别管理，发布状态与验证范围对应。产品示意与真实截图、应用本地存储与模型数据传输保持明确区分。官网身份、用户数、合作信息和公开配置以实际资料为依据。隐私与安全边界见[安全规范](docs/security.md)，素材归属见[第三方声明](THIRD_PARTY_NOTICES.md)。
 
+### Android / Windows / Website 发布信息（2026-10-23）
+
+保持现有舞台DOM结构、类名、动画触发属性、WebGL及时间轴不变。Ready舞台原有三行信息更新为Android、Windows、Website；不为新增平台改造动画。下载页沿用ReleasePanel的纸色、细边、元数据dl与按钮样式，在独立Windows区展示EXE版本、系统、大小、校验和及配对条件。Android和Windows元数据分文件维护，更新日志分清产品；官网不展示私有源码仓库按钮，不收取Token。
+
 
 ## Refinement Typography
 

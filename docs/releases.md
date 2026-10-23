@@ -72,3 +72,8 @@ Android Source = PRIVATE；Website / Website Source / APK = PUBLIC。PUBLISHING_
 ## 0.8.0 发布（2026-10-14）
 
 本次按现有官网工作区原样发布，版本0.8.0 / build31。最新版性能APK沿用原签名，不重签、不重建。发布到公开官网仓库Release；当前大小46447351字节，SHA-256 3748df57bc4f4dd7533aebbcd266608a357722736157011a61bc43cbc93dd78e。下载元数据与现有更新日志同步，官网新动效和布局不作调整。Android源码继续私有。
+
+
+## Windows独立发行（2026-10-23）
+
+Windows源码在独立私有仓库维护；公开EXE位于本官网仓库Releases，标签desktop-vX.Y.Z，与Android的vX.Y.Z互不覆盖。仅允许LUOXU-Desktop-vX.Y.Z-win-x64.exe及DESKTOP-SHA256SUMS.txt；绝不上传客户端源码、配置、队列或私钥。Windows元数据在public/releases/desktop/latest.json，发布前核对版本、大小和SHA256，上传后验证匿名下载，再推送官网。网站GitHub源码归档始终只包含官网代码。

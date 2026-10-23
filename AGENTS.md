@@ -1,5 +1,9 @@
 # 珞序官网开发边界
 
+- 2026-10-23：负责人明确要求上线Windows独立仓库与三端官网信息。允许按既有DESIGN.md更新文案、Windows下载区、两端版本元数据；保持舞台结构、动画时间轴和视觉资产不变。Android/Windows源码均PRIVATE，仅官网源码与APK/EXE公开；私有仓库不作为普通用户源码入口。
+
+- 2026-10-22：新增独立Windows客户端的二进制发布白名单与私有源码保护；相邻luoxu-desktop仍为PRIVATE。Android与Windows独立版本/Release标签，官网只允许固定命名EXE/APK及校验和，不镜像任何客户端源码或配置。本轮不改官网动画或页面。
+
 - 这是独立的 luoxu-web 项目，不修改相邻珞序 Android 项目，不连接手机。
 - 本机权威上下文位于当前用户 Documents/AI_CONTEXT；遵循根目录 DESIGN.md。
 - 静态优先，无登录、数据库、遥测、追踪、API Key 输入或模型请求。

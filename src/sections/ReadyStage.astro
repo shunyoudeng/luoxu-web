@@ -2,15 +2,15 @@
 /* 07 — the closing chapter: where LUOXU runs today, and where it is going. Status is stated plainly. */
 const platforms=[
   {name:'Android',en:'AVAILABLE NOW',state:'公测中',note:'当前公测版本，可在上方直接下载。',live:true},
-  {name:'iOS',en:'IN PREPARATION',state:'筹备中',note:'为 iPhone 与 Apple 生态的通知方式重新设计。',live:false},
-  {name:'HarmonyOS',en:'IN PREPARATION',state:'筹备中',note:'面向 HarmonyOS NEXT 的原生版本。',live:false},
+  {name:'Windows',en:'DESKTOP COMPANION',state:'预览版',note:'独立桌面客户端，为手机提供已授权的QQ群消息与附件。',live:true},
+  {name:'Website',en:'ALWAYS OPEN',state:'公开访问',note:'产品介绍、安装包、更新记录与使用说明。',live:true},
 ];
 ---
 <section class="chapter ready-stage" aria-labelledby="ready-title"><div class="wrap">
   <header class="ready-head">
     <p class="eyebrow" data-layer="0">07 / READY FOR WHAT'S NEXT</p>
-    <h2 id="ready-title" class="disp" data-split><span class="soft">为 Apple 和 HarmonyOS</span><br/><span class="ready-glow">预备好。</span></h2>
-    <p class="ready-lead" data-layer="2">秩序不该只属于一种系统。珞序正在为更多设备准备同样安静、有序的体验。</p>
+    <h2 id="ready-title" class="disp" data-split><span class="soft">手机、电脑与官网，</span><br/><span class="ready-glow">各归其位。</span></h2>
+    <p class="ready-lead" data-layer="2">手机理解与整理，电脑补充信息来源，官网记录每一次更新。三个入口，连接同一份校园秩序。</p>
   </header>
   <ul class="ready-list" role="list">
     {platforms.map((p,i)=><li class:list={['ready-item',{live:p.live}]} data-layer={String(3+i)}>
@@ -20,7 +20,7 @@ const platforms=[
       <p class="ready-note">{p.note}</p>
     </li>)}
   </ul>
-  <p class="ready-foot" data-layer="6">目前仅提供 Android 版本。iOS 与 HarmonyOS 版本尚未发布，进展将记录在更新日志中。</p>
+  <p class="ready-foot" data-layer="6">Android可独立使用，Windows桌面增强按需连接。iOS与HarmonyOS版本尚未发布。</p>
 </div></section>
 <style>
 .ready-stage{padding-block:clamp(96px,14vw,200px) clamp(120px,16vw,220px)}

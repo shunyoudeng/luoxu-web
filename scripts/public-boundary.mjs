@@ -2,12 +2,12 @@ import { readFileSync } from 'node:fs';
 
 export const policy = JSON.parse(readFileSync(new URL('../PUBLISHING_POLICY.json', import.meta.url), 'utf8'));
 export function assertPolicy() {
-  for (const [key, value] of Object.entries({androidSource:'PRIVATE', website:'PUBLIC', websiteSource:'PUBLIC', apkDistribution:'PUBLIC', apkRepository:'shunyoudeng/luoxu-web'})) {
+  for (const [key, value] of Object.entries({androidSource:'PRIVATE', website:'PUBLIC', websiteSource:'PUBLIC', apkDistribution:'PUBLIC', desktopSource:'PRIVATE', desktopDistribution:'PUBLIC_BINARY_ONLY', apkRepository:'shunyoudeng/luoxu-web'})) {
     if (policy[key] !== value) throw new Error('Publishing policy changed: owner approval required (' + key + ')');
   }
 }
 export function assertPublicPath(path) {
-  if (/(^|\/)(android|backend|build|\.gradle|\.git|device-logs)(\/|$)/i.test(path) || /\.(kt|kts|java|jks|keystore|pem|key|p12|pfx|enc|dpapi|db|sqlite\w*|zip|tar|gz)$/i.test(path) || /(^|\/)\.env(?!\.example$)/i.test(path)) {
+  if (/(^|\/)(android|backend|luoxu-desktop|luoxu_desktop|luoxu_bridge|build|\.gradle|\.git|device-logs)(\/|$)/i.test(path) || /\.(kt|kts|java|jks|keystore|pem|key|p12|pfx|enc|dpapi|db|sqlite\w*|zip|tar|gz)$/i.test(path) || /(^|\/)\.env(?!\.example$)/i.test(path)) {
     throw new Error('Private development artifact cannot enter website: ' + path);
   }
 }
@@ -23,5 +23,13 @@ export function assertDownload(url) {
   }
 }
 export function assertReleaseAsset(name) {
-  if (!/^LUOXU-v[0-9]+\.[0-9]+\.[0-9]+(?:-performance)?\.apk$/.test(name) && name !== 'SHA256SUMS.txt') throw new Error('Public release asset outside APK/checksum allowlist');
+  if (!/^LUOXU-v[0-9]+\.[0-9]+\.[0-9]+(?:-performance)?\.apk$/.test(name) && !/^LUOXU-Desktop-v[0-9]+\.[0-9]+\.[0-9]+-win-x64\.exe$/.test(name) && !['SHA256SUMS.txt','DESKTOP-SHA256SUMS.txt'].includes(name)) throw new Error('Public release asset outside binary/checksum allowlist');
+}
+
+export function assertDesktopDownload(url) {
+  const target = new URL(url);
+  if (target.username || target.password || target.origin !== 'https://github.com' ||
+      !/^\/shunyoudeng\/luoxu-web\/releases\/download\/desktop-v\d+\.\d+\.\d+\/LUOXU-Desktop-v\d+\.\d+\.\d+-win-x64\.exe$/.test(target.pathname)) {
+    throw new Error('Windows binary must use the public website release repository');
+  }
 }
